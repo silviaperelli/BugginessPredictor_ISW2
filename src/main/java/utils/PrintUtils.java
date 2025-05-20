@@ -172,7 +172,7 @@ public class PrintUtils {
                     firstCommit = m.getCommits().get(0).toString();
                 }
 
-                fileWriter.append(m.getName()).append(",")
+                fileWriter.append(m.getFullyQualifiedName()).append(",")
                         .append(m.getMethodName()).append(",")
                         .append(m.getClassName()).append(",")
                         .append(firstCommit).append(",")

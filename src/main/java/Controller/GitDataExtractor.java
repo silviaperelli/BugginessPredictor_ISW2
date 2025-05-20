@@ -14,19 +14,19 @@ import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import utils.GitUtlis;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 public class GitDataExtractor {
     private List<Ticket> ticketList;
-    private List<Release> releaseList; //only 34% most recent releases
+    private List<Release> releaseList; //first 34% of releases
     private List<Release> fullReleaseList;
     private List<RevCommit> commitList;
     private Git git;
@@ -93,7 +93,7 @@ public class GitDataExtractor {
             return;
         }
 
-        //take 34% most recent releases and ignore 66%
+        //ignore last 66% of releases
         int releasesToConsider = (int) Math.ceil(this.fullReleaseList.size() * 0.34);
         if (releasesToConsider == 0 && !this.fullReleaseList.isEmpty()) {
             releasesToConsider = 1;
@@ -109,6 +109,11 @@ public class GitDataExtractor {
 
     public List<RevCommit> getAllCommitsAndAssignToReleases() throws GitAPIException, IOException {
 
+        if (this.ticketList == null) {
+            System.err.println("Ticket list non inizializzata.");
+            return null;
+        }
+
         if (!commitList.isEmpty()) {
             return commitList;
         }
@@ -123,6 +128,7 @@ public class GitDataExtractor {
             LocalDate commitDate = LocalDate.parse(formatter.format(commit.getCommitterIdent().getWhen()));
             LocalDate lowerBoundDate = LocalDate.parse(formatter.format(new Date(0)));
 
+            //assign commits to release
             for (Release release : this.fullReleaseList) {
                 LocalDate releaseDate = release.getDate();
                 //add the commit to a release only if the commit date is before the release date and after the previous release.
@@ -206,13 +212,14 @@ public class GitDataExtractor {
                                 String fqn = filePath + "/" + methodSignature;
 
                                 if (!processedMethodsForRelease.contains(fqn)) {
-                                    JavaMethod javaMethod = new JavaMethod(fqn, methodNameOnly, filePath, release, md.toString(), md);
+                                    JavaMethod javaMethod = new JavaMethod(fqn, methodNameOnly, filePath, release);
                                     // Calcola LOC statico qui
                                     javaMethod.setLoc(calculateLOC(md));
                                     javaMethod.setNumParameters(md.getParameters().size());
 
                                     allMethods.add(javaMethod);
                                     release.addMethod(javaMethod); // Associa il metodo alla sua release
+                                    javaMethod.setBodyHash(calculateBodyHash(md));
                                     processedMethodsForRelease.add(fqn);
                                 }
                             });
@@ -226,6 +233,43 @@ public class GitDataExtractor {
         // Associazione commit ai metodi (storico)
         addCommitsToMethods(allMethods, this.commitList);
         return allMethods;
+    }
+
+    private String calculateBodyHash(MethodDeclaration md) {
+        if (md == null) return null;
+        String normalizedBody = normalizeMethodBody(md);
+        if (normalizedBody.isEmpty()) return "EMPTY_BODY_HASH"; // O un altro placeholder
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(normalizedBody.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(encodedhash);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 Hashing error", e);
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    private String normalizeMethodBody(MethodDeclaration md) {
+        if (md == null || !md.getBody().isPresent()) {
+            return "";
+        }
+        // Rimuovi commenti, spazi bianchi eccessivi, ecc.
+        // Questo è un esempio MOLTO SEMPLICE. Una normalizzazione robusta è complessa.
+        String body = md.getBody().get().toString();
+        body = body.replaceAll("//.*|/\\*(?s:.*?)\\*/", ""); // Rimuovi commenti
+        body = body.replaceAll("\\s+", " "); // Sostituisci spazi multipli con uno singolo
+        return body.trim();
     }
 
     private int calculateLOC(MethodDeclaration md) {
@@ -252,8 +296,18 @@ public class GitDataExtractor {
             Map<String, String> newFileContents = getFileContents(commit, diffs, false);
 
             for (DiffEntry diff : diffs) {
-                String filePath = diff.getChangeType() == DiffEntry.ChangeType.DELETE ? diff.getOldPath() : diff.getNewPath();
-                if (!filePath.endsWith(".java") || filePath.contains("/test/")) continue;
+                String filePath;
+                boolean isDelete = diff.getChangeType() == DiffEntry.ChangeType.DELETE;
+
+                if (isDelete) {
+                    filePath = diff.getOldPath();
+                } else {
+                    filePath = diff.getNewPath();
+                }
+
+                if (!filePath.endsWith(".java") || filePath.contains("/test/")) {
+                    continue;
+                }
 
                 String oldContent = oldFileContents.getOrDefault(diff.getOldPath(), "");
                 String newContent = newFileContents.getOrDefault(diff.getNewPath(), "");
@@ -265,19 +319,16 @@ public class GitDataExtractor {
                 for (Map.Entry<String, MethodDeclaration> newMethodEntry : newMethods.entrySet()) {
                     String signature = newMethodEntry.getKey();
                     MethodDeclaration newMd = newMethodEntry.getValue();
-                    MethodDeclaration oldMd = oldMethods.get(signature);
+                    MethodDeclaration oldMd = oldMethods.get(signature); //might be null if methods is new
 
-                    boolean changed = oldMd == null || !methodBodiesEqual(oldMd, newMd);
+                    String newBodyHash = calculateBodyHash(newMd);
+                    String oldBodyHash = (oldMd != null) ? calculateBodyHash(oldMd) : null;
+
+
+                    boolean changed = (oldMd == null) || (oldBodyHash != null && !oldBodyHash.equals(newBodyHash));
+
                     if (changed) {
-                        updateMethodMetricsForCommit(allMethods, filePath, newMd, commit, oldMd, newMd);
-                    }
-                }
-
-                // Metodi rimossi (non direttamente tracciati come oggetti JavaMethod in versioni future, ma importante per lo storico)
-                for (Map.Entry<String, MethodDeclaration> oldMethodEntry : oldMethods.entrySet()) {
-                    if (!newMethods.containsKey(oldMethodEntry.getKey())) {
-                        // Il metodo è stato rimosso. Potremmo volerlo registrare se necessario.
-                        // Per ora, ci concentriamo sui metodi esistenti nelle release analizzate.
+                        updateMethodMetricsForCommit(allMethods, filePath, newMd, commit, oldMd, newMd, newBodyHash);
                     }
                 }
             }
@@ -285,10 +336,15 @@ public class GitDataExtractor {
 
         // Calcola NAuth
         for (JavaMethod method : allMethods) {
-            Set<String> authors = method.getCommits().stream()
-                    .map(c -> c.getAuthorIdent().getName())
-                    .collect(Collectors.toSet());
-            method.setNumAuthors(authors.size());
+            if (method.getCommits() != null && !method.getCommits().isEmpty()) { // Assicura che la lista non sia null o vuota
+                Set<String> authors = method.getCommits().stream()
+                        .map(c -> c.getAuthorIdent().getName()) // Assumendo che AuthorIdent e Name non siano null
+                        .filter(Objects::nonNull) // Filtra nomi null se possibile
+                        .collect(Collectors.toSet());
+                method.setNumAuthors(authors.size());
+            } else {
+                method.setNumAuthors(0); // Nessun commit, nessun autore
+            }
         }
     }
 
@@ -339,19 +395,20 @@ public class GitDataExtractor {
         return methods;
     }
 
-    private void updateMethodMetricsForCommit(List<JavaMethod> allProjectMethods, String filePath, MethodDeclaration currentMdAst, RevCommit commit,  MethodDeclaration oldMdAst, MethodDeclaration newMdAst) {
+    private void updateMethodMetricsForCommit(List<JavaMethod> allProjectMethods, String filePath, MethodDeclaration currentMdAst, RevCommit commit,  MethodDeclaration oldMdAst, MethodDeclaration newMdAst, String newBodyHash) {
         String signature = JavaMethod.getSignature(currentMdAst);
         String fqn = filePath + "/" + signature;
         Release releaseOfCommit = GitUtlis.getReleaseOfCommit(commit, this.fullReleaseList); // Usa full per trovare la release corretta del commit
 
         if (releaseOfCommit == null) return; // Commit non appartiene a nessuna release tracciata
 
-        // Trova le istanze del metodo nelle release ANALIZZATE che sono UGUALI o SUCCESSIVE alla release del commit
+        // Trova le istanze del metodo nelle release ANALIZZATE che sono UGUALI alla release del commit
         for (JavaMethod projectMethod : allProjectMethods) {
-            if (projectMethod.getName().equals(fqn) && projectMethod.getRelease().getId() >= releaseOfCommit.getId()) { // Il metodo in questa release o future è affetto
+            if (projectMethod.getFullyQualifiedName().equals(fqn) && projectMethod.getRelease().getId() == releaseOfCommit.getId()) { // Il metodo in questa release o future è affetto
 
                 projectMethod.addCommit(commit); // Aggiunge il commit allo storico del metodo
                 projectMethod.incrementNumRevisions();
+                projectMethod.setBodyHash(newBodyHash);
 
                 // Calcola StmtAdded/Deleted per QUESTO commit specifico
                 if (oldMdAst != null && newMdAst != null) { // Modifica
@@ -363,6 +420,7 @@ public class GitDataExtractor {
                     projectMethod.addStmtAdded(calculateLOC(newMdAst));
                 }
                 // La rimozione è più complessa da gestire qui perché l'oggetto JavaMethod potrebbe non esistere più
+                break;
             }
         }
     }
@@ -416,7 +474,13 @@ public class GitDataExtractor {
                             MethodDeclaration fixedMd = fixedMethodEntry.getValue();
                             MethodDeclaration preFixMd = oldMethodsInFix.get(signature);
 
-                            boolean actuallyChangedByFix = preFixMd == null || !methodBodiesEqual(preFixMd, fixedMd);
+                            String hashFixed = calculateBodyHash(fixedMd);
+                            String hashPreFix = calculateBodyHash(preFixMd);
+
+                            boolean actuallyChangedByFix = (preFixMd == null && fixedMd != null) ||
+                                    (hashPreFix != null && hashFixed != null && !hashPreFix.equals(hashFixed)) ||
+                                    (hashPreFix == null && hashFixed != null && preFixMd != null) ||
+                                    (hashPreFix != null && hashFixed == null && fixedMd != null);
 
                             if (actuallyChangedByFix) {
                                 String fqn = filePath + "/" + signature;
@@ -433,7 +497,7 @@ public class GitDataExtractor {
 
     private void labelBuggyMethods(String fixedMethodFQN, Release injectedVersion, Release fixedVersion, RevCommit fixCommit, List<JavaMethod> allProjectMethods) {
         for (JavaMethod projectMethod : allProjectMethods) {
-            if (projectMethod.getName().equals(fixedMethodFQN)) {
+            if (projectMethod.getFullyQualifiedName().equals(fixedMethodFQN)) {
                 // Aggiungi il commit di fix se il metodo appartiene alla FV e il commit lo ha toccato
                 if (projectMethod.getRelease().getId() == fixedVersion.getId() && projectMethod.getCommits().contains(fixCommit) ) { // Assumiamo che getCommits contenga tutti i commit che hanno toccato il metodo in quella release
                     projectMethod.addFixCommit(fixCommit);

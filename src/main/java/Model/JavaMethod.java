@@ -8,50 +8,51 @@ import java.util.Objects;
 
 public class JavaMethod {
 
-    private String name;
+    private String fullyQualifiedName; // Es: com/example/MyClass.java/myMethod(int,String)
     private String methodName;
     private String className;
     private Release release;
+
+    private String bodyHash;
+
     private String content;
-    private List<RevCommit> commits; //list of commits that modified the content
-    private List<RevCommit> fixCommits;
-    private MethodDeclaration declaration;
+    private List<RevCommit> commits; //list of commits that modified the content of the method
+    private List<RevCommit> fixCommits; //list of commits that fixed the method
+
+    //prevision metric
+    private boolean buggy;
+
+    //metrics
+    private Integer loc;
     private int numParameters;
     private int numAuthors;
     private int numRevisions; // methodHistories
     private int totalStmtAdded;
     private int totalStmtDeleted;
 
-    //prevision metric
-    private boolean buggy;
 
-    //METRICS
-    private Integer loc;
-
-    public JavaMethod(String name, String methodName, String className, Release release, String content, MethodDeclaration declaration) {
-        this.name = name;
+    public JavaMethod(String fullyQualifiedName, String methodName, String className, Release release) {
+        this.fullyQualifiedName = fullyQualifiedName;
         this.methodName = methodName;
         this.className = className;
         this.release = release;
-        this.content = content;
-        this.declaration = declaration;
         this.commits = new ArrayList<>();
         this.fixCommits = new ArrayList<>();
         this.buggy = false;
+
         this.loc = 0;
-        this.numParameters = declaration != null ? declaration.getParameters().size() : 0;
-        this.numAuthors = 0;
         this.numRevisions = 0;
+        this.numAuthors = 0;
         this.totalStmtAdded = 0;
         this.totalStmtDeleted = 0;
     }
 
-    public String getName() {
-        return name;
+    public String getFullyQualifiedName() {
+        return fullyQualifiedName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFullyQualifiedName(String fullyQualifiedName) {
+        this.fullyQualifiedName = fullyQualifiedName;
     }
 
     public Release getRelease() {
@@ -86,17 +87,20 @@ public class JavaMethod {
         this.loc = loc;
     }
 
+    public List<RevCommit> getCommits() {
+        return commits;
+    }
+
     public void addCommit(RevCommit commit) {
         commits.add(commit);
     }
 
-    public void addFixCommit(RevCommit commit) {
-        fixCommits.add(commit);
+    public List<RevCommit> getFixCommits() {
+        return fixCommits;
     }
 
-    // Per identificare univocamente un metodo (nome + parametri) all'interno di una classe
-    public static String getSignature(MethodDeclaration md) {
-        return md.getSignature().asString();
+    public void addFixCommit(RevCommit commit) {
+        fixCommits.add(commit);
     }
 
     public int getNumParameters() {
@@ -105,10 +109,6 @@ public class JavaMethod {
 
     public void setNumParameters(int numParameters) {
         this.numParameters = numParameters;
-    }
-
-    public List<RevCommit> getCommits() {
-        return commits;
     }
 
     public int getNumAuthors() {
@@ -127,9 +127,6 @@ public class JavaMethod {
         this.numRevisions = numRevisions;
     }
 
-    public void addStmtAdded(int count) { this.totalStmtAdded += count; }
-    public void addStmtDeleted(int count) { this.totalStmtDeleted += count; }
-
     public int getTotalStmtAdded() {
         return totalStmtAdded;
     }
@@ -146,36 +143,60 @@ public class JavaMethod {
         this.totalStmtDeleted = totalStmtDeleted;
     }
 
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    // Per identificare univocamente un metodo (nome + parametri) all'interno di una classe
+    public static String getSignature(MethodDeclaration md) {
+        return md.getSignature().asString();
+    }
+
+    public void addStmtAdded(int count) { this.totalStmtAdded += count; }
+    public void addStmtDeleted(int count) { this.totalStmtDeleted += count; }
+
     public void incrementNumRevisions() { this.numRevisions++; }
+
+    public String getBodyHash() {
+        return bodyHash;
+    }
+
+    public void setBodyHash(String bodyHash) {
+        this.bodyHash = bodyHash;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JavaMethod that = (JavaMethod) o;
-        return Objects.equals(name, that.name) &&
+        return Objects.equals(fullyQualifiedName, that.fullyQualifiedName) &&
                 Objects.equals(release.getId(), that.release.getId()); // Un metodo è unico per nome E release
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, release.getId());
+        return Objects.hash(fullyQualifiedName, release.getId());
     }
 
     @Override
     public String toString() {
         return "JavaMethod{" +
-                "FQN='" + name + '\'' +
+                "FQN='" + fullyQualifiedName + '\'' +
                 ", release=" + release.getId() +
                 ", buggy=" + buggy +
                 '}';
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public String getClassName() {
-        return className;
     }
 }
