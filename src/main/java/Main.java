@@ -56,5 +56,11 @@ public class Main {
         PrintUtils.printMethods(project1, methodList, "AllMethods.csv");
 
         gitExtractor.setMethodBuggyness(methodList);
+
+        PrintUtils.printMethodsDataset(project1, methodList);
+        print = project1+": Dataset CSV created";
+        System.out.println(print);
+
+        System.out.println("Processing for " + project1 + " completed.");
     }
 }

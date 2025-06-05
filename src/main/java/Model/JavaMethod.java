@@ -9,12 +9,8 @@ import java.util.Objects;
 public class JavaMethod {
 
     private String fullyQualifiedName; // Es: com/example/MyClass.java/myMethod(int,String)
-    private String methodName;
-    private String className;
     private Release release;
-
     private String bodyHash;
-
     private String content;
     private List<RevCommit> commits; //list of commits that modified the content of the method
     private List<RevCommit> fixCommits; //list of commits that fixed the method
@@ -27,14 +23,16 @@ public class JavaMethod {
     private int numParameters;
     private int numAuthors;
     private int numRevisions; // methodHistories
-    private int totalStmtAdded;
-    private int totalStmtDeleted;
+    private int totalStmtAdded; // stmtAdded
+    private int totalStmtDeleted; //stmtDeleted
 
+    private int numBranches;
+    private int numCodeSmells;
+    private int maxChurn;   // maxChurn (stmtAddedInOneCommit + stmtDeletedInOneCommit)
+    private double avgChurn;  // avgChurn = (totalStmtAdded + totalStmtDeleted) / numRevisions
 
-    public JavaMethod(String fullyQualifiedName, String methodName, String className, Release release) {
+    public JavaMethod(String fullyQualifiedName, Release release) {
         this.fullyQualifiedName = fullyQualifiedName;
-        this.methodName = methodName;
-        this.className = className;
         this.release = release;
         this.commits = new ArrayList<>();
         this.fixCommits = new ArrayList<>();
@@ -45,6 +43,11 @@ public class JavaMethod {
         this.numAuthors = 0;
         this.totalStmtAdded = 0;
         this.totalStmtDeleted = 0;
+
+        this.numBranches = 0;
+        this.numCodeSmells = 0;
+        this.maxChurn = 0;
+        this.avgChurn = 0.0;
     }
 
     public String getFullyQualifiedName() {
@@ -143,20 +146,36 @@ public class JavaMethod {
         this.totalStmtDeleted = totalStmtDeleted;
     }
 
-    public String getMethodName() {
-        return methodName;
+    public int getNumBranches() {
+        return numBranches;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
+    public void setNumBranches(int numBranches) {
+        this.numBranches = numBranches;
     }
 
-    public String getClassName() {
-        return className;
+    public int getNumCodeSmells() {
+        return numCodeSmells;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    public void setNumCodeSmells(int numCodeSmells) {
+        this.numCodeSmells = numCodeSmells;
+    }
+
+    public int getMaxChurn() {
+        return maxChurn;
+    }
+
+    public void setMaxChurn(int maxChurn) {
+        this.maxChurn = maxChurn;
+    }
+
+    public double getAvgChurn() {
+        return avgChurn;
+    }
+
+    public void setAvgChurn(double avgChurn) {
+        this.avgChurn = avgChurn;
     }
 
     // Per identificare univocamente un metodo (nome + parametri) all'interno di una classe

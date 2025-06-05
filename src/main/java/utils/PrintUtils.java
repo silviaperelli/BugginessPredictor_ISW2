@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.logging.Logger;
 
 public class PrintUtils {
@@ -20,11 +21,13 @@ public class PrintUtils {
     private PrintUtils(){}
 
     public static final String DELIMITER = "\n";
+    public static final String SEPARATOR = ",";
     public static final String CLASS = PrintUtils.class.getName();
     private static final Logger logger = Logger.getLogger(CLASS);
     private static final String MAINDIR = "reportFiles/";
     public static final String SLASH = "/";
     public static final String ERROR = "Error in writeOnReportFiles when trying to create directory";
+    private static final String CSV_FILES_DIR = "csvFiles/"; // Nuova cartella base per i CSV
 
     public static void printCommits(String project, List<RevCommit> commitList, String name) throws IOException {
         project = project.toLowerCase();
@@ -162,7 +165,7 @@ public class PrintUtils {
         file = new File(MAINDIR + project + SLASH + name);
         try (FileWriter fileWriter = new FileWriter(file)) {
 
-            fileWriter.append("fullyQualifiedName, methodName, className,firstCommit,#Commits\n");
+            fileWriter.append("fullyQualifiedName,firstCommit,#Commits\n");
 
             for (JavaMethod m : methods) {
                 String firstCommit;
@@ -172,10 +175,8 @@ public class PrintUtils {
                     firstCommit = m.getCommits().get(0).toString();
                 }
 
-                fileWriter.append(m.getFullyQualifiedName()).append(",")
-                        .append(m.getMethodName()).append(",")
-                        .append(m.getClassName()).append(",")
-                        .append(firstCommit).append(",")
+                fileWriter.append(escapeCSV(m.getFullyQualifiedName())).append(",")
+                        .append(escapeCSV(firstCommit)).append(",")
                         .append(String.valueOf(m.getCommits().size()))
                         .append(DELIMITER);
             }
@@ -184,6 +185,74 @@ public class PrintUtils {
         } catch (IOException e) {
             logger.info(ERROR);
         }
+    }
+
+    public static void printMethodsDataset(String projectName, List<JavaMethod> methods) throws IOException {
+        String projectDirName = projectName.toLowerCase();
+        File projectCsvDir = new File(CSV_FILES_DIR + projectDirName);
+
+        if (!projectCsvDir.exists()) {
+            boolean created = projectCsvDir.mkdirs();
+            if (!created) {
+                logger.severe("ERROR: Could not create directory " + projectCsvDir.getAbsolutePath());
+                throw new IOException("Could not create directory: " + projectCsvDir.getAbsolutePath());
+            }
+        }
+
+        File datasetFile = new File(projectCsvDir.getAbsolutePath() + SLASH + "Dataset.CSV");
+
+        try (FileWriter fileWriter = new FileWriter(datasetFile)) {
+            // Scrivi l'intestazione del CSV
+            fileWriter.append("MethodFullyQualifiedName").append(SEPARATOR)
+                    .append("ReleaseID").append(SEPARATOR)
+                    .append("LOC").append(SEPARATOR)
+                    .append("NumParameters").append(SEPARATOR)
+                    .append("NumAuthors").append(SEPARATOR)
+                    .append("NumRevisions").append(SEPARATOR)
+                    .append("TotalStmtAdded").append(SEPARATOR)
+                    .append("TotalStmtDeleted").append(SEPARATOR)
+                    .append("NumBranches").append(SEPARATOR)
+                    .append("NumCodeSmells").append(SEPARATOR) // Assicurati che questa sia calcolata e settata
+                    .append("MaxChurn").append(SEPARATOR)
+                    .append("AvgChurn").append(SEPARATOR)
+                    .append("IsBuggy") // Ultima colonna, target
+                    .append(DELIMITER);
+
+            // Scrivi i dati per ogni metodo
+            for (JavaMethod method : methods) {
+                // Assicurati che la release non sia null e abbia un ID
+                String releaseIdStr = (method.getRelease() != null) ? String.valueOf(method.getRelease().getId()) : "N/A";
+
+                fileWriter.append(escapeCSV(method.getFullyQualifiedName())).append(SEPARATOR)
+                        .append(releaseIdStr).append(SEPARATOR)
+                        .append(String.valueOf(method.getLoc() != null ? method.getLoc() : 0)).append(SEPARATOR) // Gestisci LOC null
+                        .append(String.valueOf(method.getNumParameters())).append(SEPARATOR)
+                        .append(String.valueOf(method.getNumAuthors())).append(SEPARATOR)
+                        .append(String.valueOf(method.getNumRevisions())).append(SEPARATOR)
+                        .append(String.valueOf(method.getTotalStmtAdded())).append(SEPARATOR)
+                        .append(String.valueOf(method.getTotalStmtDeleted())).append(SEPARATOR)
+                        .append(String.valueOf(method.getNumBranches())).append(SEPARATOR)
+                        .append(String.valueOf(method.getNumCodeSmells())).append(SEPARATOR) // Assicurati che sia settata
+                        .append(String.valueOf(method.getMaxChurn())).append(SEPARATOR)
+                        .append(String.format(Locale.US, "%.2f", method.getAvgChurn())).append(SEPARATOR) // Formatta double
+                        .append(method.isBuggy() ? "yes" : "no")
+                        .append(DELIMITER);
+            }
+
+            flushAndCloseFW(fileWriter, logger, CLASS);
+
+        } catch (IOException e) {
+            logger.severe("Error writing dataset CSV: " + e.getMessage());
+            throw e; // Rilancia l'eccezione se vuoi che il main la gestisca
+        }
+    }
+
+    private static String escapeCSV(String field) {
+        if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+            field = field.replace("\"", "\"\"");
+            return "\"" + field + "\"";
+        }
+        return field;
     }
 
 }

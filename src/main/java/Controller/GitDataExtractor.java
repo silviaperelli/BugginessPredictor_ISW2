@@ -9,6 +9,8 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.expr.ConditionalExpr;
+import com.github.javaparser.ast.stmt.*;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -87,7 +89,7 @@ public class GitDataExtractor {
         this.ticketList = ticketList;
     }
 
-    //method to take only 34% most recent releases
+    //method to ignore the last 66% of releases
     public void setReleaseListForAnalysis() {
         if (this.fullReleaseList == null || this.fullReleaseList.isEmpty()) {
             return;
@@ -207,15 +209,16 @@ public class GitDataExtractor {
                         try {
                             CompilationUnit cu = StaticJavaParser.parse(fileContent);
                             cu.findAll(MethodDeclaration.class).forEach(md -> {
-                                String methodNameOnly = md.getNameAsString();
                                 String methodSignature = JavaMethod.getSignature(md);
                                 String fqn = filePath + "/" + methodSignature;
 
                                 if (!processedMethodsForRelease.contains(fqn)) {
-                                    JavaMethod javaMethod = new JavaMethod(fqn, methodNameOnly, filePath, release);
+                                    JavaMethod javaMethod = new JavaMethod(fqn, release);
                                     // Calcola LOC statico qui
                                     javaMethod.setLoc(calculateLOC(md));
                                     javaMethod.setNumParameters(md.getParameters().size());
+
+                                    javaMethod.setNumBranches(calculateNumBranches(md));
 
                                     allMethods.add(javaMethod);
                                     release.addMethod(javaMethod); // Associa il metodo alla sua release
@@ -272,14 +275,52 @@ public class GitDataExtractor {
         return body.trim();
     }
 
+
     private int calculateLOC(MethodDeclaration md) {
         if (md.getBody().isPresent()) {
-            // Conta linee non vuote e non solo commenti. Semplificazione: conta le linee del blocco.
             String[] lines = md.getBody().get().toString().split("\r\n|\r|\n");
-            return (int) Arrays.stream(lines).filter(line -> !line.trim().isEmpty() && !line.trim().startsWith("//") && !line.trim().startsWith("/*") && !line.trim().endsWith("*/")).count();
+            boolean inMultiLineComment = false;
+            int locCount = 0;
+
+            for (String line : lines) {
+                String trimmedLine = line.trim();
+
+                if (trimmedLine.startsWith("/*")) {
+                    inMultiLineComment = true;
+                    // Se il commento finisce sulla stessa riga:
+                    if (trimmedLine.endsWith("*/") && trimmedLine.length() > 2) { // >2 per evitare "/*/"
+                        inMultiLineComment = false;
+                        // Se c'è codice prima del commento /* ... */ sulla stessa riga,
+                        // questa logica non lo conta. È una semplificazione.
+                        // Per contarlo, dovresti splittare la riga o usare regex più complesse.
+                    }
+                    // In ogni caso, la riga che inizia con /* non conta come LOC
+                    continue;
+                }
+
+                if (trimmedLine.endsWith("*/")) {
+                    inMultiLineComment = false;
+                    // La riga che finisce con */ non conta come LOC
+                    continue;
+                }
+
+                if (inMultiLineComment) {
+                    // Se siamo dentro un commento multiriga, la riga non conta
+                    continue;
+                }
+
+                // Ora applica i filtri rimanenti su righe non di commento
+                if (!trimmedLine.isEmpty() &&
+                        !trimmedLine.startsWith("//") &&
+                        !(trimmedLine.equals("{") || trimmedLine.equals("}"))) {
+                    locCount++;
+                }
+            }
+            return locCount;
         }
         return 0;
     }
+
 
     public void addCommitsToMethods(List<JavaMethod> allMethods, List<RevCommit> allCommits) throws IOException, GitAPIException {
         // Ordina i commit per processarli cronologicamente
@@ -345,7 +386,17 @@ public class GitDataExtractor {
             } else {
                 method.setNumAuthors(0); // Nessun commit, nessun autore
             }
+
+            if (method.getNumRevisions() > 0) {
+                double avgChurn = (double) (method.getTotalStmtAdded() + method.getTotalStmtDeleted()) / method.getNumRevisions();
+                method.setAvgChurn(avgChurn);
+            } else {
+                method.setAvgChurn(0.0);
+            }
         }
+
+
+
     }
 
     private List<DiffEntry> getDiffEntries(RevCommit parent, RevCommit commit) throws IOException {
@@ -390,7 +441,7 @@ public class GitDataExtractor {
             });
         } catch (ParseProblemException | StackOverflowError e) {
             // Ignora errori di parsing per file singoli durante il diff, ma logga
-            // System.err.println("Errore di parsing durante il diff: " + e.getMessage());
+            //System.err.println("Errore di parsing durante il diff: " + e.getMessage());
         }
         return methods;
     }
@@ -410,16 +461,30 @@ public class GitDataExtractor {
                 projectMethod.incrementNumRevisions();
                 projectMethod.setBodyHash(newBodyHash);
 
+                int currentCommitStmtAdded = 0;
+                int currentCommitStmtDeleted = 0;
+
                 // Calcola StmtAdded/Deleted per QUESTO commit specifico
                 if (oldMdAst != null && newMdAst != null) { // Modifica
                     int locOld = calculateLOC(oldMdAst);
                     int locNew = calculateLOC(newMdAst);
-                    if (locNew > locOld) projectMethod.addStmtAdded(locNew - locOld);
-                    if (locOld > locNew) projectMethod.addStmtDeleted(locOld - locNew);
+                    if (locNew > locOld) {
+                        currentCommitStmtAdded = locNew - locOld;
+                        projectMethod.addStmtAdded(currentCommitStmtAdded);
+                    }
+                    if (locOld > locNew) {
+                        currentCommitStmtDeleted = locOld - locNew;
+                        projectMethod.addStmtDeleted(currentCommitStmtDeleted);
+                    }
                 } else if (newMdAst != null) { // Aggiunta
+                    currentCommitStmtAdded = calculateLOC(newMdAst);
                     projectMethod.addStmtAdded(calculateLOC(newMdAst));
                 }
                 // La rimozione è più complessa da gestire qui perché l'oggetto JavaMethod potrebbe non esistere più
+                int currentCommitChurn = currentCommitStmtAdded + currentCommitStmtDeleted;
+                if (currentCommitChurn > projectMethod.getMaxChurn()) {
+                    projectMethod.setMaxChurn(currentCommitChurn);
+                }
                 break;
             }
         }
@@ -509,4 +574,32 @@ public class GitDataExtractor {
             }
         }
     }
+
+    private int calculateNumBranches(MethodDeclaration md) {
+        if (md == null || !md.getBody().isPresent()) {
+            return 0;
+        }
+        int branches = 0;
+        // Conditionals (if, ?: operator)
+        branches += md.findAll(IfStmt.class).size();
+        branches += md.findAll(ConditionalExpr.class).size();
+
+        // Loops (for, foreach, while, do-while)
+        branches += md.findAll(ForStmt.class).size();
+        branches += md.findAll(ForEachStmt.class).size();
+        branches += md.findAll(WhileStmt.class).size();
+        branches += md.findAll(DoStmt.class).size();
+
+        // Switch cases
+        for (SwitchStmt switchStmt : md.findAll(SwitchStmt.class)) {
+            // Ogni SwitchEntry (case X: o default:) è un ramo potenziale.
+            branches += switchStmt.getEntries().size();
+        }
+
+        // Exception handling (try-catch blocks)
+        branches += md.findAll(CatchClause.class).size();
+
+        return branches;
+    }
+
 }
