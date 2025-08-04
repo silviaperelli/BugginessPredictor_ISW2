@@ -9,6 +9,7 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.stmt.*;
 import org.eclipse.jgit.api.Git;
@@ -25,6 +26,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import utils.GitUtlis;
+import utils.NestingDepthVisitor;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -45,6 +47,7 @@ public class GitDataExtractor {
     private Repository repository;
     //java parser to take method into Java Classes
     private JavaParser javaParser;
+    private NestingDepthVisitor nestingVisitor;
 
     public GitDataExtractor(String projName,  List<Release> allReleases, List<Ticket> ticketList) throws IOException {
 
@@ -71,6 +74,7 @@ public class GitDataExtractor {
         this.releaseList = new ArrayList<>();
         this.ticketList = ticketList;
         this.commitList = new ArrayList<>();
+        this.nestingVisitor = new NestingDepthVisitor();
     }
 
     public List<Ticket> getTicketList() {
@@ -140,6 +144,8 @@ public class GitDataExtractor {
                 lowerBoundDate = releaseDate;
             }
         }
+
+        filterAndRenumberReleases();
 
         setReleaseListForAnalysis();
 
@@ -217,8 +223,9 @@ public class GitDataExtractor {
                                     // Calcola LOC statico qui
                                     javaMethod.setLoc(calculateLOC(md));
                                     javaMethod.setNumParameters(md.getParameters().size());
-
                                     javaMethod.setNumBranches(calculateNumBranches(md));
+                                    javaMethod.setNestingDepth(calculateNestingDepth(md));
+                                    javaMethod.setNumLocalVariables(calculateNumLocalVariables(md));
 
                                     allMethods.add(javaMethod);
                                     release.addMethod(javaMethod); // Associa il metodo alla sua release
@@ -236,6 +243,25 @@ public class GitDataExtractor {
         // Associazione commit ai metodi (storico)
         addCommitsToMethods(allMethods, this.commitList);
         return allMethods;
+    }
+
+    private int calculateNestingDepth(MethodDeclaration md) {
+        if (md == null || !md.getBody().isPresent()) {
+            return 0;
+        }
+        // Usa il campo della classe, resettandolo prima di ogni uso
+        this.nestingVisitor.reset();
+        md.getBody().get().accept(this.nestingVisitor, null);
+        return this.nestingVisitor.getMaxDepth();
+    }
+
+    private int calculateNumLocalVariables(MethodDeclaration md) {
+        if (md == null || !md.getBody().isPresent()) {
+            return 0;
+        }
+        // findAll(VariableDeclarator.class) trova tutte le dichiarazioni di variabili.
+        // Esempi: "int x", "int y=0, z", "String s"
+        return md.getBody().get().findAll(VariableDeclarator.class).size();
     }
 
     private String calculateBodyHash(MethodDeclaration md) {
@@ -573,6 +599,17 @@ public class GitDataExtractor {
                 }
             }
         }
+    }
+
+    private void filterAndRenumberReleases() {
+        // Remove releases with 0 commit
+        this.fullReleaseList.removeIf(release -> release.getCommitList().isEmpty());
+
+        int idCounter = 1;
+        for (Release r : this.fullReleaseList) {
+            r.setId(idCounter++);
+        }
+
     }
 
     private int calculateNumBranches(MethodDeclaration md) {

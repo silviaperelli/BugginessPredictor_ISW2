@@ -1,5 +1,6 @@
 package utils;
 
+import Model.ClassifierEvaluation;
 import Model.JavaMethod;
 import Model.Release;
 import Model.Ticket;
@@ -212,6 +213,8 @@ public class PrintUtils {
                     .append("TotalStmtAdded").append(SEPARATOR)
                     .append("TotalStmtDeleted").append(SEPARATOR)
                     .append("NumBranches").append(SEPARATOR)
+                    .append("NestingDepth").append(SEPARATOR)
+                    .append("NumLocalVariables").append(SEPARATOR)
                     .append("NumCodeSmells").append(SEPARATOR) // Assicurati che questa sia calcolata e settata
                     .append("MaxChurn").append(SEPARATOR)
                     .append("AvgChurn").append(SEPARATOR)
@@ -232,6 +235,8 @@ public class PrintUtils {
                         .append(String.valueOf(method.getTotalStmtAdded())).append(SEPARATOR)
                         .append(String.valueOf(method.getTotalStmtDeleted())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumBranches())).append(SEPARATOR)
+                        .append(String.valueOf(method.getNestingDepth())).append(SEPARATOR)
+                        .append(String.valueOf(method.getNumLocalVariables())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumCodeSmells())).append(SEPARATOR) // Assicurati che sia settata
                         .append(String.valueOf(method.getMaxChurn())).append(SEPARATOR)
                         .append(String.format(Locale.US, "%.2f", method.getAvgChurn())).append(SEPARATOR) // Formatta double
@@ -244,6 +249,30 @@ public class PrintUtils {
         } catch (IOException e) {
             logger.severe("Error writing dataset CSV: " + e.getMessage());
             throw e; // Rilancia l'eccezione se vuoi che il main la gestisca
+        }
+    }
+
+    // Writes the evaluation results of the WEKA classifiers
+    public static void printEvaluationResults(String projectName, List<ClassifierEvaluation> results) throws IOException {
+        String outputDir = "wekaFiles/" + projectName.toLowerCase() + "/";
+        new File(outputDir).mkdirs();
+        String filename = outputDir + "classificationResults.csv";
+
+        try (FileWriter writer = new FileWriter(filename)) {
+            // Write the header
+            writer.append(ClassifierEvaluation.getCsvHeader());
+            writer.append(DELIMITER);
+
+            // Write each result row
+            for (ClassifierEvaluation result : results) {
+                writer.append(result.toCsvString());
+                writer.append(DELIMITER);
+            }
+
+            logger.info("Weka Evaluation results written to " + filename);
+
+        } catch (IOException e) {
+            logger.info("Error writing Wela Evaluation results");
         }
     }
 

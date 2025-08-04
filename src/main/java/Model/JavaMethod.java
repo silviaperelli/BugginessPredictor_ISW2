@@ -28,8 +28,11 @@ public class JavaMethod {
 
     private int numBranches;
     private int numCodeSmells;
+    private int numLocalVariables; // number of local variables
     private int maxChurn;   // maxChurn (stmtAddedInOneCommit + stmtDeletedInOneCommit)
     private double avgChurn;  // avgChurn = (totalStmtAdded + totalStmtDeleted) / numRevisions
+    private int nestingDepth;
+
 
     public JavaMethod(String fullyQualifiedName, Release release) {
         this.fullyQualifiedName = fullyQualifiedName;
@@ -46,8 +49,11 @@ public class JavaMethod {
 
         this.numBranches = 0;
         this.numCodeSmells = 0;
+        this.numLocalVariables = 0;
         this.maxChurn = 0;
         this.avgChurn = 0.0;
+        this.nestingDepth = 0;
+
     }
 
     public String getFullyQualifiedName() {
@@ -57,6 +63,7 @@ public class JavaMethod {
     public void setFullyQualifiedName(String fullyQualifiedName) {
         this.fullyQualifiedName = fullyQualifiedName;
     }
+
 
     public Release getRelease() {
         return release;
@@ -72,6 +79,14 @@ public class JavaMethod {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public int getNumLocalVariables() {
+        return numLocalVariables;
+    }
+
+    public void setNumLocalVariables(int numLocalVariables) {
+        this.numLocalVariables = numLocalVariables;
     }
 
     public boolean isBuggy() {
@@ -176,6 +191,14 @@ public class JavaMethod {
 
     public void setAvgChurn(double avgChurn) {
         this.avgChurn = avgChurn;
+    }
+
+    public int getNestingDepth() {
+        return nestingDepth;
+    }
+
+    public void setNestingDepth(int nestingDepth) {
+        this.nestingDepth = nestingDepth;
     }
 
     // Per identificare univocamente un metodo (nome + parametri) all'interno di una classe
