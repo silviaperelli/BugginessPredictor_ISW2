@@ -63,8 +63,14 @@ public class WekaClassification {
             int testingReleaseId = i + 1;
 
             // --- LOGICA WALK-FORWARD CORRETTA ---
+            int windowSize = 3; // Prova con 3, puoi aumentarla se i risultati sono ancora instabili
+
             List<JavaMethod> trainingMethods = allMethods.stream()
-                    .filter(m -> m.getRelease().getId() <= lastTrainingReleaseId)
+                    .filter(m -> {
+                        int releaseId = m.getRelease().getId();
+                        // Prendi i metodi delle ultime 'windowSize' release
+                        return releaseId > lastTrainingReleaseId - windowSize && releaseId <= lastTrainingReleaseId;
+                    })
                     .collect(Collectors.toList());
 
             List<JavaMethod> testingMethods = allMethods.stream()
@@ -96,6 +102,8 @@ public class WekaClassification {
     /**
      * Esegue il ciclo di classificazione leggendo i file ARFF precedentemente creati.
      */
+// In Controller/WekaClassification.java
+
     private void runClassificationFromFiles() throws Exception {
         LOGGER.info("Starting classification experiments from ARFF files...");
 
@@ -109,28 +117,54 @@ public class WekaClassification {
                 continue;
             }
 
-            // Carica i dati
             Instances trainingSet = new DataSource(trainingPath).getDataSet();
             Instances testingSet = new DataSource(testingPath).getDataSet();
 
-            LOGGER.log(Level.INFO, "--- Iteration {0}: Training on {1} instances, Testing on {2} instances ---",
-                    new Object[]{i, trainingSet.numInstances(), testingSet.numInstances()});
-
             trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
             testingSet.setClassIndex(testingSet.numAttributes() - 1);
+
+            // --- NUOVA PARTE: CONTROLLO DINAMICO ---
             int positiveClassIndex = trainingSet.classAttribute().indexOfValue("yes");
+            if (positiveClassIndex == -1) {
+                LOGGER.log(Level.WARNING, "Skipping iteration {0}: class 'yes' not found in training data.", i);
+                continue;
+            }
+
+            // Calcola quante istanze "buggy" ci sono nel training set
+            int numBuggyInstances = 0;
+            for (int j = 0; j < trainingSet.numInstances(); j++) {
+                if (trainingSet.get(j).classValue() == positiveClassIndex) {
+                    numBuggyInstances++;
+                }
+            }
+
+            // La soglia di default per SMOTE è k=5, quindi servono almeno k+1=6 istanze per essere sicuri.
+            // Possiamo essere più conservativi e usare una soglia più bassa, es. 2.
+            final int SMOTE_MIN_INSTANCES = 6;
+
+            LOGGER.log(Level.INFO, "--- Iteration {0}: Training on {1} instances ({2} buggy), Testing on {3} instances ---",
+                    new Object[]{i, trainingSet.numInstances(), numBuggyInstances, testingSet.numInstances()});
+
+            // --- FINE NUOVA PARTE ---
 
             List<WekaClassifier> classifiersToTest = ClassifierBuilder.buildClassifiers(trainingSet);
 
             for (WekaClassifier wekaConfig : classifiersToTest) {
-                // Addestra il classificatore
+
+                // --- AGGIUNTA CONDIZIONE PER SALTARE SMOTE ---
+                if (wekaConfig.getSampling().equals("SMOTE") && numBuggyInstances < SMOTE_MIN_INSTANCES) {
+                    LOGGER.log(Level.WARNING, "Skipping SMOTE for classifier {0} in iteration {1}: not enough minority instances ({2} < {3}).",
+                            new Object[]{wekaConfig.getName(), i, numBuggyInstances, SMOTE_MIN_INSTANCES});
+                    continue; // Salta questa configurazione e passa alla successiva
+                }
+                // --- FINE AGGIUNTA ---
+
+                // Il resto del codice rimane identico
                 wekaConfig.getClassifier().buildClassifier(trainingSet);
 
-                // Valuta il modello
                 Evaluation eval = new Evaluation(testingSet);
                 eval.evaluateModel(wekaConfig.getClassifier(), testingSet);
 
-                // Salva i risultati
                 ClassifierEvaluation result = new ClassifierEvaluation(
                         projectName, i, wekaConfig.getName(),
                         wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(),

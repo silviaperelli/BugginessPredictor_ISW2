@@ -9,9 +9,9 @@
 @attribute NumBranches numeric
 @attribute NestingDepth numeric
 @attribute NumLocalVariables numeric
-@attribute NumCodeSmells numeric
 @attribute MaxChurn numeric
 @attribute AvgChurn numeric
+@attribute HasFixHistory numeric
 @attribute IsBuggy {no,yes}
 
 @data

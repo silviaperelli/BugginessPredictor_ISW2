@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-public class GitUtlis {
+public class GitUtils {
 
     public static Release getReleaseOfCommit(RevCommit commit, List<Release> releaseList) {
 

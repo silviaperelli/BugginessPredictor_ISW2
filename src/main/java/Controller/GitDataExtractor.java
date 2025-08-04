@@ -25,7 +25,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import utils.GitUtlis;
+import utils.GitUtils;
 import utils.NestingDepthVisitor;
 
 import java.io.IOException;
@@ -242,6 +242,7 @@ public class GitDataExtractor {
         }
         // Associazione commit ai metodi (storico)
         addCommitsToMethods(allMethods, this.commitList);
+        calculateHasFixHistory(allMethods);
         return allMethods;
     }
 
@@ -347,6 +348,32 @@ public class GitDataExtractor {
         return 0;
     }
 
+
+    public void calculateHasFixHistory(List<JavaMethod> allMethods) {
+        Map<String, Ticket> commitNameToTicketMap = new HashMap<>();
+        for (Ticket ticket : this.ticketList) {
+            // Assicurati che ticketList contenga solo i bug (lo fa già dalla query JIRA)
+            for (RevCommit commit : ticket.getCommitList()) {
+                commitNameToTicketMap.put(commit.getName(), ticket);
+            }
+        }
+
+        for (JavaMethod method : allMethods) {
+            Release currentMethodRelease = method.getRelease();
+
+            for (RevCommit commit : method.getCommits()) {
+                // Controlla se il commit è un "fix commit" (associato a un ticket di bug)
+                if (commitNameToTicketMap.containsKey(commit.getName())) {
+
+                    Release commitRelease = GitUtils.getReleaseOfCommit(commit, this.fullReleaseList);
+                    if (commitRelease != null && commitRelease.getId() < currentMethodRelease.getId()) {
+                        method.setHasFixHistory(1);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
     public void addCommitsToMethods(List<JavaMethod> allMethods, List<RevCommit> allCommits) throws IOException, GitAPIException {
         // Ordina i commit per processarli cronologicamente
@@ -475,13 +502,13 @@ public class GitDataExtractor {
     private void updateMethodMetricsForCommit(List<JavaMethod> allProjectMethods, String filePath, MethodDeclaration currentMdAst, RevCommit commit,  MethodDeclaration oldMdAst, MethodDeclaration newMdAst, String newBodyHash) {
         String signature = JavaMethod.getSignature(currentMdAst);
         String fqn = filePath + "/" + signature;
-        Release releaseOfCommit = GitUtlis.getReleaseOfCommit(commit, this.fullReleaseList); // Usa full per trovare la release corretta del commit
+        Release releaseOfCommit = GitUtils.getReleaseOfCommit(commit, this.fullReleaseList); // Usa full per trovare la release corretta del commit
 
         if (releaseOfCommit == null) return; // Commit non appartiene a nessuna release tracciata
 
         // Trova le istanze del metodo nelle release ANALIZZATE che sono UGUALI alla release del commit
         for (JavaMethod projectMethod : allProjectMethods) {
-            if (projectMethod.getFullyQualifiedName().equals(fqn) && projectMethod.getRelease().getId() == releaseOfCommit.getId()) { // Il metodo in questa release o future è affetto
+            if (projectMethod.getFullyQualifiedName().equals(fqn) && projectMethod.getRelease().getId() >= releaseOfCommit.getId()) { // Il metodo in questa release o future è affetto
 
                 projectMethod.addCommit(commit); // Aggiunge il commit allo storico del metodo
                 projectMethod.incrementNumRevisions();
@@ -511,7 +538,6 @@ public class GitDataExtractor {
                 if (currentCommitChurn > projectMethod.getMaxChurn()) {
                     projectMethod.setMaxChurn(currentCommitChurn);
                 }
-                break;
             }
         }
     }
@@ -538,7 +564,7 @@ public class GitDataExtractor {
             if (injectedVersion == null) continue; // IV non definito per questo ticket
 
             for (RevCommit fixCommit : ticket.getCommitList()) {
-                Release fixedVersion = GitUtlis.getReleaseOfCommit(fixCommit, this.fullReleaseList);
+                Release fixedVersion = GitUtils.getReleaseOfCommit(fixCommit, this.fullReleaseList);
                 if (fixedVersion == null) continue; // Commit di fix non appartiene a una release tracciata
 
                 try {

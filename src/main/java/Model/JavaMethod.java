@@ -27,12 +27,12 @@ public class JavaMethod {
     private int totalStmtDeleted; //stmtDeleted
 
     private int numBranches;
-    private int numCodeSmells;
     private int numLocalVariables; // number of local variables
     private int maxChurn;   // maxChurn (stmtAddedInOneCommit + stmtDeletedInOneCommit)
     private double avgChurn;  // avgChurn = (totalStmtAdded + totalStmtDeleted) / numRevisions
     private int nestingDepth;
 
+    private int hasFixHistory;
 
     public JavaMethod(String fullyQualifiedName, Release release) {
         this.fullyQualifiedName = fullyQualifiedName;
@@ -48,11 +48,11 @@ public class JavaMethod {
         this.totalStmtDeleted = 0;
 
         this.numBranches = 0;
-        this.numCodeSmells = 0;
         this.numLocalVariables = 0;
         this.maxChurn = 0;
         this.avgChurn = 0.0;
         this.nestingDepth = 0;
+        this.hasFixHistory = 0;
 
     }
 
@@ -71,6 +71,14 @@ public class JavaMethod {
 
     public void setRelease(Release release) {
         this.release = release;
+    }
+
+    public int getHasFixHistory() {
+        return hasFixHistory;
+    }
+
+    public void setHasFixHistory(int hasFixHistory) {
+        this.hasFixHistory = hasFixHistory;
     }
 
     public String getContent() {
@@ -167,14 +175,6 @@ public class JavaMethod {
 
     public void setNumBranches(int numBranches) {
         this.numBranches = numBranches;
-    }
-
-    public int getNumCodeSmells() {
-        return numCodeSmells;
-    }
-
-    public void setNumCodeSmells(int numCodeSmells) {
-        this.numCodeSmells = numCodeSmells;
     }
 
     public int getMaxChurn() {

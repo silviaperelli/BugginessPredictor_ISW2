@@ -215,9 +215,9 @@ public class PrintUtils {
                     .append("NumBranches").append(SEPARATOR)
                     .append("NestingDepth").append(SEPARATOR)
                     .append("NumLocalVariables").append(SEPARATOR)
-                    .append("NumCodeSmells").append(SEPARATOR) // Assicurati che questa sia calcolata e settata
                     .append("MaxChurn").append(SEPARATOR)
                     .append("AvgChurn").append(SEPARATOR)
+                    .append("HasFixHistory").append(SEPARATOR)
                     .append("IsBuggy") // Ultima colonna, target
                     .append(DELIMITER);
 
@@ -237,9 +237,9 @@ public class PrintUtils {
                         .append(String.valueOf(method.getNumBranches())).append(SEPARATOR)
                         .append(String.valueOf(method.getNestingDepth())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumLocalVariables())).append(SEPARATOR)
-                        .append(String.valueOf(method.getNumCodeSmells())).append(SEPARATOR) // Assicurati che sia settata
                         .append(String.valueOf(method.getMaxChurn())).append(SEPARATOR)
                         .append(String.format(Locale.US, "%.2f", method.getAvgChurn())).append(SEPARATOR) // Formatta double
+                        .append(String.valueOf(method.getHasFixHistory())).append(SEPARATOR)
                         .append(method.isBuggy() ? "yes" : "no")
                         .append(DELIMITER);
             }

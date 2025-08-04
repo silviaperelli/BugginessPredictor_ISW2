@@ -38,9 +38,9 @@ public final class WekaUtils {
         attributes.add(new Attribute("NumBranches"));
         attributes.add(new Attribute("NestingDepth"));
         attributes.add(new Attribute("NumLocalVariables"));
-        attributes.add(new Attribute("NumCodeSmells"));
         attributes.add(new Attribute("MaxChurn"));
         attributes.add(new Attribute("AvgChurn"));
+        attributes.add(new Attribute("HasFixHistory"));
 
         // Aggiungi l'attributo nominale della classe (il target da predire)
         List<String> classValues = Arrays.asList("no", "yes");
@@ -67,9 +67,9 @@ public final class WekaUtils {
             values[6] = method.getNumBranches();
             values[7] = method.getNestingDepth();
             values[8] = method.getNumLocalVariables();
-            values[9] = method.getNumCodeSmells();
             values[10] = method.getMaxChurn();
             values[11] = method.getAvgChurn();
+            values[12] = method.getHasFixHistory();
 
             // Per l'attributo nominale, usiamo l'indice del valore ("no" = 0, "yes" = 1)
             values[data.classIndex()] = method.isBuggy() ? 1.0 : 0.0;
