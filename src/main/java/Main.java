@@ -21,10 +21,10 @@ public class Main {
         String project2 = "SYNCOPE";
 
         // --- ESEGUI L'ANALISI PER IL PRIMO PROGETTO ---
-        //runAnalysisForProject(project1);
+        runAnalysisForProject(project1);
 
         // --- ESEGUI L'ANALISI PER IL SECONDO PROGETTO ---
-        runAnalysisForProject(project2);
+        //runAnalysisForProject(project2);
     }
 
     /**

@@ -35,6 +35,9 @@ public class ClassifierBuilder {
         addSmoteClassifiers(classifiers, trainingSet);
         addCostSensitiveClassifiers(classifiers);
 
+        addFeatureSelectionAndSmoteClassifiers(classifiers, trainingSet);
+        addFeatureSelectionAndCostSensitiveClassifiers(classifiers);
+
         return classifiers;
     }
 
@@ -142,5 +145,41 @@ public class ClassifierBuilder {
         matrix.setCell(0, 1, 1.0);   // FP: Reale 'no', Predetto 'yes' -> Costo 1 (falso allarme)
         matrix.setCell(1, 0, 10.0);  // FN: Reale 'yes', Predetto 'no' -> Costo 10 (bug non trovato!)
         return matrix;
+    }
+
+    // AGGIUNGI QUESTO NUOVO METODO
+    private static void addFeatureSelectionAndSmoteClassifiers(List<WekaClassifier> classifiers, Instances trainingSet) {
+        Filter smote = createSmoteFilter(trainingSet);
+        for (Classifier base : getBaseClassifiers()) {
+            // Step 1: Crea il classificatore con Feature Selection
+            FilteredClassifier fcWithFeatureSelection = new FilteredClassifier();
+            fcWithFeatureSelection.setClassifier(base);
+            fcWithFeatureSelection.setFilter(createFeatureSelectionFilter());
+
+            // Step 2: Avvolgi il classificatore filtrato con SMOTE
+            FilteredClassifier fcWithBoth = new FilteredClassifier();
+            fcWithBoth.setClassifier(fcWithFeatureSelection);
+            fcWithBoth.setFilter(smote);
+
+            classifiers.add(new WekaClassifier(fcWithBoth, getClassifierName(base), "BestFirst", "SMOTE", "none"));
+        }
+    }
+
+    // AGGIUNGI ANCHE QUESTO NUOVO METODO
+    private static void addFeatureSelectionAndCostSensitiveClassifiers(List<WekaClassifier> classifiers) {
+        for (Classifier base : getBaseClassifiers()) {
+            // Step 1: Crea il classificatore con Cost Sensitive
+            CostSensitiveClassifier csc = new CostSensitiveClassifier();
+            csc.setClassifier(base);
+            csc.setCostMatrix(createCostMatrix());
+            csc.setMinimizeExpectedCost(false);
+
+            // Step 2: Avvolgi il classificatore Cost-Sensitive con la Feature Selection
+            FilteredClassifier fcWithBoth = new FilteredClassifier();
+            fcWithBoth.setClassifier(csc);
+            fcWithBoth.setFilter(createFeatureSelectionFilter());
+
+            classifiers.add(new WekaClassifier(fcWithBoth, getClassifierName(base), "BestFirst", "none", "SensitiveThreshold"));
+        }
     }
 }
