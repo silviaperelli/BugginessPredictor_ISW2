@@ -57,18 +57,29 @@ public class WekaClassification {
      * Prepara e scrive su disco i file training.arff e testing.arff per ogni iterazione di Walk-Forward.
      */
     private void prepareArffFilesForWalkForward() throws IOException {
-        LOGGER.info("Preparing ARFF files for walk-forward validation...");
+
+        int windowSize;
+        if (this.projectName.equalsIgnoreCase("BOOKKEEPER")) {
+            windowSize = 1;
+        } else if (this.projectName.equalsIgnoreCase("SYNCOPE")) {
+            windowSize = 5;
+        } else {
+            // Aggiungiamo un caso di default per altri eventuali progetti
+            windowSize = 3; // Un compromesso ragionevole
+            LOGGER.log(Level.WARNING, "Nessuna window size specifica configurata per il progetto {0}. Uso il valore di default: {1}", new Object[]{this.projectName, windowSize});
+        }
+
+        LOGGER.log(Level.INFO, "Preparing ARFF files for project {0} using sliding window with windowSize = {1}", new Object[]{this.projectName, windowSize});
+
+
         for (int i = 1; i < totalReleases; i++) {
             int lastTrainingReleaseId = i;
             int testingReleaseId = i + 1;
 
-            // --- LOGICA WALK-FORWARD CORRETTA ---
-            int windowSize = 3; // Prova con 3, puoi aumentarla se i risultati sono ancora instabili
-
+            // Ora la windowSize usata qui sotto sarà 1 per BOOKKEEPER e 5 per SYNCOPE
             List<JavaMethod> trainingMethods = allMethods.stream()
                     .filter(m -> {
                         int releaseId = m.getRelease().getId();
-                        // Prendi i metodi delle ultime 'windowSize' release
                         return releaseId > lastTrainingReleaseId - windowSize && releaseId <= lastTrainingReleaseId;
                     })
                     .collect(Collectors.toList());
