@@ -60,7 +60,7 @@ for i, clf in enumerate(classificatori):
 fig.suptitle(f'Distribuzione NPofB20 per {nome_progetto}', fontsize=18, y=0.98)
 plt.tight_layout(rect=[0, 0, 1, 0.92])
 
-dest_path = f'{nome_progetto.lower()}/boxplot_NPofB20.png'
+dest_path = f'{nome_progetto.lower()}/boxplot_npofb20.png'
 plt.savefig(dest_path, dpi=300)
 print(f"Grafico NPofB20 salvato come: {dest_path}")
 
