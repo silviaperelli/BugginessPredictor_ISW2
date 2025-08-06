@@ -1,9 +1,6 @@
 package utils;
 
-import Model.ClassifierEvaluation;
-import Model.JavaMethod;
-import Model.Release;
-import Model.Ticket;
+import Model.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.File;
@@ -284,4 +281,32 @@ public class PrintUtils {
         return field;
     }
 
+    public static void createAcumeFile(String project, List<AcumeMethod> methods, String fileName) throws IOException {
+        String projectLower = project.toLowerCase();
+
+        // Crea la cartella di destinazione se non esiste
+        File dir = new File("acumeFiles/" + projectLower);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new IOException("Could not create directory: " + dir.getAbsolutePath());
+            }
+        }
+
+        // Scrive il file CSV
+        File file = new File(dir.getAbsolutePath() + "/" + fileName + ".csv");
+        try (FileWriter fileWriter = new FileWriter(file)) {
+
+            fileWriter.append("ID,Size,Predicted %,Actual value\n");
+            for (AcumeMethod m : methods) {
+                fileWriter.append(m.getId()).append(",")
+                        .append(m.getSize()).append(",")
+                        .append(m.getPredictedProbability()).append(",")
+                        .append(m.getActualValue()).append("\n");
+            }
+            fileWriter.flush();
+        }
+        // Il logger è meglio del print, ma per ora va bene
+        System.out.println("ACUME file created: " + file.getAbsolutePath());
+    }
 }
+

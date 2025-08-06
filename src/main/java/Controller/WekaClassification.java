@@ -1,14 +1,15 @@
 package Controller;
 
+import Model.AcumeMethod; // <-- NUOVO IMPORT
 import Model.ClassifierEvaluation;
 import Model.JavaMethod;
 import Model.WekaClassifier;
 import utils.PrintUtils;
-import utils.WekaUtils; // Usa WekaUtils per creare gli Instances in memoria
+import utils.WekaUtils;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
-import weka.core.converters.ArffSaver; // Import per salvare i file ARFF
-import weka.core.converters.ConverterUtils.DataSource; // Import per caricare i file ARFF
+import weka.core.converters.ArffSaver;
+import weka.core.converters.ConverterUtils.DataSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,19 +34,12 @@ public class WekaClassification {
         this.evaluationResults = new ArrayList<>();
     }
 
-    /**
-     * Metodo principale che orchestra l'intera pipeline.
-     */
     public void execute() {
+        // ... questo metodo rimane identico ...
         LOGGER.log(Level.INFO, "--- Starting WEKA analysis for project: {0} ---", projectName);
         try {
-            // Prepara i file ARFF per tutte le iterazioni
             prepareArffFilesForWalkForward();
-
-            // Esegue la classificazione leggendo i file creati
             runClassificationFromFiles();
-
-            // Salva i risultati finali
             saveResults();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "An error occurred during WEKA analysis", e);
@@ -53,56 +47,39 @@ public class WekaClassification {
         LOGGER.log(Level.INFO, "--- WEKA analysis finished for project: {0} ---", projectName);
     }
 
-    /**
-     * Prepara e scrive su disco i file training.arff e testing.arff per ogni iterazione di Walk-Forward.
-     */
     private void prepareArffFilesForWalkForward() throws IOException {
-
+        // ... questo metodo rimane identico ...
         int windowSize;
         if (this.projectName.equalsIgnoreCase("BOOKKEEPER")) {
             windowSize = 1;
         } else if (this.projectName.equalsIgnoreCase("SYNCOPE")) {
             windowSize = 5;
         } else {
-            // Aggiungiamo un caso di default per altri eventuali progetti
-            windowSize = 3; // Un compromesso ragionevole
+            windowSize = 3;
             LOGGER.log(Level.WARNING, "Nessuna window size specifica configurata per il progetto {0}. Uso il valore di default: {1}", new Object[]{this.projectName, windowSize});
         }
-
         LOGGER.log(Level.INFO, "Preparing ARFF files for project {0} using sliding window with windowSize = {1}", new Object[]{this.projectName, windowSize});
-
-
         for (int i = 1; i < totalReleases; i++) {
             int lastTrainingReleaseId = i;
             int testingReleaseId = i + 1;
-
-            // Ora la windowSize usata qui sotto sarà 1 per BOOKKEEPER e 5 per SYNCOPE
             List<JavaMethod> trainingMethods = allMethods.stream()
                     .filter(m -> {
                         int releaseId = m.getRelease().getId();
                         return releaseId > lastTrainingReleaseId - windowSize && releaseId <= lastTrainingReleaseId;
                     })
                     .collect(Collectors.toList());
-
             List<JavaMethod> testingMethods = allMethods.stream()
                     .filter(m -> m.getRelease().getId() == testingReleaseId)
                     .collect(Collectors.toList());
-
             if (trainingMethods.isEmpty() || testingMethods.isEmpty()) continue;
-
             String iterDir = "arffFiles/" + projectName.toLowerCase() + "/iteration_" + i + "/";
             new File(iterDir).mkdirs();
-
-            // Crea gli Instances in memoria usando il tuo WekaUtils
             Instances trainingSet = WekaUtils.buildInstances(trainingMethods, projectName + "-Training-" + i);
             Instances testingSet = WekaUtils.buildInstances(testingMethods, projectName + "-Testing-" + i);
-
-            // Salva gli Instances su file .arff
             ArffSaver saver = new ArffSaver();
             saver.setInstances(trainingSet);
             saver.setFile(new File(iterDir + "training.arff"));
             saver.writeBatch();
-
             saver.setInstances(testingSet);
             saver.setFile(new File(iterDir + "testing.arff"));
             saver.writeBatch();
@@ -110,10 +87,6 @@ public class WekaClassification {
         LOGGER.info("ARFF file preparation complete.");
     }
 
-    /**
-     * Esegue il ciclo di classificazione leggendo i file ARFF precedentemente creati.
-     */
-// In Controller/WekaClassification.java
 
     private void runClassificationFromFiles() throws Exception {
         LOGGER.info("Starting classification experiments from ARFF files...");
@@ -124,55 +97,39 @@ public class WekaClassification {
 
             File trainingFile = new File(trainingPath);
             if (!trainingFile.exists()) {
-                LOGGER.log(Level.WARNING, "Skipping iteration {0}: training.arff not found.", i);
                 continue;
             }
 
             Instances trainingSet = new DataSource(trainingPath).getDataSet();
             Instances testingSet = new DataSource(testingPath).getDataSet();
-
             trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
             testingSet.setClassIndex(testingSet.numAttributes() - 1);
-
-            // --- NUOVA PARTE: CONTROLLO DINAMICO ---
             int positiveClassIndex = trainingSet.classAttribute().indexOfValue("yes");
+
             if (positiveClassIndex == -1) {
-                LOGGER.log(Level.WARNING, "Skipping iteration {0}: class 'yes' not found in training data.", i);
                 continue;
             }
 
-            // Calcola quante istanze "buggy" ci sono nel training set
             int numBuggyInstances = 0;
             for (int j = 0; j < trainingSet.numInstances(); j++) {
                 if (trainingSet.get(j).classValue() == positiveClassIndex) {
                     numBuggyInstances++;
                 }
             }
-
-            // La soglia di default per SMOTE è k=5, quindi servono almeno k+1=6 istanze per essere sicuri.
-            // Possiamo essere più conservativi e usare una soglia più bassa, es. 2.
             final int SMOTE_MIN_INSTANCES = 6;
 
             LOGGER.log(Level.INFO, "--- Iteration {0}: Training on {1} instances ({2} buggy), Testing on {3} instances ---",
                     new Object[]{i, trainingSet.numInstances(), numBuggyInstances, testingSet.numInstances()});
 
-            // --- FINE NUOVA PARTE ---
-
             List<WekaClassifier> classifiersToTest = ClassifierBuilder.buildClassifiers(trainingSet);
 
             for (WekaClassifier wekaConfig : classifiersToTest) {
 
-                // --- AGGIUNTA CONDIZIONE PER SALTARE SMOTE ---
                 if (wekaConfig.getSampling().equals("SMOTE") && numBuggyInstances < SMOTE_MIN_INSTANCES) {
-                    LOGGER.log(Level.WARNING, "Skipping SMOTE for classifier {0} in iteration {1}: not enough minority instances ({2} < {3}).",
-                            new Object[]{wekaConfig.getName(), i, numBuggyInstances, SMOTE_MIN_INSTANCES});
-                    continue; // Salta questa configurazione e passa alla successiva
+                    continue;
                 }
-                // --- FINE AGGIUNTA ---
 
-                // Il resto del codice rimane identico
                 wekaConfig.getClassifier().buildClassifier(trainingSet);
-
                 Evaluation eval = new Evaluation(testingSet);
                 eval.evaluateModel(wekaConfig.getClassifier(), testingSet);
 
@@ -183,11 +140,81 @@ public class WekaClassification {
                         eval.areaUnderROC(positiveClassIndex), eval.kappa(), eval.fMeasure(positiveClassIndex)
                 );
                 this.evaluationResults.add(result);
+
+                // --- NUOVA PARTE: CHIAMATA PER CREARE I FILE ACUME ---
+                // Generiamo il nome del file e chiamiamo il metodo che crea i dati per ACUME
+                String acumeFileName = createAcumeFileName(wekaConfig, i);
+                createAcumeFile(acumeFileName, wekaConfig.getClassifier(), testingSet, i);
+                // --- FINE NUOVA PARTE ---
             }
         }
     }
 
+    // --- INIZIO NUOVI METODI AGGIUNTI ---
+
+    /**
+     * Crea un nome file univoco per i risultati di ACUME basato sulla configurazione del classificatore.
+     */
+    private String createAcumeFileName(WekaClassifier wekaClassifier, int iteration) {
+        String name = wekaClassifier.getName();
+        if (!wekaClassifier.getFeatureSelection().equals("none")) {
+            name = name + "_" + wekaClassifier.getFeatureSelection();
+        }
+        if (!wekaClassifier.getSampling().equals("none")) {
+            name = name + "_" + wekaClassifier.getSampling();
+        }
+        if (!wekaClassifier.getCostSensitive().equals("none")) {
+            name = name + "_" + wekaClassifier.getCostSensitive();
+        }
+        name = name + "_iteration_" + iteration;
+        return name;
+    }
+
+    /**
+     * Estrae le probabilità di predizione per ogni istanza del testing set e le salva in un file CSV per ACUME.
+     */
+    private void createAcumeFile(String fileName, weka.classifiers.Classifier classifier, Instances testingSet, int iteration) throws Exception {
+        List<AcumeMethod> acumeMethods = new ArrayList<>();
+
+        // Recupera i JavaMethod corrispondenti a questo specifico testing set
+        int testingReleaseId = iteration + 1;
+        List<JavaMethod> testingMethods = this.allMethods.stream()
+                .filter(m -> m.getRelease().getId() == testingReleaseId)
+                .collect(Collectors.toList());
+
+        // Controllo di coerenza: il numero di istanze in Weka deve corrispondere al numero di metodi che abbiamo
+        if (testingSet.numInstances() != testingMethods.size()) {
+            LOGGER.log(Level.SEVERE, "Mismatch in ACUME data creation for iteration {0}. Weka instances: {1}, Java methods: {2}",
+                    new Object[]{iteration, testingSet.numInstances(), testingMethods.size()});
+            return; // Interrompe la creazione del file per questa iterazione se i dati non corrispondono
+        }
+
+        int buggyClassIndex = testingSet.classAttribute().indexOfValue("yes");
+
+        for (int i = 0; i < testingSet.numInstances(); i++) {
+            JavaMethod currentMethod = testingMethods.get(i);
+            String trueClassLabel = testingSet.instance(i).toString(testingSet.classIndex());
+
+            // Estrae la distribuzione di probabilità
+            double[] predictionDistribution = classifier.distributionForInstance(testingSet.instance(i));
+
+            // Estrae la probabilità della classe "buggy" ('yes')
+            double predictionProbability = predictionDistribution[buggyClassIndex];
+
+            // Crea l'oggetto con i dati per ACUME
+            AcumeMethod acumeMethod = new AcumeMethod(i, currentMethod.getLoc(), predictionProbability, trueClassLabel);
+            acumeMethods.add(acumeMethod);
+        }
+
+        // Chiama il metodo in PrintUtils per scrivere fisicamente il file CSV
+        PrintUtils.createAcumeFile(this.projectName, acumeMethods, fileName);
+    }
+
+    // --- FINE NUOVI METODI AGGIUNTI ---
+
+
     private void saveResults() throws IOException {
+        // ... questo metodo rimane identico ...
         if (this.evaluationResults.isEmpty()) {
             LOGGER.warning("No evaluation results to save.");
             return;
