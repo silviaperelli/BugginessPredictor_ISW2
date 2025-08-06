@@ -1,4 +1,4 @@
-package Model;
+package model;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import org.eclipse.jgit.revwalk.RevCommit;
 

@@ -1,6 +1,6 @@
 package utils;
 
-import Model.JavaMethod;
+import model.JavaMethod;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;

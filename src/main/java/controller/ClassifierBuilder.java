@@ -1,6 +1,6 @@
-package Controller;
+package controller;
 
-import Model.WekaClassifier; // Assicurati che l'import sia corretto
+import model.WekaClassifier; // Assicurati che l'import sia corretto
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.classifiers.Classifier;

@@ -1,8 +1,8 @@
-package Controller;
+package controller;
 
-import Model.JavaMethod;
-import Model.Release;
-import Model.Ticket;
+import model.JavaMethod;
+import model.Release;
+import model.Ticket;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.ParserConfiguration;

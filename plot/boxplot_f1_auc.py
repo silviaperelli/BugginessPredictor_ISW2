@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # --- CONFIGURAZIONE ---
-nome_progetto = 'SYNCOPE'
+nome_progetto = 'BOOKKEEPER' # nome del progetto da modificare in base a quale plot si vuole graficare
 file_risultati = f'../wekaFiles/{nome_progetto.lower()}/classificationResults.csv'
 
 

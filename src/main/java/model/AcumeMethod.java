@@ -1,5 +1,5 @@
 // In Model/AcumeMethod.java
-package Model;
+package model;
 
 public class AcumeMethod {
     private final int id;

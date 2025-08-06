@@ -1,6 +1,6 @@
 package utils;
 
-import Model.*;
+import model.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.File;
@@ -197,7 +197,7 @@ public class PrintUtils {
             }
         }
 
-        File datasetFile = new File(projectCsvDir.getAbsolutePath() + SLASH + "Dataset.CSV");
+        File datasetFile = new File(projectCsvDir.getAbsolutePath() + SLASH + "Dataset.csv");
 
         try (FileWriter fileWriter = new FileWriter(datasetFile)) {
             // Scrivi l'intestazione del CSV

@@ -1,6 +1,6 @@
 package utils;
 
-import Model.Release;
+import model.Release;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.text.SimpleDateFormat;

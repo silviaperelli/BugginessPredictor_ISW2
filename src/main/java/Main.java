@@ -1,9 +1,9 @@
-import Controller.GitDataExtractor;
-import Controller.JiraDataExtractor;
-import Controller.WekaClassification;
-import Model.JavaMethod;
-import Model.Release;
-import Model.Ticket;
+import controller.GitDataExtractor;
+import controller.JiraDataExtractor;
+import controller.WekaClassification;
+import model.JavaMethod;
+import model.Release;
+import model.Ticket;
 import utils.PrintUtils;
 
 import java.util.List;
@@ -21,10 +21,10 @@ public class Main {
         String project2 = "SYNCOPE";
 
         // --- ESEGUI L'ANALISI PER IL PRIMO PROGETTO ---
-        runAnalysisForProject(project1);
+        //runAnalysisForProject(project1);
 
         // --- ESEGUI L'ANALISI PER IL SECONDO PROGETTO ---
-        //runAnalysisForProject(project2);
+        runAnalysisForProject(project2);
     }
 
     /**

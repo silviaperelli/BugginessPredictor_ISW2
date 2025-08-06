@@ -1,7 +1,7 @@
-package Controller;
+package controller;
 
-import Model.Release;
-import Model.Ticket;
+import model.Release;
+import model.Ticket;
 import utils.JiraUtils;
 import utils.MathUtils;
 

@@ -1,8 +1,8 @@
 package utils;
 
-import Controller.Proportion;
-import Model.Release;
-import Model.Ticket;
+import controller.Proportion;
+import model.Release;
+import model.Ticket;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

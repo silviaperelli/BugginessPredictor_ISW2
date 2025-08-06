@@ -1,0 +1,14 @@
+Feature,SpearmanCorrelation
+ReleaseID,-0.1720
+LOC,0.1634
+NumParameters,0.0276
+NumAuthors,0.1439
+NumRevisions,0.1106
+TotalStmtAdded,0.1617
+TotalStmtDeleted,0.0813
+NumBranches,0.1485
+NestingDepth,0.1407
+NumLocalVariables,0.1282
+MaxChurn,0.1585
+AvgChurn,0.1401
+HasFixHistory,0.0027
