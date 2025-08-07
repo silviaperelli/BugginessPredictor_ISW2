@@ -24,6 +24,7 @@ public final class WekaUtils {
      * @param relationName A name for the dataset (e.g., "BOOKKEEPER-Training").
      * @return An Instances object ready for use with Weka classifiers.
      */
+
     public static Instances buildInstances(List<JavaMethod> methods, String relationName) {
         // 1. Definisci gli attributi (le colonne)
         ArrayList<Attribute> attributes = new ArrayList<>();
@@ -31,16 +32,17 @@ public final class WekaUtils {
         // Aggiungi tutti gli attributi numerici nell'ordine desiderato
         attributes.add(new Attribute("LOC"));
         attributes.add(new Attribute("NumParameters"));
-        attributes.add(new Attribute("NumAuthors"));
-        attributes.add(new Attribute("NumRevisions"));
-        attributes.add(new Attribute("TotalStmtAdded"));
-        attributes.add(new Attribute("TotalStmtDeleted"));
         attributes.add(new Attribute("NumBranches"));
         attributes.add(new Attribute("NestingDepth"));
+        attributes.add(new Attribute("NumCodeSmells"));
         attributes.add(new Attribute("NumLocalVariables"));
+        attributes.add(new Attribute("NumRevisions"));
+        attributes.add(new Attribute("NumAuthors"));
+        attributes.add(new Attribute("TotalStmtAdded"));
+        attributes.add(new Attribute("TotalChurn"));
         attributes.add(new Attribute("MaxChurn"));
         attributes.add(new Attribute("AvgChurn"));
-        attributes.add(new Attribute("HasFixHistory"));
+        attributes.add(new Attribute("NFix"));
 
         // Aggiungi l'attributo nominale della classe (il target da predire)
         List<String> classValues = Arrays.asList("no", "yes");
@@ -60,16 +62,17 @@ public final class WekaUtils {
             // Popola l'array. L'ordine DEVE corrispondere a quello degli attributi sopra.
             values[0] = method.getLoc();
             values[1] = method.getNumParameters();
-            values[2] = method.getNumAuthors();
-            values[3] = method.getNumRevisions();
-            values[4] = method.getTotalStmtAdded();
-            values[5] = method.getTotalStmtDeleted();
-            values[6] = method.getNumBranches();
-            values[7] = method.getNestingDepth();
-            values[8] = method.getNumLocalVariables();
+            values[2] = method.getNumBranches();
+            values[3] = method.getNestingDepth();
+            values[4] = method.getNumCodeSmells();
+            values[5] = method.getNumLocalVariables();
+            values[6] = method.getNumRevisions();
+            values[7] = method.getNumAuthors();
+            values[8] = method.getTotalStmtAdded();
+            values[9] = method.getTotalChurn();
             values[10] = method.getMaxChurn();
             values[11] = method.getAvgChurn();
-            values[12] = method.getHasFixHistory();
+            values[12] = method.getnFix();
 
             // Per l'attributo nominale, usiamo l'indice del valore ("no" = 0, "yes" = 1)
             values[data.classIndex()] = method.isBuggy() ? 1.0 : 0.0;

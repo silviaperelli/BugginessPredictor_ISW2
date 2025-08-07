@@ -27,27 +27,22 @@ public class PrintUtils {
     public static final String ERROR = "Error in writeOnReportFiles when trying to create directory";
     private static final String CSV_FILES_DIR = "csvFiles/"; // Nuova cartella base per i CSV
 
+    // ... [I metodi printCommits, printTickets, printReleases, printMethods rimangono invariati] ...
     public static void printCommits(String project, List<RevCommit> commitList, String name) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
-        if (!file.exists()) {
-            boolean created = file.mkdirs();
-            if (!created) {
-                throw new IOException();
-            }
+        if (!file.exists() && !file.mkdirs()) {
+            throw new IOException("Could not create directory: " + file.getAbsolutePath());
         }
 
-        file = new File(MAINDIR + project+ SLASH + name);
+        file = new File(MAINDIR + project + SLASH + name);
         try(FileWriter fileWriter = new FileWriter(file)) {
-
             fileWriter.append("id,committer,creationDate\n");
             for (RevCommit commit: commitList){
                 fileWriter.append(commit.getName()).append(",")
                         .append(commit.getCommitterIdent().getName()).append(",")
                         .append(String.valueOf(LocalDate.parse((new SimpleDateFormat("yyyy-MM-dd").format(commit.getCommitterIdent().getWhen()))))).append(DELIMITER);
             }
-
-            flushAndCloseFW(fileWriter, logger, CLASS);
         } catch (IOException e) {
             logger.info(ERROR);
         }
@@ -56,18 +51,13 @@ public class PrintUtils {
     public static void printTickets(String project, List<Ticket> ticketList) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
-        if (!file.exists()) {
-            boolean created = file.mkdirs();
-            if (!created) {
-                throw new IOException();
-            }
+        if (!file.exists() && !file.mkdirs()) {
+            throw new IOException("Could not create directory: " + file.getAbsolutePath());
         }
 
-        file = new File(MAINDIR + project+ SLASH+ "AllTickets.csv");
+        file = new File(MAINDIR + project + SLASH + "AllTickets.csv");
         try(FileWriter fileWriter = new FileWriter(file)) {
-
             fileWriter.append("key,creationDate,resolutionDate,injectedVersion,openingVersion,fixedVersion,affectedVersion,numOfCommits\n");
-
             List<Ticket> ticketOrderedByCreation = new ArrayList<>(ticketList);
             ticketOrderedByCreation.sort(Comparator.comparing(Ticket::getCreationDate));
             for (Ticket ticket : ticketOrderedByCreation) {
@@ -78,202 +68,146 @@ public class PrintUtils {
                 fileWriter.append(ticket.getTicketID()).append(",")
                         .append(String.valueOf(ticket.getCreationDate())).append(",")
                         .append(String.valueOf(ticket.getResolutionDate())).append(",")
-                        .append(ticket.getIv().getName()).append(",")
-                        .append(ticket.getOv().getName()).append(",")
-                        .append(ticket.getFv().getName()).append(",")
-                        .append(String.valueOf(iDs)).append(",").append(DELIMITER);
-                        //.append(String.valueOf(ticket.getCommitList().size())).append(DELIMITER);
+                        .append(ticket.getIv() != null ? ticket.getIv().getName() : "N/A").append(",")
+                        .append(ticket.getOv() != null ? ticket.getOv().getName() : "N/A").append(",")
+                        .append(ticket.getFv() != null ? ticket.getFv().getName() : "N/A").append(",")
+                        .append(String.valueOf(iDs)).append(DELIMITER);
             }
-
-            flushAndCloseFW(fileWriter, logger, CLASS);
         } catch (IOException e) {
             logger.info(ERROR);
-        }
-    }
-
-    private static void flushAndCloseFW(FileWriter fileWriter, Logger logger, String className) {
-        try {
-            fileWriter.flush();
-            fileWriter.close();
-        } catch (IOException e) {
-            logger.info("Error in " + className + " while flushing/closing fileWriter !!!");
         }
     }
 
     public static void printReleases(String project, List<Release> releaseList, String name) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
-        if (!file.exists()) {
-            boolean created = file.mkdirs();
-            if (!created) {
-                throw new IOException();
-            }
+        if (!file.exists() && !file.mkdirs()) {
+            throw new IOException("Could not create directory: " + file.getAbsolutePath());
         }
-
-        file = new File(MAINDIR + project + SLASH+ name);
+        file = new File(MAINDIR + project + SLASH + name);
         try(FileWriter fileWriter = new FileWriter(file)) {
-
             fileWriter.append("id,releaseName,releaseDate,numOfCommits\n");
-
             for (Release release : releaseList) {
                 fileWriter.append(String.valueOf(release.getId())).append(",")
                         .append(release.getName()).append(",")
                         .append(String.valueOf(release.getDate())).append(",")
                         .append(String.valueOf(release.getCommitList().size())).append(DELIMITER);
             }
-
-            flushAndCloseFW(fileWriter, logger, CLASS);
         } catch (IOException e) {
             logger.info(ERROR);
         }
     }
-
-        /*
-            fileWriter.append("ProjectName").append(SEPARATOR)
-                    .append("MethodFullyQualifiedName").append(SEPARATOR)
-                    .append("ReleaseID").append(SEPARATOR)
-                    .append("LOC").append(SEPARATOR)
-                    .append("NumCommitsOnMethodVersion").append(SEPARATOR) // Commit che hanno formato QUESTA versione del metodo
-                    .append("NumRevisionsTotal").append(SEPARATOR)      // Revisioni totali del metodo (se tracciate)
-                    .append("NumAuthors").append(SEPARATOR)           // Autori totali del metodo (se tracciati)
-                    .append("Bugginess").append(DELIMITER);             // yes/no
-
-                fileWriter.append(project).append(SEPARATOR)
-                        .append(escapeCsvString(method.getName())).append(SEPARATOR)
-                        .append(method.getRelease() != null ? String.valueOf(method.getRelease().id()) : "N/A").append(SEPARATOR)
-                        .append(String.valueOf(method.getLoc())).append(SEPARATOR)
-                        .append(String.valueOf(method.getCommits() != null ? method.getCommits().size() : 0)).append(SEPARATOR)
-                        .append(String.valueOf(method.getNumRevisions())).append(SEPARATOR) // Assumendo che JavaMethod abbia questo getter
-                        .append(String.valueOf(method.getNumAuthors())).append(SEPARATOR)   // Assumendo che JavaMethod abbia questo getter
-                        .append(method.isBuggy() ? "yes" : "no").append(DELIMITER);
-
-    }*/
-
 
     public static void printMethods(String project, List<JavaMethod> methods, String name) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
-        if (!file.exists()) {
-            boolean created = file.mkdirs();
-            if (!created) {
-                throw new IOException();
-            }
+        if (!file.exists() && !file.mkdirs()) {
+            throw new IOException("Could not create directory: " + file.getAbsolutePath());
         }
-
         file = new File(MAINDIR + project + SLASH + name);
         try (FileWriter fileWriter = new FileWriter(file)) {
-
             fileWriter.append("fullyQualifiedName,firstCommit,#Commits\n");
-
             for (JavaMethod m : methods) {
-                String firstCommit;
-                if (m.getCommits().isEmpty()) {
-                    firstCommit = "";
-                } else {
-                    firstCommit = m.getCommits().get(0).toString();
-                }
-
+                RevCommit firstCommit = m.getFirstCommit();
+                String firstCommitName = (firstCommit != null) ? firstCommit.getName() : "";
                 fileWriter.append(escapeCSV(m.getFullyQualifiedName())).append(",")
-                        .append(escapeCSV(firstCommit)).append(",")
+                        .append(escapeCSV(firstCommitName)).append(",")
                         .append(String.valueOf(m.getCommits().size()))
                         .append(DELIMITER);
             }
-
-            flushAndCloseFW(fileWriter, logger, CLASS);
         } catch (IOException e) {
             logger.info(ERROR);
         }
     }
 
+    // --- METODO MODIFICATO E AGGIORNATO ---
     public static void printMethodsDataset(String projectName, List<JavaMethod> methods) throws IOException {
         String projectDirName = projectName.toLowerCase();
         File projectCsvDir = new File(CSV_FILES_DIR + projectDirName);
 
         if (!projectCsvDir.exists()) {
-            boolean created = projectCsvDir.mkdirs();
-            if (!created) {
-                logger.severe("ERROR: Could not create directory " + projectCsvDir.getAbsolutePath());
-                throw new IOException("Could not create directory: " + projectCsvDir.getAbsolutePath());
+            if (!projectCsvDir.mkdirs()) {
+                logger.severe("ERRORE: Impossibile creare la cartella " + projectCsvDir.getAbsolutePath());
+                throw new IOException("Impossibile creare la cartella: " + projectCsvDir.getAbsolutePath());
             }
         }
 
         File datasetFile = new File(projectCsvDir.getAbsolutePath() + SLASH + "Dataset.csv");
+        logger.info("Scrittura del dataset in: " + datasetFile.getAbsolutePath());
 
         try (FileWriter fileWriter = new FileWriter(datasetFile)) {
-            // Scrivi l'intestazione del CSV
+            // Scrivi l'intestazione del CSV con tutte le nuove metriche
             fileWriter.append("MethodFullyQualifiedName").append(SEPARATOR)
                     .append("ReleaseID").append(SEPARATOR)
+                    // Metriche di Dimensione e Complessità
                     .append("LOC").append(SEPARATOR)
                     .append("NumParameters").append(SEPARATOR)
-                    .append("NumAuthors").append(SEPARATOR)
-                    .append("NumRevisions").append(SEPARATOR)
-                    .append("TotalStmtAdded").append(SEPARATOR)
-                    .append("TotalStmtDeleted").append(SEPARATOR)
                     .append("NumBranches").append(SEPARATOR)
                     .append("NestingDepth").append(SEPARATOR)
+                    .append("NumCodeSmells").append(SEPARATOR)
                     .append("NumLocalVariables").append(SEPARATOR)
+                    // Metriche Storiche
+                    .append("NumRevisions").append(SEPARATOR)
+                    .append("NumAuthors").append(SEPARATOR)
+                    .append("TotalStmtAdded").append(SEPARATOR)
+                    .append("TotalChurn").append(SEPARATOR)
                     .append("MaxChurn").append(SEPARATOR)
                     .append("AvgChurn").append(SEPARATOR)
-                    .append("HasFixHistory").append(SEPARATOR)
-                    .append("IsBuggy") // Ultima colonna, target
+                    .append("NFix").append(SEPARATOR)
+                    // Etichetta (Target)
+                    .append("IsBuggy")
                     .append(DELIMITER);
 
             // Scrivi i dati per ogni metodo
             for (JavaMethod method : methods) {
-                // Assicurati che la release non sia null e abbia un ID
                 String releaseIdStr = (method.getRelease() != null) ? String.valueOf(method.getRelease().getId()) : "N/A";
 
                 fileWriter.append(escapeCSV(method.getFullyQualifiedName())).append(SEPARATOR)
                         .append(releaseIdStr).append(SEPARATOR)
-                        .append(String.valueOf(method.getLoc() != null ? method.getLoc() : 0)).append(SEPARATOR) // Gestisci LOC null
+                        // Metriche di Dimensione e Complessità
+                        .append(String.valueOf(method.getLoc())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumParameters())).append(SEPARATOR)
-                        .append(String.valueOf(method.getNumAuthors())).append(SEPARATOR)
-                        .append(String.valueOf(method.getNumRevisions())).append(SEPARATOR)
-                        .append(String.valueOf(method.getTotalStmtAdded())).append(SEPARATOR)
-                        .append(String.valueOf(method.getTotalStmtDeleted())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumBranches())).append(SEPARATOR)
                         .append(String.valueOf(method.getNestingDepth())).append(SEPARATOR)
+                        .append(String.valueOf(method.getNumCodeSmells())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumLocalVariables())).append(SEPARATOR)
+                        // Metriche Storiche
+                        .append(String.valueOf(method.getNumRevisions())).append(SEPARATOR)
+                        .append(String.valueOf(method.getNumAuthors())).append(SEPARATOR)
+                        .append(String.valueOf(method.getTotalStmtAdded())).append(SEPARATOR)
+                        .append(String.valueOf(method.getTotalChurn())).append(SEPARATOR)
                         .append(String.valueOf(method.getMaxChurn())).append(SEPARATOR)
-                        .append(String.format(Locale.US, "%.2f", method.getAvgChurn())).append(SEPARATOR) // Formatta double
-                        .append(String.valueOf(method.getHasFixHistory())).append(SEPARATOR)
+                        .append(String.format(Locale.US, "%.4f", method.getAvgChurn())).append(SEPARATOR)
+                        .append(String.valueOf(method.getnFix())).append(SEPARATOR)
+                        // Etichetta
                         .append(method.isBuggy() ? "yes" : "no")
                         .append(DELIMITER);
             }
-
-            flushAndCloseFW(fileWriter, logger, CLASS);
-
         } catch (IOException e) {
-            logger.severe("Error writing dataset CSV: " + e.getMessage());
-            throw e; // Rilancia l'eccezione se vuoi che il main la gestisca
+            logger.severe("Errore durante la scrittura del dataset CSV: " + e.getMessage());
+            throw e;
         }
     }
 
-    // Writes the evaluation results of the WEKA classifiers
+    // ... [Il resto della classe (printEvaluationResults, escapeCSV, etc.) rimane invariato] ...
+
     public static void printEvaluationResults(String projectName, List<ClassifierEvaluation> results) throws IOException {
         String outputDir = "wekaFiles/" + projectName.toLowerCase() + "/";
         new File(outputDir).mkdirs();
         String filename = outputDir + "classificationResults.csv";
-
         try (FileWriter writer = new FileWriter(filename)) {
-            // Write the header
-            writer.append(ClassifierEvaluation.getCsvHeader());
-            writer.append(DELIMITER);
-
-            // Write each result row
+            writer.append(ClassifierEvaluation.getCsvHeader()).append(DELIMITER);
             for (ClassifierEvaluation result : results) {
-                writer.append(result.toCsvString());
-                writer.append(DELIMITER);
+                writer.append(result.toCsvString()).append(DELIMITER);
             }
-
             logger.info("Weka Evaluation results written to " + filename);
-
         } catch (IOException e) {
-            logger.info("Error writing Wela Evaluation results");
+            logger.severe("Error writing Weka Evaluation results: " + e.getMessage());
         }
     }
 
     private static String escapeCSV(String field) {
+        if (field == null) return "";
         if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
             field = field.replace("\"", "\"\"");
             return "\"" + field + "\"";

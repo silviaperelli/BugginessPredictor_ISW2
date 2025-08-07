@@ -1,38 +1,41 @@
 package model;
+
 import com.github.javaparser.ast.body.MethodDeclaration;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.OptionalDouble;
 
 public class JavaMethod {
-
-    private String fullyQualifiedName; // Es: com/example/MyClass.java/myMethod(int,String)
-    private Release release;
-    private String bodyHash;
-    private String content;
-    private List<RevCommit> commits; //list of commits that modified the content of the method
-    private List<RevCommit> fixCommits; //list of commits that fixed the method
-
-    //prevision metric
+    private final String fullyQualifiedName;
+    private final Release release;
     private boolean buggy;
+    private final List<RevCommit> commits;
+    private final List<RevCommit> fixCommits;
+    private String bodyHash;
 
-    //metrics
-    private Integer loc;
+    // --- METRICHE ---
+
+    // Metriche di Complessità e Dimensione
+    private int loc;
     private int numParameters;
-    private int numAuthors;
-    private int numRevisions; // methodHistories
-    private int totalStmtAdded; // stmtAdded
-    private int totalStmtDeleted; //stmtDeleted
-
     private int numBranches;
-    private int numLocalVariables; // number of local variables
-    private int maxChurn;   // maxChurn (stmtAddedInOneCommit + stmtDeletedInOneCommit)
-    private double avgChurn;  // avgChurn = (totalStmtAdded + totalStmtDeleted) / numRevisions
     private int nestingDepth;
+    private int numCodeSmells;
+    private int numLocalVariables;
 
-    private int hasFixHistory;
+    // Metriche Storiche (Process Metrics)
+    private int numRevisions;
+    private int numAuthors;
+    private int totalStmtAdded;
+    private int totalStmtDeleted;
+    private int totalChurn;
+    private int maxChurn;
+    private double avgChurn;
+    private int nFix;
+
 
     public JavaMethod(String fullyQualifiedName, Release release) {
         this.fullyQualifiedName = fullyQualifiedName;
@@ -41,204 +44,85 @@ public class JavaMethod {
         this.fixCommits = new ArrayList<>();
         this.buggy = false;
 
+        // Inizializza tutte le metriche
         this.loc = 0;
+        this.numParameters = 0;
+        this.numBranches = 0;
+        this.nestingDepth = 0;
+        this.numCodeSmells = 0;
         this.numRevisions = 0;
         this.numAuthors = 0;
         this.totalStmtAdded = 0;
         this.totalStmtDeleted = 0;
-
-        this.numBranches = 0;
-        this.numLocalVariables = 0;
+        this.totalChurn = 0;
         this.maxChurn = 0;
         this.avgChurn = 0.0;
-        this.nestingDepth = 0;
-        this.hasFixHistory = 0;
-
+        this.nFix = 0;
+        this.numLocalVariables = 0;
     }
 
-    public String getFullyQualifiedName() {
-        return fullyQualifiedName;
-    }
-
-    public void setFullyQualifiedName(String fullyQualifiedName) {
-        this.fullyQualifiedName = fullyQualifiedName;
-    }
-
-
-    public Release getRelease() {
-        return release;
-    }
-
-    public void setRelease(Release release) {
-        this.release = release;
-    }
-
-    public int getHasFixHistory() {
-        return hasFixHistory;
-    }
-
-    public void setHasFixHistory(int hasFixHistory) {
-        this.hasFixHistory = hasFixHistory;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public int getNumLocalVariables() {
-        return numLocalVariables;
-    }
-
-    public void setNumLocalVariables(int numLocalVariables) {
-        this.numLocalVariables = numLocalVariables;
-    }
-
-    public boolean isBuggy() {
-        return buggy;
-    }
-
-    public void setBuggy(boolean buggy) {
-        this.buggy = buggy;
-    }
-
-    public Integer getLoc() {
-        return loc;
-    }
-
-    public void setLoc(Integer loc) {
-        this.loc = loc;
-    }
-
-    public List<RevCommit> getCommits() {
-        return commits;
-    }
-
-    public void addCommit(RevCommit commit) {
-        commits.add(commit);
-    }
-
-    public List<RevCommit> getFixCommits() {
-        return fixCommits;
-    }
-
-    public void addFixCommit(RevCommit commit) {
-        fixCommits.add(commit);
-    }
-
-    public int getNumParameters() {
-        return numParameters;
-    }
-
-    public void setNumParameters(int numParameters) {
-        this.numParameters = numParameters;
-    }
-
-    public int getNumAuthors() {
-        return numAuthors;
-    }
-
-    public void setNumAuthors(int numAuthors) {
-        this.numAuthors = numAuthors;
-    }
-
-    public int getNumRevisions() {
-        return numRevisions;
-    }
-
-    public void setNumRevisions(int numRevisions) {
-        this.numRevisions = numRevisions;
-    }
-
-    public int getTotalStmtAdded() {
-        return totalStmtAdded;
-    }
-
-    public void setTotalStmtAdded(int totalStmtAdded) {
-        this.totalStmtAdded = totalStmtAdded;
-    }
-
-    public int getTotalStmtDeleted() {
-        return totalStmtDeleted;
-    }
-
-    public void setTotalStmtDeleted(int totalStmtDeleted) {
-        this.totalStmtDeleted = totalStmtDeleted;
-    }
-
-    public int getNumBranches() {
-        return numBranches;
-    }
-
-    public void setNumBranches(int numBranches) {
-        this.numBranches = numBranches;
-    }
-
-    public int getMaxChurn() {
-        return maxChurn;
-    }
-
-    public void setMaxChurn(int maxChurn) {
-        this.maxChurn = maxChurn;
-    }
-
-    public double getAvgChurn() {
-        return avgChurn;
-    }
-
-    public void setAvgChurn(double avgChurn) {
-        this.avgChurn = avgChurn;
-    }
-
-    public int getNestingDepth() {
-        return nestingDepth;
-    }
-
-    public void setNestingDepth(int nestingDepth) {
-        this.nestingDepth = nestingDepth;
-    }
-
-    // Per identificare univocamente un metodo (nome + parametri) all'interno di una classe
     public static String getSignature(MethodDeclaration md) {
         return md.getSignature().asString();
     }
 
-    public void addStmtAdded(int count) { this.totalStmtAdded += count; }
-    public void addStmtDeleted(int count) { this.totalStmtDeleted += count; }
-
+    // --- METODI HELPER PER AGGIORNARE LE METRICHE ---
+    public void addCommit(RevCommit commit) { this.commits.add(commit); }
+    public void addFixCommit(RevCommit commit) { this.fixCommits.add(commit); }
     public void incrementNumRevisions() { this.numRevisions++; }
+    public void addStmtAdded(int added) { this.totalStmtAdded += added; }
+    public void addStmtDeleted(int deleted) { this.totalStmtDeleted += deleted; }
+    public void incrementNFix() { this.nFix++; }
 
-    public String getBodyHash() {
-        return bodyHash;
+    public RevCommit getFirstCommit() {
+        if (commits.isEmpty()) return null;
+        return commits.stream().min(Comparator.comparing(RevCommit::getCommitTime)).orElse(null);
     }
 
-    public void setBodyHash(String bodyHash) {
-        this.bodyHash = bodyHash;
+    // Metodo da chiamare alla fine per calcolare le metriche aggregate
+    public void computeFinalMetrics() {
+        // Calcola TotalChurn
+        this.totalChurn = this.totalStmtAdded + this.totalStmtDeleted;
+
+        // Calcola AvgChurn
+        if (this.numRevisions > 0) {
+            this.avgChurn = (double) this.totalChurn / this.numRevisions;
+        }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        JavaMethod that = (JavaMethod) o;
-        return Objects.equals(fullyQualifiedName, that.fullyQualifiedName) &&
-                Objects.equals(release.getId(), that.release.getId()); // Un metodo è unico per nome E release
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(fullyQualifiedName, release.getId());
-    }
-
-    @Override
-    public String toString() {
-        return "JavaMethod{" +
-                "FQN='" + fullyQualifiedName + '\'' +
-                ", release=" + release.getId() +
-                ", buggy=" + buggy +
-                '}';
-    }
+    // --- GETTERS E SETTERS PER TUTTE LE METRICHE ---
+    public String getFullyQualifiedName() { return fullyQualifiedName; }
+    public Release getRelease() { return release; }
+    public boolean isBuggy() { return buggy; }
+    public void setBuggy(boolean buggy) { this.buggy = buggy; }
+    public List<RevCommit> getCommits() { return commits; }
+    public String getBodyHash() { return bodyHash; }
+    public void setBodyHash(String bodyHash) { this.bodyHash = bodyHash; }
+    public int getLoc() { return loc; }
+    public void setLoc(int loc) { this.loc = loc; }
+    public int getNumParameters() { return numParameters; }
+    public void setNumParameters(int numParameters) { this.numParameters = numParameters; }
+    public int getNumBranches() { return numBranches; }
+    public void setNumBranches(int numBranches) { this.numBranches = numBranches; }
+    public int getNestingDepth() { return nestingDepth; }
+    public void setNestingDepth(int nestingDepth) { this.nestingDepth = nestingDepth; }
+    public int getNumCodeSmells() { return numCodeSmells; }
+    public void setNumCodeSmells(int numCodeSmells) { this.numCodeSmells = numCodeSmells; }
+    public int getNumRevisions() { return numRevisions; }
+    public void setNumRevisions(int numRevisions) { this.numRevisions = numRevisions; }
+    public int getNumAuthors() { return numAuthors; }
+    public void setNumAuthors(int numAuthors) { this.numAuthors = numAuthors; }
+    public int getTotalStmtAdded() { return totalStmtAdded; }
+    public int getTotalStmtDeleted() { return totalStmtDeleted; }
+    public void setTotalStmtAdded(int totalStmtAdded) { this.totalStmtAdded = totalStmtAdded; }
+    public void setTotalStmtDeleted(int totalStmtDeleted) { this.totalStmtDeleted = totalStmtDeleted; }
+    public int getTotalChurn() { return totalChurn; }
+    public int getMaxChurn() { return maxChurn; }
+    public double getAvgChurn() { return avgChurn; }
+    public void setTotalChurn(int totalChurn) { this.totalChurn = totalChurn; }
+    public void setMaxChurn(int maxChurn) { this.maxChurn = maxChurn; }
+    public void setAvgChurn(double avgChurn) { this.avgChurn = avgChurn; }
+    public int getnFix() { return nFix; }
+    public void setnFix(int nFix) { this.nFix = nFix; }
+    public int getNumLocalVariables() { return numLocalVariables; }
+    public void setNumLocalVariables(int numLocalVariables) { this.numLocalVariables = numLocalVariables; }
 }
