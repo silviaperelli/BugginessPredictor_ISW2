@@ -150,10 +150,10 @@ public class PrintUtils {
                     .append("NumRevisions").append(SEPARATOR)
                     .append("NumAuthors").append(SEPARATOR)
                     .append("TotalStmtAdded").append(SEPARATOR)
-                    .append("TotalChurn").append(SEPARATOR)
+                    .append("TotalStmtDeleted").append(SEPARATOR)
                     .append("MaxChurn").append(SEPARATOR)
                     .append("AvgChurn").append(SEPARATOR)
-                    .append("NFix").append(SEPARATOR)
+                    .append("HasFixHistory").append(SEPARATOR)
                     // Etichetta (Target)
                     .append("IsBuggy")
                     .append(DELIMITER);
@@ -175,10 +175,10 @@ public class PrintUtils {
                         .append(String.valueOf(method.getNumRevisions())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumAuthors())).append(SEPARATOR)
                         .append(String.valueOf(method.getTotalStmtAdded())).append(SEPARATOR)
-                        .append(String.valueOf(method.getTotalChurn())).append(SEPARATOR)
+                        .append(String.valueOf(method.getTotalStmtDeleted())).append(SEPARATOR)
                         .append(String.valueOf(method.getMaxChurn())).append(SEPARATOR)
                         .append(String.format(Locale.US, "%.4f", method.getAvgChurn())).append(SEPARATOR)
-                        .append(String.valueOf(method.getnFix())).append(SEPARATOR)
+                        .append(String.valueOf(method.getHasFixHistory())).append(SEPARATOR)
                         // Etichetta
                         .append(method.isBuggy() ? "yes" : "no")
                         .append(DELIMITER);

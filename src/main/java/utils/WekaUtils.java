@@ -39,10 +39,10 @@ public final class WekaUtils {
         attributes.add(new Attribute("NumRevisions"));
         attributes.add(new Attribute("NumAuthors"));
         attributes.add(new Attribute("TotalStmtAdded"));
-        attributes.add(new Attribute("TotalChurn"));
+        attributes.add(new Attribute("TotalStmtDeleted"));
         attributes.add(new Attribute("MaxChurn"));
         attributes.add(new Attribute("AvgChurn"));
-        attributes.add(new Attribute("NFix"));
+        attributes.add(new Attribute("HasFixHistory"));
 
         // Aggiungi l'attributo nominale della classe (il target da predire)
         List<String> classValues = Arrays.asList("no", "yes");
@@ -69,10 +69,10 @@ public final class WekaUtils {
             values[6] = method.getNumRevisions();
             values[7] = method.getNumAuthors();
             values[8] = method.getTotalStmtAdded();
-            values[9] = method.getTotalChurn();
+            values[9] = method.getTotalStmtDeleted();
             values[10] = method.getMaxChurn();
             values[11] = method.getAvgChurn();
-            values[12] = method.getnFix();
+            values[12] = method.getHasFixHistory();
 
             // Per l'attributo nominale, usiamo l'indice del valore ("no" = 0, "yes" = 1)
             values[data.classIndex()] = method.isBuggy() ? 1.0 : 0.0;

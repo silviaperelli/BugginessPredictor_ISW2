@@ -15,7 +15,7 @@ import java.util.*;
 public class CorrelationCalculator {
 
     public static void main(String[] args) throws Exception {
-        String projectName = "BOOKKEEPER";
+        String projectName = "SYNCOPE";
 
         String inputFilePath = String.format("csvFiles/%s/Dataset.csv", projectName.toLowerCase(), projectName.toLowerCase());
         String outputDir = "correlationFiles";

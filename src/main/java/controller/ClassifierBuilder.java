@@ -1,6 +1,6 @@
 package controller;
 
-import model.WekaClassifier; // Assicurati che l'import sia corretto
+import model.WekaClassifier;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.classifiers.Classifier;
@@ -12,7 +12,6 @@ import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.RandomForest;
 import weka.core.AttributeStats;
 import weka.core.Instances;
-import weka.core.Utils;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.filters.supervised.instance.Resample;
@@ -24,6 +23,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ClassifierBuilder {
+
+    // MODIFICA 1: Ho aggiunto una costante per la descrizione, per facilitare le modifiche
+    private static final String FEATURE_SELECTION_NAME = "BestFirst (backward)";
 
     private ClassifierBuilder() {}
 
@@ -52,7 +54,8 @@ public class ClassifierBuilder {
             FilteredClassifier fc = new FilteredClassifier();
             fc.setClassifier(base);
             fc.setFilter(createFeatureSelectionFilter());
-            classifiers.add(new WekaClassifier(fc, getClassifierName(base), "BestFirst", "none", "none"));
+            // MODIFICA 2: Aggiornata la stringa descrittiva
+            classifiers.add(new WekaClassifier(fc, getClassifierName(base), FEATURE_SELECTION_NAME, "none", "none"));
         }
     }
 
@@ -71,7 +74,7 @@ public class ClassifierBuilder {
             CostSensitiveClassifier csc = new CostSensitiveClassifier();
             csc.setClassifier(base);
             csc.setCostMatrix(createCostMatrix());
-            csc.setMinimizeExpectedCost(false); // Usa re-weighting
+            csc.setMinimizeExpectedCost(false);
             classifiers.add(new WekaClassifier(csc, getClassifierName(base), "none", "none", "SensitiveThreshold"));
         }
     }
@@ -93,22 +96,21 @@ public class ClassifierBuilder {
 
     private static Filter createFeatureSelectionFilter() {
         AttributeSelection filter = new AttributeSelection();
-
-        // Create the evaluator
         CfsSubsetEval eval = new CfsSubsetEval();
-
-        // Create the search method
         BestFirst search = new BestFirst();
 
-        // Configure the search method using command-line options
-        // -D 1 specifies a forward search.
+        // MODIFICA 3: Cambiato da -D 1 (forward) a -D 0 (backward).
+        // Questa riga ora imposta una ricerca all'indietro.
+        String[] options = {"-D", "0"}; // -D 0 specifica una ricerca BACKWARD
         try {
-            search.setOptions(Utils.splitOptions("-D 1"));
+            search.setOptions(options);
         } catch (Exception e) {
             Logger.getLogger(ClassifierBuilder.class.getName()).log(Level.SEVERE, "Failed to set BestFirst options", e);
         }
 
-        // Set the evaluator and search method on the filter
+        // Alternativa più programmatica e leggibile (come quella della tua collega):
+        // search.setDirection(new SelectedTag(BestFirst.BACKWARD, BestFirst.TAGS_DIRECTION));
+
         filter.setEvaluator(eval);
         filter.setSearch(search);
 
@@ -117,69 +119,57 @@ public class ClassifierBuilder {
 
     private static Filter createSmoteFilter(Instances data) {
         SMOTE smote = new SMOTE();
-
-        // Get class distribution
         AttributeStats stats = data.attributeStats(data.classIndex());
         int[] nominalCounts = stats.nominalCounts;
 
-        if (nominalCounts.length < 2) return new Resample(); // Failsafe if data is not binary
-
+        if (nominalCounts.length < 2) return new Resample();
         double majoritySize = Math.max(nominalCounts[0], nominalCounts[1]);
         double minoritySize = Math.min(nominalCounts[0], nominalCounts[1]);
+        if (minoritySize == 0) return new Resample();
 
-        if (minoritySize == 0) return new Resample(); // Avoid division by zero
-
-        // Calculate the percentage of new instances to create
         double percentage = (majoritySize - minoritySize) / minoritySize * 100.0;
         smote.setPercentage(percentage);
-
         return smote;
     }
 
     private static CostMatrix createCostMatrix() {
         CostMatrix matrix = new CostMatrix(2);
-        // I tuoi dati sono {no, yes}, Weka li ordina alfabeticamente: 0=no, 1=yes.
-        // La classe "positiva" (buggy) è 'yes', quindi l'indice è 1.
-        matrix.setCell(0, 0, 0.0);   // TN: Reale 'no', Predetto 'no' -> Costo 0
-        matrix.setCell(1, 1, 0.0);   // TP: Reale 'yes', Predetto 'yes' -> Costo 0
-        matrix.setCell(0, 1, 1.0);   // FP: Reale 'no', Predetto 'yes' -> Costo 1 (falso allarme)
-        matrix.setCell(1, 0, 10.0);  // FN: Reale 'yes', Predetto 'no' -> Costo 10 (bug non trovato!)
+        matrix.setCell(0, 0, 0.0);
+        matrix.setCell(1, 1, 0.0);
+        matrix.setCell(0, 1, 1.0); //FP
+        matrix.setCell(1, 0, 10.0); //FN
         return matrix;
     }
 
-    // AGGIUNGI QUESTO NUOVO METODO
     private static void addFeatureSelectionAndSmoteClassifiers(List<WekaClassifier> classifiers, Instances trainingSet) {
         Filter smote = createSmoteFilter(trainingSet);
         for (Classifier base : getBaseClassifiers()) {
-            // Step 1: Crea il classificatore con Feature Selection
             FilteredClassifier fcWithFeatureSelection = new FilteredClassifier();
             fcWithFeatureSelection.setClassifier(base);
             fcWithFeatureSelection.setFilter(createFeatureSelectionFilter());
 
-            // Step 2: Avvolgi il classificatore filtrato con SMOTE
             FilteredClassifier fcWithBoth = new FilteredClassifier();
             fcWithBoth.setClassifier(fcWithFeatureSelection);
             fcWithBoth.setFilter(smote);
 
-            classifiers.add(new WekaClassifier(fcWithBoth, getClassifierName(base), "BestFirst", "SMOTE", "none"));
+            // MODIFICA 4: Aggiornata la stringa descrittiva
+            classifiers.add(new WekaClassifier(fcWithBoth, getClassifierName(base), FEATURE_SELECTION_NAME, "SMOTE", "none"));
         }
     }
 
-    // AGGIUNGI ANCHE QUESTO NUOVO METODO
     private static void addFeatureSelectionAndCostSensitiveClassifiers(List<WekaClassifier> classifiers) {
         for (Classifier base : getBaseClassifiers()) {
-            // Step 1: Crea il classificatore con Cost Sensitive
             CostSensitiveClassifier csc = new CostSensitiveClassifier();
             csc.setClassifier(base);
             csc.setCostMatrix(createCostMatrix());
             csc.setMinimizeExpectedCost(false);
 
-            // Step 2: Avvolgi il classificatore Cost-Sensitive con la Feature Selection
             FilteredClassifier fcWithBoth = new FilteredClassifier();
             fcWithBoth.setClassifier(csc);
             fcWithBoth.setFilter(createFeatureSelectionFilter());
 
-            classifiers.add(new WekaClassifier(fcWithBoth, getClassifierName(base), "BestFirst", "none", "SensitiveThreshold"));
+            // MODIFICA 5: Aggiornata la stringa descrittiva
+            classifiers.add(new WekaClassifier(fcWithBoth, getClassifierName(base), FEATURE_SELECTION_NAME, "none", "SensitiveThreshold"));
         }
     }
 }

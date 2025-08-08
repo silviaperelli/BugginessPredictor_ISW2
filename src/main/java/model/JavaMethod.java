@@ -31,10 +31,9 @@ public class JavaMethod {
     private int numAuthors;
     private int totalStmtAdded;
     private int totalStmtDeleted;
-    private int totalChurn;
     private int maxChurn;
     private double avgChurn;
-    private int nFix;
+    private int hasFixHistory;
 
 
     public JavaMethod(String fullyQualifiedName, Release release) {
@@ -54,10 +53,9 @@ public class JavaMethod {
         this.numAuthors = 0;
         this.totalStmtAdded = 0;
         this.totalStmtDeleted = 0;
-        this.totalChurn = 0;
         this.maxChurn = 0;
         this.avgChurn = 0.0;
-        this.nFix = 0;
+        this.hasFixHistory = 0;
         this.numLocalVariables = 0;
     }
 
@@ -71,7 +69,6 @@ public class JavaMethod {
     public void incrementNumRevisions() { this.numRevisions++; }
     public void addStmtAdded(int added) { this.totalStmtAdded += added; }
     public void addStmtDeleted(int deleted) { this.totalStmtDeleted += deleted; }
-    public void incrementNFix() { this.nFix++; }
 
     public RevCommit getFirstCommit() {
         if (commits.isEmpty()) return null;
@@ -80,12 +77,10 @@ public class JavaMethod {
 
     // Metodo da chiamare alla fine per calcolare le metriche aggregate
     public void computeFinalMetrics() {
-        // Calcola TotalChurn
-        this.totalChurn = this.totalStmtAdded + this.totalStmtDeleted;
 
         // Calcola AvgChurn
         if (this.numRevisions > 0) {
-            this.avgChurn = (double) this.totalChurn / this.numRevisions;
+            this.avgChurn = (double) (this.totalStmtAdded + this.totalStmtDeleted) / this.numRevisions;
         }
     }
 
@@ -115,14 +110,12 @@ public class JavaMethod {
     public int getTotalStmtDeleted() { return totalStmtDeleted; }
     public void setTotalStmtAdded(int totalStmtAdded) { this.totalStmtAdded = totalStmtAdded; }
     public void setTotalStmtDeleted(int totalStmtDeleted) { this.totalStmtDeleted = totalStmtDeleted; }
-    public int getTotalChurn() { return totalChurn; }
     public int getMaxChurn() { return maxChurn; }
     public double getAvgChurn() { return avgChurn; }
-    public void setTotalChurn(int totalChurn) { this.totalChurn = totalChurn; }
     public void setMaxChurn(int maxChurn) { this.maxChurn = maxChurn; }
     public void setAvgChurn(double avgChurn) { this.avgChurn = avgChurn; }
-    public int getnFix() { return nFix; }
-    public void setnFix(int nFix) { this.nFix = nFix; }
+    public int getHasFixHistory() { return hasFixHistory; }
+    public void setHasFixHistory(int hasFixHistory) { this.hasFixHistory = hasFixHistory; }
     public int getNumLocalVariables() { return numLocalVariables; }
     public void setNumLocalVariables(int numLocalVariables) { this.numLocalVariables = numLocalVariables; }
 }
