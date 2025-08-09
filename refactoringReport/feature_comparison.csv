@@ -1,0 +1,13 @@
+MethodName,Version,LOC,NumParameters,NumBranches,NestingDepth,NumCodeSmells,NumLocalVariables
+readEntry,Original,34,3,7,2,3,11
+
+// --- Dettaglio Metodi Refattorizzati ---
+readEntry2,Refactored_EntryPoint,12,3,1,1,0,7
+getChannelForLog,Refactored_Helper,6,3,1,2,0,1
+readEntrySize,Refactored_Helper,5,4,1,1,0,1
+validateEntrySize,Refactored_Helper,5,3,2,1,0,0
+validateHeader,Refactored_Helper,7,5,2,1,0,3
+
+// --- Riepilogo Aggregato per Confronto (Feature 1 vs Feature 2) ---
+MethodName,Version,LOC,NumParameters,NumBranches,NestingDepth,NumCodeSmells,NumLocalVariables
+readEntry (refactored system),Refactored_Aggregate,35,3,7,2,0,12
