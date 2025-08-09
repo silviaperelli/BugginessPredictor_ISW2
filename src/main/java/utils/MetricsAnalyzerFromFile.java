@@ -21,7 +21,8 @@ public class MetricsAnalyzerFromFile {
 
     public static void main(String[] args) throws IOException {
 
-        String inputFile = "/Users/silviaperelli/Desktop/Refactoring_AFMethod.java";
+        String projectName = "BOOKKEEPER";
+        String inputFile = "/Users/silviaperelli/Desktop/Refactoring_AFMethod_" + projectName.toLowerCase() + ".java";
 
         // Crea la cartella "refactoringReport" sulla Scrivania se non esiste
         String outputDir = "refactoringReport";
