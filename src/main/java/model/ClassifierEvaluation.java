@@ -14,8 +14,9 @@ public class ClassifierEvaluation {
     private final double auc;
     private final double kappa;
     private final double f1Score;
+    private final double mcc;
 
-    public ClassifierEvaluation(String project, int iteration, String classifierName, String featureSelection, String sampling, String costSensitive, double precision, double recall, double auc, double kappa, double f1Score) {
+    public ClassifierEvaluation(String project, int iteration, String classifierName, String featureSelection, String sampling, String costSensitive, double precision, double recall, double auc, double kappa, double f1Score, double mcc) {
         this.project = project;
         this.iteration = iteration;
         this.classifierName = classifierName;
@@ -27,15 +28,16 @@ public class ClassifierEvaluation {
         this.auc = auc;
         this.kappa = kappa;
         this.f1Score = f1Score;
+        this.mcc = mcc;
     }
 
 
     public static String getCsvHeader() {
-        return "Project,Iteration,Classifier,FeatureSelection,Sampling,CostSensitive,Precision,Recall,AUC,Kappa,F1-Score";
+        return "Project,Iteration,Classifier,FeatureSelection,Sampling,CostSensitive,Precision,Recall,AUC,Kappa,F1-Score,MCC";
     }
 
     public String toCsvString() {
-        return String.format(Locale.US, "%s,%d,%s,%s,%s,%s,%.3f,%.3f,%.3f,%.3f,%.3f",
+        return String.format(Locale.US, "%s,%d,%s,%s,%s,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f",
                 project,
                 iteration,
                 classifierName,
@@ -46,6 +48,7 @@ public class ClassifierEvaluation {
                 recall,
                 auc,
                 kappa,
-                f1Score);
+                f1Score,
+                mcc);
     }
 }

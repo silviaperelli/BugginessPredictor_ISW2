@@ -4,8 +4,10 @@ import controller.WekaClassification;
 import model.JavaMethod;
 import model.Release;
 import model.Ticket;
+import org.eclipse.jgit.revwalk.RevCommit; // <-- Aggiunto import necessario
 import utils.PrintUtils;
 
+import java.io.IOException; // <-- Aggiunto import necessario
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,15 +18,14 @@ public class Main {
         Logger rootLogger = Logger.getLogger("");
         rootLogger.setLevel(Level.SEVERE);
 
-        String print;
         String project1 = "BOOKKEEPER";
         String project2 = "SYNCOPE";
 
-        // --- ESEGUI L'ANALISI PER IL PRIMO PROGETTO ---
-        //runAnalysisForProject(project1);
+        // Decommenta per eseguire l'analisi per il primo progetto
+        runAnalysisForProject(project1);
 
-        // --- ESEGUI L'ANALISI PER IL SECONDO PROGETTO ---
-        runAnalysisForProject(project2);
+        // Esegui l'analisi per il secondo progetto
+        //runAnalysisForProject(project2);
     }
 
     /**
@@ -47,7 +48,7 @@ public class Main {
         System.out.println(projectName + ": " + ticketList.size() + " tickets extracted.");
 
         GitDataExtractor gitExtractor = new GitDataExtractor(projectName, fullReleaseList, ticketList);
-        gitExtractor.getAllCommitsAndAssignToReleases();
+        List<RevCommit> allCommits = gitExtractor.getAllCommitsAndAssignToReleases(); // <-- Salva la lista dei commit
         System.out.println(projectName + ": commits assigned to releases.");
 
         gitExtractor.filterCommitsOfIssues();
@@ -60,6 +61,31 @@ public class Main {
         System.out.println("Labeling method bugginess...");
         gitExtractor.setMethodBuggyness(allMethods);
 
+        // --- INIZIO NUOVA PARTE: Stampe di Report Intermedi ---
+        System.out.println("\n--- Generating Intermediate Report Files ---");
+        try {
+            // Stampa la lista di tutte le release analizzate con i loro dettagli
+            PrintUtils.printReleases(projectName, gitExtractor.getReleaseList(), "AnalyzedReleases.csv");
+            System.out.println(projectName + ": Report 'AnalyzedReleases.csv' created.");
+
+            // Stampa la lista di tutti i ticket con i loro dettagli
+            PrintUtils.printTickets(projectName, ticketList);
+            System.out.println(projectName + ": Report 'AllTickets.csv' created.");
+
+            // Stampa la lista di tutti i commit
+            PrintUtils.printCommits(projectName, allCommits, "AllCommits.csv");
+            System.out.println(projectName + ": Report 'AllCommits.csv' created.");
+
+            // Stampa una vista semplificata dei metodi (opzionale, ma può essere utile)
+            PrintUtils.printMethods(projectName, allMethods, "AllMethods.csv");
+            System.out.println(projectName + ": Report 'AllMethods.csv' created.");
+
+        } catch (IOException e) {
+            System.err.println("Error while generating intermediate report files: " + e.getMessage());
+        }
+        // --- FINE NUOVA PARTE ---
+
+        System.out.println("\nCreating the final dataset for Weka...");
         PrintUtils.printMethodsDataset(projectName, allMethods);
         System.out.println(projectName + ": Dataset CSV created successfully.");
         System.out.println("--- Phase 1 Complete ---");
@@ -67,16 +93,12 @@ public class Main {
         // --- FASE 2: WEKA CLASSIFICATION ---
         System.out.println("\n--- Phase 2: Weka Classification ---");
 
-        // --- 2. CREA UN'ISTANZA DELLA NUOVA CLASSE DI ANALISI ---
         WekaClassification wekaAnalysis = new WekaClassification(projectName, allMethods);
-
-        // --- 3. ESEGUI L'ANALISI WALK-FORWARD ---
         wekaAnalysis.execute();
 
         System.out.println("--- Phase 2 Complete ---");
         System.out.println("\n==================================================");
         System.out.println("ANALYSIS FOR " + projectName.toUpperCase() + " FINISHED");
         System.out.println("==================================================");
-
     }
 }

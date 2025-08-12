@@ -48,6 +48,8 @@ public class PrintUtils {
         }
     }
 
+    // In PrintUtils.java
+
     public static void printTickets(String project, List<Ticket> ticketList) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
@@ -57,21 +59,35 @@ public class PrintUtils {
 
         file = new File(MAINDIR + project + SLASH + "AllTickets.csv");
         try(FileWriter fileWriter = new FileWriter(file)) {
+            // Ho aggiunto numOfCommits all'header per coerenza
             fileWriter.append("key,creationDate,resolutionDate,injectedVersion,openingVersion,fixedVersion,affectedVersion,numOfCommits\n");
             List<Ticket> ticketOrderedByCreation = new ArrayList<>(ticketList);
             ticketOrderedByCreation.sort(Comparator.comparing(Ticket::getCreationDate));
+
             for (Ticket ticket : ticketOrderedByCreation) {
-                List<String> iDs = new ArrayList<>();
+
+                // --- INIZIO MODIFICA ---
+
+                // 1. Raccogli i nomi delle release come prima
+                List<String> releaseNames = new ArrayList<>();
                 for(Release release : ticket.getAv()) {
-                    iDs.add(release.getName());
+                    releaseNames.add(release.getName());
                 }
+
+                // 2. Unisci i nomi in una singola stringa usando un separatore diverso (es. ";")
+                String affectedVersionsString = String.join(";", releaseNames);
+
+                // --- FINE MODIFICA ---
+
                 fileWriter.append(ticket.getTicketID()).append(",")
                         .append(String.valueOf(ticket.getCreationDate())).append(",")
                         .append(String.valueOf(ticket.getResolutionDate())).append(",")
                         .append(ticket.getIv() != null ? ticket.getIv().getName() : "N/A").append(",")
                         .append(ticket.getOv() != null ? ticket.getOv().getName() : "N/A").append(",")
                         .append(ticket.getFv() != null ? ticket.getFv().getName() : "N/A").append(",")
-                        .append(String.valueOf(iDs)).append(DELIMITER);
+                        .append(affectedVersionsString).append(",") // <-- USA LA NUOVA STRINGA
+                        .append(String.valueOf(ticket.getCommitList().size())) // <-- AGGIUNGI numOfCommits
+                        .append(DELIMITER);
             }
         } catch (IOException e) {
             logger.info(ERROR);
@@ -135,18 +151,23 @@ public class PrintUtils {
         File datasetFile = new File(projectCsvDir.getAbsolutePath() + SLASH + "Dataset.csv");
         logger.info("Scrittura del dataset in: " + datasetFile.getAbsolutePath());
 
+        // --- NUOVA PARTE: Inizializzazione dei contatori per le statistiche ---
+        int totalInstances = 0;
+        int buggyInstances = 0;
+        // Usiamo un HashSet per contare le release uniche
+        java.util.Set<Integer> uniqueReleaseIDs = new java.util.HashSet<>();
+        // --- FINE NUOVA PARTE ---
+
         try (FileWriter fileWriter = new FileWriter(datasetFile)) {
-            // Scrivi l'intestazione del CSV con tutte le nuove metriche
+            // L'intestazione del CSV rimane invariata
             fileWriter.append("MethodFullyQualifiedName").append(SEPARATOR)
                     .append("ReleaseID").append(SEPARATOR)
-                    // Metriche di Dimensione e Complessità
                     .append("LOC").append(SEPARATOR)
                     .append("NumParameters").append(SEPARATOR)
                     .append("NumBranches").append(SEPARATOR)
                     .append("NestingDepth").append(SEPARATOR)
                     .append("NumCodeSmells").append(SEPARATOR)
                     .append("NumLocalVariables").append(SEPARATOR)
-                    // Metriche Storiche
                     .append("NumRevisions").append(SEPARATOR)
                     .append("NumAuthors").append(SEPARATOR)
                     .append("TotalStmtAdded").append(SEPARATOR)
@@ -154,24 +175,32 @@ public class PrintUtils {
                     .append("MaxChurn").append(SEPARATOR)
                     .append("AvgChurn").append(SEPARATOR)
                     .append("HasFixHistory").append(SEPARATOR)
-                    // Etichetta (Target)
                     .append("IsBuggy")
                     .append(DELIMITER);
 
             // Scrivi i dati per ogni metodo
             for (JavaMethod method : methods) {
+                // --- NUOVA PARTE: Aggiornamento delle statistiche ---
+                totalInstances++;
+                if (method.isBuggy()) {
+                    buggyInstances++;
+                }
+                if (method.getRelease() != null) {
+                    uniqueReleaseIDs.add(method.getRelease().getId());
+                }
+                // --- FINE NUOVA PARTE ---
+
                 String releaseIdStr = (method.getRelease() != null) ? String.valueOf(method.getRelease().getId()) : "N/A";
 
+                // Il resto della scrittura del file rimane identico...
                 fileWriter.append(escapeCSV(method.getFullyQualifiedName())).append(SEPARATOR)
                         .append(releaseIdStr).append(SEPARATOR)
-                        // Metriche di Dimensione e Complessità
                         .append(String.valueOf(method.getLoc())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumParameters())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumBranches())).append(SEPARATOR)
                         .append(String.valueOf(method.getNestingDepth())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumCodeSmells())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumLocalVariables())).append(SEPARATOR)
-                        // Metriche Storiche
                         .append(String.valueOf(method.getNumRevisions())).append(SEPARATOR)
                         .append(String.valueOf(method.getNumAuthors())).append(SEPARATOR)
                         .append(String.valueOf(method.getTotalStmtAdded())).append(SEPARATOR)
@@ -179,7 +208,6 @@ public class PrintUtils {
                         .append(String.valueOf(method.getMaxChurn())).append(SEPARATOR)
                         .append(String.format(Locale.US, "%.4f", method.getAvgChurn())).append(SEPARATOR)
                         .append(String.valueOf(method.getHasFixHistory())).append(SEPARATOR)
-                        // Etichetta
                         .append(method.isBuggy() ? "yes" : "no")
                         .append(DELIMITER);
             }
@@ -187,22 +215,58 @@ public class PrintUtils {
             logger.severe("Errore durante la scrittura del dataset CSV: " + e.getMessage());
             throw e;
         }
+
+        // --- NUOVA PARTE: Calcolo finale e stampa delle statistiche ---
+        int nonBuggyInstances = totalInstances - buggyInstances;
+        double buggyPercentage = (totalInstances > 0) ? (100.0 * buggyInstances / totalInstances) : 0;
+        int numReleases = uniqueReleaseIDs.size();
+
+        // Crea la stringa del riepilogo
+        String statsSummary = String.format(
+                "\n--- STATISTICHE DI BASE DEL DATASET ---\n" +
+                        " Progetto:                      %s\n" +
+                        " Numero di Release analizzate:   %d\n" +
+                        " Totale Istanze (metodo-release): %d\n" +
+                        "   - Istanze Buggy ('yes'):     %d\n" +
+                        "   - Istanze Non-Buggy ('no'):  %d\n" +
+                        " Percentuale Istanze Buggy:     %.2f%%\n" +
+                        "---------------------------------------",
+                projectName, numReleases, totalInstances, buggyInstances, nonBuggyInstances, buggyPercentage
+        );
+
+        // Stampa il riepilogo sul flusso di output standard (console normale, non "rossa")
+        System.out.println(statsSummary);
+        // --- FINE MODIFICA ---
     }
 
     // ... [Il resto della classe (printEvaluationResults, escapeCSV, etc.) rimane invariato] ...
 
-    public static void printEvaluationResults(String projectName, List<ClassifierEvaluation> results) throws IOException {
+    public static void printEvaluationResults(String projectName, List<ClassifierEvaluation> results, String fileSuffix) throws IOException {
         String outputDir = "wekaFiles/" + projectName.toLowerCase() + "/";
-        new File(outputDir).mkdirs();
-        String filename = outputDir + "classificationResults.csv";
+
+        // Assicura che la cartella esista
+        File dir = new File(outputDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        // Costruisce il nome del file aggiungendo il suffisso prima dell'estensione .csv
+        String filename = outputDir + "classificationResults" + fileSuffix + ".csv";
+
         try (FileWriter writer = new FileWriter(filename)) {
-            writer.append(ClassifierEvaluation.getCsvHeader()).append(DELIMITER);
+            // Usa il metodo statico per ottenere l'header del CSV
+            writer.append(ClassifierEvaluation.getCsvHeader()).append(DELIMITER); // Usando la tua costante DELIMITER
+
+            // Itera sui risultati e li scrive nel file
             for (ClassifierEvaluation result : results) {
-                writer.append(result.toCsvString()).append(DELIMITER);
+                writer.append(result.toCsvString()).append(DELIMITER); // Usando la tua costante DELIMITER
             }
+
+            // Logga il nome completo del file per chiarezza
             logger.info("Weka Evaluation results written to " + filename);
+
         } catch (IOException e) {
-            logger.severe("Error writing Weka Evaluation results: " + e.getMessage());
+            logger.severe("Error writing Weka Evaluation results to " + filename + ": " + e.getMessage());
         }
     }
 

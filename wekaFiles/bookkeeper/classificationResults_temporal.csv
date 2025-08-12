@@ -1,0 +1,73 @@
+Project,Iteration,Classifier,FeatureSelection,Sampling,CostSensitive,Precision,Recall,AUC,Kappa,F1-Score,MCC
+BOOKKEEPER,1,RandomForest,none,none,none,0.529,0.169,0.554,0.189,0.256,0.228
+BOOKKEEPER,1,NaiveBayes,none,none,none,0.276,0.248,0.547,0.119,0.262,0.119
+BOOKKEEPER,1,IBk,none,none,none,0.440,0.190,0.544,0.181,0.266,0.201
+BOOKKEEPER,1,RandomForest,BestFirst (backward),none,none,0.366,0.113,0.577,0.100,0.173,0.122
+BOOKKEEPER,1,NaiveBayes,BestFirst (backward),none,none,0.294,0.227,0.577,0.125,0.256,0.127
+BOOKKEEPER,1,IBk,BestFirst (backward),none,none,0.372,0.107,0.554,0.097,0.167,0.122
+BOOKKEEPER,1,RandomForest,none,SMOTE,none,0.350,0.239,0.552,0.168,0.284,0.173
+BOOKKEEPER,1,NaiveBayes,none,SMOTE,none,0.232,0.301,0.559,0.084,0.262,0.086
+BOOKKEEPER,1,IBk,none,SMOTE,none,0.309,0.261,0.552,0.149,0.283,0.150
+BOOKKEEPER,1,RandomForest,none,none,SensitiveThreshold,0.276,0.298,0.554,0.132,0.287,0.132
+BOOKKEEPER,1,NaiveBayes,none,none,SensitiveThreshold,0.269,0.273,0.547,0.119,0.271,0.119
+BOOKKEEPER,1,IBk,none,none,SensitiveThreshold,0.280,0.245,0.544,0.121,0.261,0.121
+BOOKKEEPER,1,RandomForest,BestFirst (backward),SMOTE,none,0.392,0.144,0.600,0.131,0.211,0.152
+BOOKKEEPER,1,NaiveBayes,BestFirst (backward),SMOTE,none,0.219,0.282,0.529,0.066,0.247,0.067
+BOOKKEEPER,1,IBk,BestFirst (backward),SMOTE,none,0.382,0.184,0.604,0.154,0.248,0.168
+BOOKKEEPER,1,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.205,0.291,0.577,0.049,0.241,0.050
+BOOKKEEPER,1,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.231,0.276,0.577,0.080,0.251,0.080
+BOOKKEEPER,1,IBk,BestFirst (backward),none,SensitiveThreshold,0.203,0.245,0.554,0.043,0.222,0.043
+BOOKKEEPER,2,RandomForest,none,none,none,0.121,0.132,0.647,0.100,0.126,0.100
+BOOKKEEPER,2,NaiveBayes,none,none,none,0.118,0.560,0.841,0.155,0.195,0.213
+BOOKKEEPER,2,IBk,none,none,none,0.072,0.176,0.484,0.065,0.103,0.072
+BOOKKEEPER,2,RandomForest,BestFirst (backward),none,none,0.184,0.154,0.655,0.146,0.168,0.146
+BOOKKEEPER,2,NaiveBayes,BestFirst (backward),none,none,0.123,0.363,0.838,0.147,0.183,0.172
+BOOKKEEPER,2,IBk,BestFirst (backward),none,none,0.131,0.143,0.509,0.111,0.137,0.111
+BOOKKEEPER,2,RandomForest,none,SMOTE,none,0.071,0.220,0.575,0.068,0.107,0.080
+BOOKKEEPER,2,NaiveBayes,none,SMOTE,none,0.101,0.736,0.839,0.135,0.178,0.224
+BOOKKEEPER,2,IBk,none,SMOTE,none,0.061,0.275,0.529,0.056,0.100,0.075
+BOOKKEEPER,2,RandomForest,none,none,SensitiveThreshold,0.027,0.363,0.557,-0.003,0.050,-0.007
+BOOKKEEPER,2,NaiveBayes,none,none,SensitiveThreshold,0.107,0.736,0.841,0.145,0.187,0.234
+BOOKKEEPER,2,IBk,none,none,SensitiveThreshold,0.018,0.220,0.484,-0.021,0.032,-0.047
+BOOKKEEPER,2,RandomForest,BestFirst (backward),SMOTE,none,0.038,0.132,0.525,0.015,0.058,0.019
+BOOKKEEPER,2,NaiveBayes,BestFirst (backward),SMOTE,none,0.086,0.714,0.823,0.108,0.153,0.193
+BOOKKEEPER,2,IBk,BestFirst (backward),SMOTE,none,0.058,0.264,0.501,0.052,0.096,0.070
+BOOKKEEPER,2,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.037,0.604,0.596,0.018,0.070,0.051
+BOOKKEEPER,2,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.086,0.758,0.838,0.110,0.155,0.202
+BOOKKEEPER,2,IBk,BestFirst (backward),none,SensitiveThreshold,0.034,0.516,0.509,0.012,0.064,0.031
+BOOKKEEPER,3,RandomForest,none,none,none,0.061,0.021,0.623,0.019,0.031,0.021
+BOOKKEEPER,3,NaiveBayes,none,none,none,0.114,0.433,0.822,0.148,0.181,0.186
+BOOKKEEPER,3,IBk,none,none,none,0.068,0.041,0.488,0.033,0.051,0.035
+BOOKKEEPER,3,RandomForest,BestFirst (backward),none,none,0.118,0.041,0.583,0.049,0.061,0.056
+BOOKKEEPER,3,NaiveBayes,BestFirst (backward),none,none,0.111,0.340,0.829,0.135,0.167,0.159
+BOOKKEEPER,3,IBk,BestFirst (backward),none,none,0.119,0.052,0.420,0.058,0.072,0.063
+BOOKKEEPER,3,RandomForest,none,SMOTE,none,0.054,0.082,0.533,0.037,0.065,0.037
+BOOKKEEPER,3,NaiveBayes,none,SMOTE,none,0.080,0.330,0.571,0.093,0.129,0.121
+BOOKKEEPER,3,IBk,none,SMOTE,none,0.063,0.124,0.527,0.053,0.083,0.056
+BOOKKEEPER,3,RandomForest,none,none,SensitiveThreshold,0.037,0.113,0.543,0.019,0.055,0.023
+BOOKKEEPER,3,NaiveBayes,none,none,SensitiveThreshold,0.108,0.557,0.822,0.146,0.181,0.206
+BOOKKEEPER,3,IBk,none,none,SensitiveThreshold,0.017,0.052,0.488,-0.011,0.026,-0.013
+BOOKKEEPER,3,RandomForest,BestFirst (backward),SMOTE,none,0.022,0.062,0.315,-0.004,0.032,-0.004
+BOOKKEEPER,3,NaiveBayes,BestFirst (backward),SMOTE,none,0.107,0.588,0.826,0.145,0.180,0.210
+BOOKKEEPER,3,IBk,BestFirst (backward),SMOTE,none,0.014,0.041,0.290,-0.016,0.021,-0.018
+BOOKKEEPER,3,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.036,0.134,0.498,0.019,0.057,0.024
+BOOKKEEPER,3,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.116,0.557,0.829,0.159,0.193,0.217
+BOOKKEEPER,3,IBk,BestFirst (backward),none,SensitiveThreshold,0.038,0.134,0.420,0.023,0.060,0.028
+BOOKKEEPER,4,RandomForest,none,none,none,0.733,0.293,0.877,0.413,0.419,0.458
+BOOKKEEPER,4,NaiveBayes,none,none,none,0.097,0.507,0.844,0.137,0.163,0.192
+BOOKKEEPER,4,IBk,none,none,none,0.417,0.267,0.811,0.316,0.325,0.324
+BOOKKEEPER,4,RandomForest,BestFirst (backward),none,none,0.567,0.227,0.836,0.317,0.324,0.352
+BOOKKEEPER,4,NaiveBayes,BestFirst (backward),none,none,0.082,0.347,0.834,0.107,0.133,0.139
+BOOKKEEPER,4,IBk,BestFirst (backward),none,none,0.400,0.187,0.760,0.246,0.255,0.265
+BOOKKEEPER,4,RandomForest,none,SMOTE,none,0.242,0.493,0.829,0.308,0.325,0.329
+BOOKKEEPER,4,NaiveBayes,none,SMOTE,none,0.086,0.627,0.828,0.124,0.151,0.199
+BOOKKEEPER,4,IBk,none,SMOTE,none,0.141,0.373,0.800,0.183,0.204,0.207
+BOOKKEEPER,4,RandomForest,none,none,SensitiveThreshold,0.250,0.680,0.850,0.349,0.366,0.396
+BOOKKEEPER,4,NaiveBayes,none,none,SensitiveThreshold,0.093,0.640,0.844,0.135,0.162,0.212
+BOOKKEEPER,4,IBk,none,none,SensitiveThreshold,0.239,0.667,0.811,0.335,0.352,0.383
+BOOKKEEPER,4,RandomForest,BestFirst (backward),SMOTE,none,0.133,0.320,0.711,0.167,0.188,0.185
+BOOKKEEPER,4,NaiveBayes,BestFirst (backward),SMOTE,none,0.076,0.587,0.779,0.107,0.135,0.176
+BOOKKEEPER,4,IBk,BestFirst (backward),SMOTE,none,0.091,0.267,0.715,0.112,0.136,0.130
+BOOKKEEPER,4,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.116,0.533,0.795,0.167,0.191,0.222
+BOOKKEEPER,4,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.093,0.573,0.834,0.134,0.161,0.200
+BOOKKEEPER,4,IBk,BestFirst (backward),none,SensitiveThreshold,0.122,0.587,0.759,0.177,0.201,0.241
