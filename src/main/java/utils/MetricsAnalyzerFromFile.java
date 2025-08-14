@@ -8,6 +8,7 @@ import com.github.javaparser.ast.expr.ConditionalExpr;
 import com.github.javaparser.ast.expr.InstanceOfExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.stmt.*;
+import java.util.stream.Collectors;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,20 +23,36 @@ public class MetricsAnalyzerFromFile {
     public static void main(String[] args) throws IOException {
 
         String projectName = "BOOKKEEPER";
-        String inputFile = "/Users/silviaperelli/Desktop/Refactoring_AFMethod_" + projectName.toLowerCase() + ".java";
+        String dir = "refactoringReport";
+        String inputFile = dir + "/Refactoring_AFMethod_" + projectName.toLowerCase() + ".java";
 
-        // Crea la cartella "refactoringReport" sulla Scrivania se non esiste
-        String outputDir = "refactoringReport";
-        Files.createDirectories(Paths.get(outputDir));
-        String outputFile = outputDir + "/feature_comparison.csv";
+
+        Files.createDirectories(Paths.get(dir));
+        String outputFile = dir + "/feature_comparison.csv";
 
         System.out.println("Analizzando il file: " + inputFile);
         System.out.println("Salvando il report in: " + outputFile + "\n");
 
-        String codeToAnalyze = new String(Files.readAllBytes(Paths.get(inputFile)));
-        String classWrapper = "class DummyWrapperClass { \n" + codeToAnalyze + "\n }";
-        CompilationUnit cu = StaticJavaParser.parse(classWrapper);
 
+        // 1. Leggi tutte le righe del file
+        List<String> allLines = Files.readAllLines(Paths.get(inputFile));
+
+        // 2. Separa le righe che sono 'import' da quelle che sono codice dei metodi
+        String imports = allLines.stream()
+                .filter(line -> line.trim().startsWith("import"))
+                .collect(Collectors.joining("\n"));
+
+        String methodsCode = allLines.stream()
+                .filter(line -> !line.trim().startsWith("import"))
+                .collect(Collectors.joining("\n"));
+
+        // 3. Costruisci il codice completo da parsare, con gli import all'esterno
+        String fullCodeToParse = imports + "\n\n" + "class DummyWrapperClass { \n" + methodsCode + "\n }";
+
+        // 4. Esegui il parsing del codice corretto
+        CompilationUnit cu = StaticJavaParser.parse(fullCodeToParse);
+
+        // Il resto del codice rimane identico...
         Optional<MethodDeclaration> originalMethodOpt = cu.findFirst(MethodDeclaration.class, md -> md.getNameAsString().equals("readEntry"));
         Optional<MethodDeclaration> refactoredMainMethodOpt = cu.findFirst(MethodDeclaration.class, md -> md.getNameAsString().equals("readEntry2"));
         List<MethodDeclaration> allRefactoredMethods = cu.findAll(MethodDeclaration.class, md -> !md.getNameAsString().equals("readEntry"));
