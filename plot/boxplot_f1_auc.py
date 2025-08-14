@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 
 # --- CONFIGURAZIONE ---
 nome_progetto = 'BOOKKEEPER' # nome del progetto da modificare in base a quale plot si vuole graficare
-file_risultati = f'../wekaFiles/{nome_progetto.lower()}/classificationResults.csv'
+file_risultati_cv = f'../wekaFiles/{nome_progetto.lower()}/classificationResults_cv.csv'
+file_risultati_temporal = f'../wekaFiles/{nome_progetto.lower()}/classificationResults_temporal.csv'
 
 
 # --- 1. CARICAMENTO E PREPARAZIONE DEI DATI ---

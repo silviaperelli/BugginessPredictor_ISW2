@@ -5,7 +5,9 @@ import model.JavaMethod;
 import model.Release;
 import model.Ticket;
 import org.eclipse.jgit.revwalk.RevCommit; // <-- Aggiunto import necessario
+import utils.CorrelationCalculator;
 import utils.PrintUtils;
+
 
 import java.io.IOException; // <-- Aggiunto import necessario
 import java.util.List;
@@ -88,17 +90,26 @@ public class Main {
         System.out.println("\nCreating the final dataset for Weka...");
         PrintUtils.printMethodsDataset(projectName, allMethods);
         System.out.println(projectName + ": Dataset CSV created successfully.");
+
+        // --- INIZIO NUOVA PARTE: FASE 1.5 ---
+        System.out.println("\n--- Correlation Analysis ---");
+        try {
+            CorrelationCalculator.calculateAndSave(projectName);
+        } catch (IOException e) {
+            System.err.println("Error during correlation analysis: " + e.getMessage());
+        }
         System.out.println("--- Phase 1 Complete ---");
+        // --- FINE NUOVA PARTE ---
 
         // --- FASE 2: WEKA CLASSIFICATION ---
         System.out.println("\n--- Phase 2: Weka Classification ---");
-
         WekaClassification wekaAnalysis = new WekaClassification(projectName, allMethods);
         wekaAnalysis.execute();
-
         System.out.println("--- Phase 2 Complete ---");
+
         System.out.println("\n==================================================");
         System.out.println("ANALYSIS FOR " + projectName.toUpperCase() + " FINISHED");
         System.out.println("==================================================");
     }
+
 }

@@ -24,21 +24,30 @@ import java.util.logging.Logger;
 
 public class ClassifierBuilder {
 
-    // MODIFICA 1: Ho aggiunto una costante per la descrizione, per facilitare le modifiche
     private static final String FEATURE_SELECTION_NAME = "BestFirst (backward)";
 
     private ClassifierBuilder() {}
 
+    /**
+     * Costruisce una lista semplificata di classificatori per l'analisi.
+     * Include: Baseline, Feature Selection, SMOTE, e Cost-Sensitive.
+     * Le combinazioni complesse sono state rimosse per ridurre il tempo di esecuzione.
+     */
     public static List<WekaClassifier> buildClassifiers(Instances trainingSet) {
         List<WekaClassifier> classifiers = new ArrayList<>();
 
+        // 1. Classificatori Base (Baseline)
         addBaseClassifiers(classifiers);
+
+        // 2. Classificatori con Feature Selection
         addFeatureSelectionClassifiers(classifiers);
+
+        // 3. Classificatori con SMOTE
         addSmoteClassifiers(classifiers, trainingSet);
+
+        // 4. Classificatori con Cost-Sensitive Learning
         addCostSensitiveClassifiers(classifiers);
 
-        addFeatureSelectionAndSmoteClassifiers(classifiers, trainingSet);
-        addFeatureSelectionAndCostSensitiveClassifiers(classifiers);
 
         return classifiers;
     }
@@ -54,7 +63,6 @@ public class ClassifierBuilder {
             FilteredClassifier fc = new FilteredClassifier();
             fc.setClassifier(base);
             fc.setFilter(createFeatureSelectionFilter());
-            // MODIFICA 2: Aggiornata la stringa descrittiva
             classifiers.add(new WekaClassifier(fc, getClassifierName(base), FEATURE_SELECTION_NAME, "none", "none"));
         }
     }
@@ -79,6 +87,8 @@ public class ClassifierBuilder {
         }
     }
 
+    // ... IL RESTO DELLA CLASSE RIMANE IDENTICO ...
+
     private static List<Classifier> getBaseClassifiers() {
         List<Classifier> baseClassifiers = new ArrayList<>();
         baseClassifiers.add(new RandomForest());
@@ -99,17 +109,12 @@ public class ClassifierBuilder {
         CfsSubsetEval eval = new CfsSubsetEval();
         BestFirst search = new BestFirst();
 
-        // MODIFICA 3: Cambiato da -D 1 (forward) a -D 0 (backward).
-        // Questa riga ora imposta una ricerca all'indietro.
-        String[] options = {"-D", "0"}; // -D 0 specifica una ricerca BACKWARD
+        String[] options = {"-D", "0"}; // BACKWARD
         try {
             search.setOptions(options);
         } catch (Exception e) {
             Logger.getLogger(ClassifierBuilder.class.getName()).log(Level.SEVERE, "Failed to set BestFirst options", e);
         }
-
-        // Alternativa più programmatica e leggibile (come quella della tua collega):
-        // search.setDirection(new SelectedTag(BestFirst.BACKWARD, BestFirst.TAGS_DIRECTION));
 
         filter.setEvaluator(eval);
         filter.setSearch(search);
@@ -132,44 +137,14 @@ public class ClassifierBuilder {
         return smote;
     }
 
-    private static CostMatrix createCostMatrix() {
+    public static CostMatrix createCostMatrix() {
         CostMatrix matrix = new CostMatrix(2);
-        matrix.setCell(0, 0, 0.0);
-        matrix.setCell(1, 1, 0.0);
-        matrix.setCell(0, 1, 1.0); //FP
-        matrix.setCell(1, 0, 10.0); //FN
+        matrix.setCell(0, 0, 0.0);  // TN
+        matrix.setCell(1, 1, 0.0);  // TP
+        matrix.setCell(0, 1, 1.0);  // FP
+        matrix.setCell(1, 0, 10.0); // FN
         return matrix;
     }
 
-    private static void addFeatureSelectionAndSmoteClassifiers(List<WekaClassifier> classifiers, Instances trainingSet) {
-        Filter smote = createSmoteFilter(trainingSet);
-        for (Classifier base : getBaseClassifiers()) {
-            FilteredClassifier fcWithFeatureSelection = new FilteredClassifier();
-            fcWithFeatureSelection.setClassifier(base);
-            fcWithFeatureSelection.setFilter(createFeatureSelectionFilter());
 
-            FilteredClassifier fcWithBoth = new FilteredClassifier();
-            fcWithBoth.setClassifier(fcWithFeatureSelection);
-            fcWithBoth.setFilter(smote);
-
-            // MODIFICA 4: Aggiornata la stringa descrittiva
-            classifiers.add(new WekaClassifier(fcWithBoth, getClassifierName(base), FEATURE_SELECTION_NAME, "SMOTE", "none"));
-        }
-    }
-
-    private static void addFeatureSelectionAndCostSensitiveClassifiers(List<WekaClassifier> classifiers) {
-        for (Classifier base : getBaseClassifiers()) {
-            CostSensitiveClassifier csc = new CostSensitiveClassifier();
-            csc.setClassifier(base);
-            csc.setCostMatrix(createCostMatrix());
-            csc.setMinimizeExpectedCost(false);
-
-            FilteredClassifier fcWithBoth = new FilteredClassifier();
-            fcWithBoth.setClassifier(csc);
-            fcWithBoth.setFilter(createFeatureSelectionFilter());
-
-            // MODIFICA 5: Aggiornata la stringa descrittiva
-            classifiers.add(new WekaClassifier(fcWithBoth, getClassifierName(base), FEATURE_SELECTION_NAME, "none", "SensitiveThreshold"));
-        }
-    }
 }

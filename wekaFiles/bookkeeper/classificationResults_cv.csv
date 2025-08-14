@@ -1,0 +1,181 @@
+Project,Iteration,Classifier,FeatureSelection,Sampling,CostSensitive,Precision,Recall,AUC,Kappa,F1-Score,MCC
+BOOKKEEPER,1,RandomForest,none,none,none,0.509,0.152,0.824,0.217,0.234,0.260
+BOOKKEEPER,2,RandomForest,none,none,none,0.469,0.133,0.827,0.190,0.207,0.231
+BOOKKEEPER,3,RandomForest,none,none,none,0.502,0.159,0.824,0.223,0.242,0.263
+BOOKKEEPER,4,RandomForest,none,none,none,0.491,0.147,0.824,0.208,0.226,0.249
+BOOKKEEPER,5,RandomForest,none,none,none,0.470,0.150,0.822,0.208,0.227,0.245
+BOOKKEEPER,6,RandomForest,none,none,none,0.505,0.147,0.824,0.210,0.227,0.254
+BOOKKEEPER,7,RandomForest,none,none,none,0.470,0.148,0.820,0.206,0.225,0.244
+BOOKKEEPER,8,RandomForest,none,none,none,0.502,0.158,0.819,0.222,0.240,0.262
+BOOKKEEPER,9,RandomForest,none,none,none,0.493,0.147,0.832,0.208,0.226,0.250
+BOOKKEEPER,10,RandomForest,none,none,none,0.485,0.151,0.831,0.212,0.230,0.251
+BOOKKEEPER,1,NaiveBayes,none,none,none,0.162,0.298,0.684,0.155,0.209,0.164
+BOOKKEEPER,2,NaiveBayes,none,none,none,0.164,0.306,0.681,0.160,0.214,0.169
+BOOKKEEPER,3,NaiveBayes,none,none,none,0.165,0.306,0.685,0.160,0.214,0.169
+BOOKKEEPER,4,NaiveBayes,none,none,none,0.162,0.300,0.683,0.156,0.211,0.165
+BOOKKEEPER,5,NaiveBayes,none,none,none,0.164,0.303,0.684,0.159,0.213,0.168
+BOOKKEEPER,6,NaiveBayes,none,none,none,0.160,0.296,0.687,0.153,0.208,0.162
+BOOKKEEPER,7,NaiveBayes,none,none,none,0.162,0.302,0.684,0.157,0.211,0.166
+BOOKKEEPER,8,NaiveBayes,none,none,none,0.162,0.298,0.680,0.156,0.210,0.164
+BOOKKEEPER,9,NaiveBayes,none,none,none,0.161,0.299,0.684,0.155,0.209,0.164
+BOOKKEEPER,10,NaiveBayes,none,none,none,0.162,0.299,0.683,0.156,0.210,0.164
+BOOKKEEPER,1,IBk,none,none,none,0.415,0.193,0.713,0.240,0.264,0.259
+BOOKKEEPER,2,IBk,none,none,none,0.410,0.182,0.712,0.229,0.253,0.250
+BOOKKEEPER,3,IBk,none,none,none,0.429,0.202,0.714,0.251,0.274,0.270
+BOOKKEEPER,4,IBk,none,none,none,0.413,0.192,0.707,0.238,0.262,0.257
+BOOKKEEPER,5,IBk,none,none,none,0.408,0.191,0.707,0.236,0.260,0.254
+BOOKKEEPER,6,IBk,none,none,none,0.428,0.200,0.716,0.249,0.273,0.269
+BOOKKEEPER,7,IBk,none,none,none,0.404,0.189,0.706,0.234,0.258,0.252
+BOOKKEEPER,8,IBk,none,none,none,0.414,0.199,0.711,0.245,0.269,0.262
+BOOKKEEPER,9,IBk,none,none,none,0.415,0.195,0.713,0.241,0.265,0.260
+BOOKKEEPER,10,IBk,none,none,none,0.439,0.199,0.719,0.251,0.274,0.272
+BOOKKEEPER,1,RandomForest,BestFirst (backward),none,none,0.451,0.095,0.728,0.142,0.156,0.190
+BOOKKEEPER,2,RandomForest,BestFirst (backward),none,none,0.385,0.082,0.732,0.120,0.136,0.160
+BOOKKEEPER,3,RandomForest,BestFirst (backward),none,none,0.448,0.100,0.736,0.148,0.164,0.194
+BOOKKEEPER,4,RandomForest,BestFirst (backward),none,none,0.425,0.085,0.722,0.127,0.142,0.173
+BOOKKEEPER,5,RandomForest,BestFirst (backward),none,none,0.427,0.096,0.733,0.141,0.157,0.185
+BOOKKEEPER,6,RandomForest,BestFirst (backward),none,none,0.414,0.089,0.723,0.132,0.147,0.174
+BOOKKEEPER,7,RandomForest,BestFirst (backward),none,none,0.392,0.089,0.723,0.129,0.145,0.168
+BOOKKEEPER,8,RandomForest,BestFirst (backward),none,none,0.456,0.107,0.723,0.158,0.173,0.203
+BOOKKEEPER,9,RandomForest,BestFirst (backward),none,none,0.422,0.085,0.736,0.127,0.142,0.172
+BOOKKEEPER,10,RandomForest,BestFirst (backward),none,none,0.439,0.099,0.739,0.146,0.161,0.191
+BOOKKEEPER,1,NaiveBayes,BestFirst (backward),none,none,0.167,0.218,0.677,0.141,0.189,0.143
+BOOKKEEPER,2,NaiveBayes,BestFirst (backward),none,none,0.170,0.235,0.676,0.148,0.197,0.151
+BOOKKEEPER,3,NaiveBayes,BestFirst (backward),none,none,0.170,0.228,0.673,0.146,0.195,0.148
+BOOKKEEPER,4,NaiveBayes,BestFirst (backward),none,none,0.161,0.213,0.675,0.135,0.183,0.136
+BOOKKEEPER,5,NaiveBayes,BestFirst (backward),none,none,0.168,0.225,0.684,0.144,0.192,0.145
+BOOKKEEPER,6,NaiveBayes,BestFirst (backward),none,none,0.167,0.226,0.682,0.144,0.192,0.145
+BOOKKEEPER,7,NaiveBayes,BestFirst (backward),none,none,0.165,0.221,0.680,0.140,0.189,0.142
+BOOKKEEPER,8,NaiveBayes,BestFirst (backward),none,none,0.166,0.221,0.676,0.141,0.189,0.143
+BOOKKEEPER,9,NaiveBayes,BestFirst (backward),none,none,0.176,0.241,0.681,0.155,0.203,0.157
+BOOKKEEPER,10,NaiveBayes,BestFirst (backward),none,none,0.164,0.221,0.677,0.139,0.188,0.141
+BOOKKEEPER,1,IBk,BestFirst (backward),none,none,0.457,0.103,0.634,0.153,0.168,0.200
+BOOKKEEPER,2,IBk,BestFirst (backward),none,none,0.411,0.099,0.633,0.143,0.159,0.183
+BOOKKEEPER,3,IBk,BestFirst (backward),none,none,0.414,0.103,0.638,0.148,0.165,0.188
+BOOKKEEPER,4,IBk,BestFirst (backward),none,none,0.385,0.085,0.617,0.124,0.139,0.163
+BOOKKEEPER,5,IBk,BestFirst (backward),none,none,0.401,0.100,0.622,0.143,0.160,0.181
+BOOKKEEPER,6,IBk,BestFirst (backward),none,none,0.426,0.099,0.623,0.144,0.160,0.187
+BOOKKEEPER,7,IBk,BestFirst (backward),none,none,0.417,0.107,0.636,0.153,0.170,0.192
+BOOKKEEPER,8,IBk,BestFirst (backward),none,none,0.424,0.107,0.623,0.154,0.171,0.194
+BOOKKEEPER,9,IBk,BestFirst (backward),none,none,0.401,0.084,0.631,0.124,0.138,0.166
+BOOKKEEPER,10,IBk,BestFirst (backward),none,none,0.433,0.111,0.631,0.160,0.177,0.201
+BOOKKEEPER,1,RandomForest,none,SMOTE,none,0.297,0.320,0.760,0.271,0.308,0.271
+BOOKKEEPER,2,RandomForest,none,SMOTE,none,0.292,0.310,0.759,0.263,0.301,0.264
+BOOKKEEPER,3,RandomForest,none,SMOTE,none,0.313,0.342,0.766,0.290,0.327,0.291
+BOOKKEEPER,4,RandomForest,none,SMOTE,none,0.295,0.309,0.755,0.264,0.301,0.264
+BOOKKEEPER,5,RandomForest,none,SMOTE,none,0.288,0.311,0.759,0.262,0.299,0.262
+BOOKKEEPER,6,RandomForest,none,SMOTE,none,0.307,0.320,0.761,0.277,0.313,0.277
+BOOKKEEPER,7,RandomForest,none,SMOTE,none,0.292,0.320,0.757,0.267,0.305,0.267
+BOOKKEEPER,8,RandomForest,none,SMOTE,none,0.298,0.320,0.762,0.271,0.309,0.272
+BOOKKEEPER,9,RandomForest,none,SMOTE,none,0.301,0.316,0.763,0.271,0.308,0.271
+BOOKKEEPER,10,RandomForest,none,SMOTE,none,0.299,0.328,0.769,0.276,0.313,0.276
+BOOKKEEPER,1,NaiveBayes,none,SMOTE,none,0.146,0.401,0.694,0.153,0.214,0.177
+BOOKKEEPER,2,NaiveBayes,none,SMOTE,none,0.147,0.402,0.687,0.154,0.215,0.178
+BOOKKEEPER,3,NaiveBayes,none,SMOTE,none,0.148,0.402,0.696,0.155,0.216,0.179
+BOOKKEEPER,4,NaiveBayes,none,SMOTE,none,0.147,0.398,0.691,0.153,0.214,0.177
+BOOKKEEPER,5,NaiveBayes,none,SMOTE,none,0.148,0.403,0.695,0.155,0.216,0.179
+BOOKKEEPER,6,NaiveBayes,none,SMOTE,none,0.148,0.405,0.698,0.155,0.217,0.180
+BOOKKEEPER,7,NaiveBayes,none,SMOTE,none,0.148,0.403,0.696,0.155,0.216,0.179
+BOOKKEEPER,8,NaiveBayes,none,SMOTE,none,0.148,0.405,0.690,0.155,0.216,0.179
+BOOKKEEPER,9,NaiveBayes,none,SMOTE,none,0.148,0.403,0.696,0.156,0.217,0.180
+BOOKKEEPER,10,NaiveBayes,none,SMOTE,none,0.149,0.406,0.696,0.157,0.218,0.181
+BOOKKEEPER,1,IBk,none,SMOTE,none,0.277,0.405,0.741,0.287,0.329,0.293
+BOOKKEEPER,2,IBk,none,SMOTE,none,0.273,0.390,0.737,0.279,0.321,0.284
+BOOKKEEPER,3,IBk,none,SMOTE,none,0.284,0.406,0.740,0.293,0.334,0.299
+BOOKKEEPER,4,IBk,none,SMOTE,none,0.278,0.398,0.732,0.286,0.327,0.291
+BOOKKEEPER,5,IBk,none,SMOTE,none,0.269,0.391,0.730,0.276,0.319,0.282
+BOOKKEEPER,6,IBk,none,SMOTE,none,0.288,0.409,0.742,0.297,0.338,0.302
+BOOKKEEPER,7,IBk,none,SMOTE,none,0.274,0.390,0.729,0.280,0.321,0.285
+BOOKKEEPER,8,IBk,none,SMOTE,none,0.273,0.398,0.734,0.281,0.323,0.287
+BOOKKEEPER,9,IBk,none,SMOTE,none,0.277,0.401,0.737,0.286,0.328,0.292
+BOOKKEEPER,10,IBk,none,SMOTE,none,0.286,0.410,0.745,0.296,0.337,0.301
+BOOKKEEPER,1,RandomForest,none,none,SensitiveThreshold,0.290,0.387,0.785,0.292,0.332,0.295
+BOOKKEEPER,2,RandomForest,none,none,SensitiveThreshold,0.291,0.376,0.788,0.289,0.328,0.291
+BOOKKEEPER,3,RandomForest,none,none,SensitiveThreshold,0.302,0.399,0.787,0.304,0.344,0.308
+BOOKKEEPER,4,RandomForest,none,none,SensitiveThreshold,0.296,0.379,0.780,0.293,0.333,0.296
+BOOKKEEPER,5,RandomForest,none,none,SensitiveThreshold,0.288,0.388,0.782,0.291,0.331,0.294
+BOOKKEEPER,6,RandomForest,none,none,SensitiveThreshold,0.292,0.383,0.786,0.291,0.331,0.294
+BOOKKEEPER,7,RandomForest,none,none,SensitiveThreshold,0.289,0.381,0.782,0.289,0.329,0.292
+BOOKKEEPER,8,RandomForest,none,none,SensitiveThreshold,0.298,0.391,0.784,0.299,0.338,0.302
+BOOKKEEPER,9,RandomForest,none,none,SensitiveThreshold,0.294,0.381,0.788,0.292,0.332,0.295
+BOOKKEEPER,10,RandomForest,none,none,SensitiveThreshold,0.296,0.387,0.788,0.296,0.336,0.299
+BOOKKEEPER,1,NaiveBayes,none,none,SensitiveThreshold,0.154,0.365,0.684,0.159,0.217,0.176
+BOOKKEEPER,2,NaiveBayes,none,none,SensitiveThreshold,0.154,0.366,0.681,0.158,0.216,0.176
+BOOKKEEPER,3,NaiveBayes,none,none,SensitiveThreshold,0.153,0.365,0.685,0.158,0.216,0.175
+BOOKKEEPER,4,NaiveBayes,none,none,SensitiveThreshold,0.154,0.366,0.683,0.158,0.216,0.176
+BOOKKEEPER,5,NaiveBayes,none,none,SensitiveThreshold,0.155,0.368,0.684,0.160,0.218,0.178
+BOOKKEEPER,6,NaiveBayes,none,none,SensitiveThreshold,0.155,0.368,0.687,0.159,0.218,0.177
+BOOKKEEPER,7,NaiveBayes,none,none,SensitiveThreshold,0.154,0.368,0.684,0.159,0.217,0.177
+BOOKKEEPER,8,NaiveBayes,none,none,SensitiveThreshold,0.154,0.366,0.680,0.158,0.217,0.176
+BOOKKEEPER,9,NaiveBayes,none,none,SensitiveThreshold,0.154,0.368,0.684,0.159,0.218,0.177
+BOOKKEEPER,10,NaiveBayes,none,none,SensitiveThreshold,0.154,0.366,0.683,0.158,0.217,0.176
+BOOKKEEPER,1,IBk,none,none,SensitiveThreshold,0.286,0.401,0.713,0.293,0.334,0.297
+BOOKKEEPER,2,IBk,none,none,SensitiveThreshold,0.284,0.388,0.712,0.287,0.328,0.291
+BOOKKEEPER,3,IBk,none,none,SensitiveThreshold,0.289,0.405,0.715,0.296,0.337,0.301
+BOOKKEEPER,4,IBk,none,none,SensitiveThreshold,0.282,0.385,0.707,0.285,0.326,0.289
+BOOKKEEPER,5,IBk,none,none,SensitiveThreshold,0.279,0.396,0.707,0.287,0.328,0.291
+BOOKKEEPER,6,IBk,none,none,SensitiveThreshold,0.288,0.402,0.716,0.295,0.336,0.300
+BOOKKEEPER,7,IBk,none,none,SensitiveThreshold,0.279,0.387,0.706,0.283,0.324,0.287
+BOOKKEEPER,8,IBk,none,none,SensitiveThreshold,0.285,0.395,0.711,0.291,0.331,0.295
+BOOKKEEPER,9,IBk,none,none,SensitiveThreshold,0.284,0.396,0.713,0.290,0.331,0.295
+BOOKKEEPER,10,IBk,none,none,SensitiveThreshold,0.292,0.403,0.719,0.298,0.339,0.303
+BOOKKEEPER,1,RandomForest,BestFirst (backward),SMOTE,none,0.193,0.219,0.622,0.162,0.206,0.162
+BOOKKEEPER,2,RandomForest,BestFirst (backward),SMOTE,none,0.187,0.200,0.614,0.150,0.194,0.150
+BOOKKEEPER,3,RandomForest,BestFirst (backward),SMOTE,none,0.207,0.230,0.624,0.175,0.218,0.176
+BOOKKEEPER,4,RandomForest,BestFirst (backward),SMOTE,none,0.193,0.210,0.626,0.158,0.201,0.158
+BOOKKEEPER,5,RandomForest,BestFirst (backward),SMOTE,none,0.187,0.210,0.622,0.154,0.198,0.154
+BOOKKEEPER,6,RandomForest,BestFirst (backward),SMOTE,none,0.182,0.207,0.619,0.149,0.194,0.149
+BOOKKEEPER,7,RandomForest,BestFirst (backward),SMOTE,none,0.182,0.200,0.615,0.146,0.190,0.146
+BOOKKEEPER,8,RandomForest,BestFirst (backward),SMOTE,none,0.199,0.213,0.624,0.163,0.206,0.163
+BOOKKEEPER,9,RandomForest,BestFirst (backward),SMOTE,none,0.184,0.202,0.620,0.149,0.193,0.149
+BOOKKEEPER,10,RandomForest,BestFirst (backward),SMOTE,none,0.204,0.225,0.626,0.171,0.214,0.171
+BOOKKEEPER,1,NaiveBayes,BestFirst (backward),SMOTE,none,0.145,0.412,0.692,0.152,0.214,0.178
+BOOKKEEPER,2,NaiveBayes,BestFirst (backward),SMOTE,none,0.145,0.405,0.685,0.152,0.213,0.176
+BOOKKEEPER,3,NaiveBayes,BestFirst (backward),SMOTE,none,0.147,0.410,0.691,0.155,0.217,0.180
+BOOKKEEPER,4,NaiveBayes,BestFirst (backward),SMOTE,none,0.145,0.407,0.687,0.152,0.214,0.177
+BOOKKEEPER,5,NaiveBayes,BestFirst (backward),SMOTE,none,0.146,0.410,0.691,0.153,0.215,0.179
+BOOKKEEPER,6,NaiveBayes,BestFirst (backward),SMOTE,none,0.146,0.409,0.695,0.154,0.215,0.179
+BOOKKEEPER,7,NaiveBayes,BestFirst (backward),SMOTE,none,0.144,0.406,0.694,0.150,0.212,0.175
+BOOKKEEPER,8,NaiveBayes,BestFirst (backward),SMOTE,none,0.146,0.413,0.687,0.155,0.216,0.180
+BOOKKEEPER,9,NaiveBayes,BestFirst (backward),SMOTE,none,0.142,0.398,0.693,0.147,0.209,0.171
+BOOKKEEPER,10,NaiveBayes,BestFirst (backward),SMOTE,none,0.144,0.407,0.692,0.151,0.213,0.176
+BOOKKEEPER,1,IBk,BestFirst (backward),SMOTE,none,0.196,0.265,0.617,0.178,0.225,0.181
+BOOKKEEPER,2,IBk,BestFirst (backward),SMOTE,none,0.200,0.267,0.622,0.183,0.229,0.185
+BOOKKEEPER,3,IBk,BestFirst (backward),SMOTE,none,0.200,0.262,0.615,0.181,0.227,0.183
+BOOKKEEPER,4,IBk,BestFirst (backward),SMOTE,none,0.205,0.265,0.620,0.186,0.231,0.187
+BOOKKEEPER,5,IBk,BestFirst (backward),SMOTE,none,0.195,0.263,0.620,0.177,0.224,0.179
+BOOKKEEPER,6,IBk,BestFirst (backward),SMOTE,none,0.202,0.274,0.625,0.187,0.233,0.189
+BOOKKEEPER,7,IBk,BestFirst (backward),SMOTE,none,0.194,0.254,0.614,0.174,0.220,0.176
+BOOKKEEPER,8,IBk,BestFirst (backward),SMOTE,none,0.204,0.270,0.624,0.187,0.233,0.189
+BOOKKEEPER,9,IBk,BestFirst (backward),SMOTE,none,0.203,0.270,0.621,0.186,0.232,0.188
+BOOKKEEPER,10,IBk,BestFirst (backward),SMOTE,none,0.202,0.267,0.621,0.184,0.230,0.187
+BOOKKEEPER,1,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.164,0.357,0.696,0.168,0.225,0.183
+BOOKKEEPER,2,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.170,0.353,0.700,0.175,0.230,0.188
+BOOKKEEPER,3,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.174,0.364,0.697,0.180,0.235,0.195
+BOOKKEEPER,4,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.164,0.336,0.684,0.165,0.220,0.177
+BOOKKEEPER,5,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.163,0.336,0.691,0.164,0.220,0.177
+BOOKKEEPER,6,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.157,0.337,0.685,0.157,0.214,0.171
+BOOKKEEPER,7,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.163,0.347,0.688,0.166,0.222,0.180
+BOOKKEEPER,8,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.173,0.364,0.685,0.179,0.234,0.194
+BOOKKEEPER,9,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.167,0.347,0.692,0.170,0.226,0.184
+BOOKKEEPER,10,RandomForest,BestFirst (backward),none,SensitiveThreshold,0.172,0.362,0.695,0.178,0.233,0.192
+BOOKKEEPER,1,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.163,0.306,0.677,0.159,0.213,0.168
+BOOKKEEPER,2,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.155,0.305,0.676,0.150,0.206,0.160
+BOOKKEEPER,3,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.158,0.303,0.673,0.153,0.208,0.163
+BOOKKEEPER,4,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.157,0.300,0.675,0.151,0.206,0.160
+BOOKKEEPER,5,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.162,0.310,0.684,0.158,0.213,0.168
+BOOKKEEPER,6,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.160,0.307,0.682,0.155,0.210,0.165
+BOOKKEEPER,7,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.159,0.310,0.680,0.155,0.210,0.165
+BOOKKEEPER,8,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.162,0.311,0.676,0.158,0.213,0.168
+BOOKKEEPER,9,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.167,0.324,0.681,0.166,0.220,0.176
+BOOKKEEPER,10,NaiveBayes,BestFirst (backward),none,SensitiveThreshold,0.164,0.310,0.677,0.160,0.214,0.169
+BOOKKEEPER,1,IBk,BestFirst (backward),none,SensitiveThreshold,0.163,0.357,0.634,0.167,0.224,0.182
+BOOKKEEPER,2,IBk,BestFirst (backward),none,SensitiveThreshold,0.172,0.358,0.633,0.178,0.233,0.192
+BOOKKEEPER,3,IBk,BestFirst (backward),none,SensitiveThreshold,0.177,0.365,0.638,0.184,0.238,0.198
+BOOKKEEPER,4,IBk,BestFirst (backward),none,SensitiveThreshold,0.163,0.340,0.617,0.165,0.221,0.178
+BOOKKEEPER,5,IBk,BestFirst (backward),none,SensitiveThreshold,0.161,0.337,0.621,0.162,0.218,0.175
+BOOKKEEPER,6,IBk,BestFirst (backward),none,SensitiveThreshold,0.155,0.332,0.623,0.154,0.211,0.168
+BOOKKEEPER,7,IBk,BestFirst (backward),none,SensitiveThreshold,0.172,0.368,0.636,0.179,0.234,0.194
+BOOKKEEPER,8,IBk,BestFirst (backward),none,SensitiveThreshold,0.170,0.355,0.623,0.175,0.230,0.189
+BOOKKEEPER,9,IBk,BestFirst (backward),none,SensitiveThreshold,0.170,0.348,0.631,0.173,0.228,0.186
+BOOKKEEPER,10,IBk,BestFirst (backward),none,SensitiveThreshold,0.172,0.365,0.631,0.178,0.233,0.193

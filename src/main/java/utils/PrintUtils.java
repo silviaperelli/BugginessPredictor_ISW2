@@ -279,32 +279,46 @@ public class PrintUtils {
         return field;
     }
 
-    public static void createAcumeFile(String project, List<AcumeMethod> methods, String fileName) throws IOException {
+    public static void createAcumeFile(String project, String validationType, List<AcumeMethod> methods, String fileName) throws IOException {
         String projectLower = project.toLowerCase();
 
-        // Crea la cartella di destinazione se non esiste
-        File dir = new File("acumeFiles/" + projectLower);
+        // Costruisce il percorso completo includendo la sottocartella per il tipo di validazione.
+        // Esempio: "acumeFiles/bookkeeper/walk_forward/"
+        String dirPath = String.format("acumeFiles/%s/%s/", projectLower, validationType);
+
+        // Crea le cartelle di destinazione se non esistono
+        File dir = new File(dirPath);
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
+                // Lancia un'eccezione se la creazione della cartella fallisce
                 throw new IOException("Could not create directory: " + dir.getAbsolutePath());
             }
         }
 
-        // Scrive il file CSV
-        File file = new File(dir.getAbsolutePath() + "/" + fileName + ".csv");
+        // Crea il percorso completo del file CSV
+        File file = new File(dir, fileName + ".csv");
+
+        // Utilizza try-with-resources per garantire che FileWriter venga chiuso automaticamente
         try (FileWriter fileWriter = new FileWriter(file)) {
 
-            fileWriter.append("ID,Size,Predicted %,Actual value\n");
+            // Scrive l'intestazione del file CSV
+            fileWriter.append("ID,Size,PredictedProbability,ActualValue\n");
+
+            // Scrive una riga per ogni metodo, usando i getter che restituiscono già String
             for (AcumeMethod m : methods) {
-                fileWriter.append(m.getId()).append(",")
-                        .append(m.getSize()).append(",")
-                        .append(m.getPredictedProbability()).append(",")
-                        .append(m.getActualValue()).append("\n");
+                fileWriter.append(m.getId())
+                        .append(",")
+                        .append(m.getSize())
+                        .append(",")
+                        .append(m.getPredictedProbability())
+                        .append(",")
+                        .append(m.getActualValue()) // Questo getter restituisce già "YES" o "NO"
+                        .append("\n");
             }
+
             fileWriter.flush();
         }
-        // Il logger è meglio del print, ma per ora va bene
-        System.out.println("ACUME file created: " + file.getAbsolutePath());
+
     }
 }
 
