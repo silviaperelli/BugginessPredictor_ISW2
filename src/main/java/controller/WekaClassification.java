@@ -1,16 +1,27 @@
 package controller;
 
+import model.AcumeMethod;
 import model.ClassifierEvaluation;
 import model.JavaMethod;
 import model.WekaClassifier;
 import utils.PrintUtils;
 import utils.WekaUtils;
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.core.Attribute;
+import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
+import weka.core.converters.ConverterUtils.DataSource;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,7 +33,6 @@ public class WekaClassification {
     private final String projectName;
     private final List<JavaMethod> allMethods;
 
-    // Liste separate per i risultati delle due tecniche di validazione
     private final List<ClassifierEvaluation> cvEvaluationResults;
     private final List<ClassifierEvaluation> temporalEvaluationResults;
 
@@ -36,178 +46,219 @@ public class WekaClassification {
     public void execute() {
         LOGGER.log(Level.INFO, "--- Starting WEKA analysis for project: {0} ---", projectName);
         try {
-            // --- ESECUZIONE DELLE DUE VALIDAZIONI ---
-
-            // 1. Esegui la 10-times 10-fold Cross-Validation
-            //runCrossValidationAnalysis();
-
-            // 2. Esegui la Validazione Temporale (Walk-Forward o Sliding Window)
-            runTemporalValidation();
-
-            // 3. Salva entrambi i set di risultati in file separati
-            saveResults();
-
+            //executeCrossValidation();
+            executeTemporalValidation();
+            saveAllResults();
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "An error occurred during WEKA analysis", e);
+            LOGGER.log(Level.SEVERE, "A critical error occurred during WEKA analysis", e);
         }
         LOGGER.log(Level.INFO, "--- WEKA analysis finished for project: {0} ---", projectName);
     }
 
-    // --- METODO PER LA 10-TIMES 10-FOLD CROSS-VALIDATION (IL TUO CODICE ORIGINALE, LEGGERMENTE ADATTATO) ---
-    private void runCrossValidationAnalysis() throws Exception {
-        LOGGER.log(Level.INFO, "\n\n--- [STARTING CROSS-VALIDATION ANALYSIS] ---");
+    public void executeCrossValidation() {
+        System.out.println("Starting Cross Validation");
+        try {
+            final int numRuns = "BOOKKEEPER".equalsIgnoreCase(this.projectName) ? 10 : 1;
+            final int numFolds = 10;
+            prepareCrossValidationData(numRuns, numFolds);
+            runClassificationOnFolds(numRuns, numFolds);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "An error occurred during Cross-Validation analysis", e);
+        }
+    }
 
-        // Per la CV, usiamo un sottoinsieme se il progetto è SYNCPOPE per gestire le dimensioni
+    public void executeTemporalValidation() {
+        System.out.println("Starting Temporal Validation");
+        try {
+            int numIterations = prepareTemporalData();
+            runClassificationOnTemporal(numIterations);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "An error occurred during Temporal Validation analysis", e);
+        }
+    }
+
+    private void prepareCrossValidationData(int numRuns, int numFolds) throws IOException {
+        LOGGER.info("Preparing data for cross-validation...");
         List<JavaMethod> methodsForCv;
         if ("SYNCOPE".equalsIgnoreCase(this.projectName)) {
-            LOGGER.info("Project is SYNCOPE, using the first 35% of releases for Cross-Validation to manage dataset size.");
-            int totalReleases = allMethods.stream().mapToInt(m -> m.getRelease().getId()).max().orElse(0);
+            int totalReleases = (int) allMethods.stream().map(m -> m.getRelease().getId()).distinct().count();
             int releasesToConsider = (int) Math.ceil(totalReleases * 0.35);
-            methodsForCv = allMethods.stream()
-                    .filter(m -> m.getRelease().getId() <= releasesToConsider)
-                    .collect(Collectors.toList());
+            methodsForCv = allMethods.stream().filter(m -> m.getRelease().getId() <= releasesToConsider).collect(Collectors.toList());
         } else {
             methodsForCv = this.allMethods;
         }
-
-        Instances fullDataset = WekaUtils.buildInstances(methodsForCv, projectName + "-full-dataset");
+        Instances fullDataset = WekaUtils.buildInstances(methodsForCv, projectName + "_full");
         fullDataset.setClassIndex(fullDataset.numAttributes() - 1);
-        LOGGER.log(Level.INFO, "Dataset for CV built with {0} instances.", fullDataset.numInstances());
+        ArffSaver saver = new ArffSaver();
+        for (int run = 1; run <= numRuns; run++) {
+            Random rand = new Random(run);
+            Instances randData = new Instances(fullDataset);
+            randData.randomize(rand);
+            for (int fold = 0; fold < numFolds; fold++) {
+                Instances train = randData.trainCV(numFolds, fold, rand);
+                Instances test = randData.testCV(numFolds, fold);
+                String iterDir = String.format("arffFiles/%s/cv/run_%d/fold_%d", projectName.toLowerCase(), run, fold);
+                Files.createDirectories(Paths.get(iterDir));
+                saver.setInstances(train);
+                saver.setFile(new File(iterDir + "/training.arff"));
+                saver.writeBatch();
+                saver.setInstances(test);
+                saver.setFile(new File(iterDir + "/testing.arff"));
+                saver.writeBatch();
+            }
+        }
+        LOGGER.info("Cross-validation data preparation complete.");
+    }
 
-        final int numRepetitions = "BOOKKEEPER".equalsIgnoreCase(this.projectName) ? 10 : 1;
-        int numFolds = 10;
+    private int prepareTemporalData() throws IOException {
+        LOGGER.info("Preparing data for temporal validation...");
+        int numReleases = (int) allMethods.stream().map(m -> m.getRelease().getId()).distinct().count();
+        int lastIteration = 0;
+        for (int i = 1; i < numReleases; i++) {
+            final int currentReleaseId = i;
+            List<JavaMethod> trainingMethods;
+            if ("SYNCOPE".equalsIgnoreCase(this.projectName)) {
+                final int windowSize = 5;
+                trainingMethods = allMethods.stream().filter(m -> m.getRelease().getId() > currentReleaseId - windowSize && m.getRelease().getId() <= currentReleaseId).collect(Collectors.toList());
+            } else {
+                trainingMethods = allMethods.stream().filter(m -> m.getRelease().getId() <= currentReleaseId).collect(Collectors.toList());
+            }
+            List<JavaMethod> testingMethods = allMethods.stream().filter(m -> m.getRelease().getId() == currentReleaseId + 1).collect(Collectors.toList());
+            if (trainingMethods.isEmpty() || testingMethods.isEmpty()) continue;
+            String iterDir = String.format("arffFiles/%s/temporal/iteration_%d", projectName.toLowerCase(), i);
+            Files.createDirectories(Paths.get(iterDir));
+            Instances trainingSet = WekaUtils.buildInstances(trainingMethods, "training");
+            Instances testingSet = WekaUtils.buildInstances(testingMethods, "testing");
+            ArffSaver saver = new ArffSaver();
+            saver.setInstances(trainingSet);
+            saver.setFile(new File(iterDir + "/training.arff"));
+            saver.writeBatch();
+            saver.setInstances(testingSet);
+            saver.setFile(new File(iterDir + "/testing.arff"));
+            saver.writeBatch();
+            lastIteration = i;
+        }
+        LOGGER.info("Temporal validation data preparation complete.");
+        return lastIteration;
+    }
 
-        // ... Il resto della logica di questo metodo è identico al tuo codice precedente ...
-        int positiveClassIndex = fullDataset.classAttribute().indexOfValue("yes");
-        List<WekaClassifier> classifiersToTest = ClassifierBuilder.buildClassifiers(fullDataset);
-        int totalExperiments = classifiersToTest.size();
-        int currentExperiment = 0;
+    private void runClassificationOnFolds(int numRuns, int numFolds) throws Exception {
+        LOGGER.info("Starting classification on CV folds...");
+        for (int run = 1; run <= numRuns; run++) {
+            LOGGER.log(Level.INFO, "--- CV Run {0}/{1} ---", new Object[]{run, numRuns});
+            Map<String, List<AcumeMethod>> aggregatedPredictions = new HashMap<>();
 
-        for (WekaClassifier wekaConfig : classifiersToTest) {
-            currentExperiment++;
-            // ... logica per SMOTE e stampe ...
+            for (int fold = 0; fold < numFolds; fold++) {
+                String dirPath = String.format("arffFiles/%s/cv/run_%d/fold_%d/", projectName.toLowerCase(), run, fold);
+                performSingleClassification(dirPath, "cv", run, fold, aggregatedPredictions);
+            }
 
-            for (int i = 1; i <= numRepetitions; i++) {
-                System.out.print(String.format("    -> Repetition %d/%d... ", i, numRepetitions));
-
-                Evaluation eval = new Evaluation(fullDataset);
-                eval.crossValidateModel(wekaConfig.getClassifier(), fullDataset, numFolds, new Random(i));
-
-                System.out.println("DONE.");
-                ClassifierEvaluation result = new ClassifierEvaluation(
-                        projectName, i, wekaConfig.getName(),
-                        wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(),
-                        eval.precision(positiveClassIndex), eval.recall(positiveClassIndex),
-                        eval.areaUnderROC(positiveClassIndex), eval.kappa(),
-                        eval.fMeasure(positiveClassIndex), eval.matthewsCorrelationCoefficient(positiveClassIndex)
-                );
-                this.cvEvaluationResults.add(result); // Salva nella lista della CV
+            LOGGER.info("Aggregating predictions and writing ACUME files for Run " + run);
+            for (Map.Entry<String, List<AcumeMethod>> entry : aggregatedPredictions.entrySet()) {
+                String configName = entry.getKey();
+                String finalFileName = String.format("%s_run%d", configName, run);
+                PrintUtils.createAcumeFile(projectName, "cv", entry.getValue(), finalFileName);
             }
         }
     }
 
-    // --- NUOVO METODO PER LA VALIDAZIONE TEMPORALE ---
-    private void runTemporalValidation() throws Exception {
-        LOGGER.log(Level.INFO, "\n\n--- [STARTING TEMPORAL VALIDATION ANALYSIS] ---");
-
-        int totalReleases = allMethods.stream().mapToInt(m -> m.getRelease().getId()).max().orElse(0);
-
-        if (this.projectName.equalsIgnoreCase("BOOKKEEPER")) {
-            LOGGER.info("Applying Walk-Forward validation for BOOKKEEPER.");
-            for (int i = 1; i < totalReleases; i++) {
-                final int lastTrainingReleaseId = i;
-                List<JavaMethod> trainingMethods = allMethods.stream()
-                        .filter(m -> m.getRelease().getId() <= lastTrainingReleaseId)
-                        .collect(Collectors.toList());
-                List<JavaMethod> testingMethods = allMethods.stream()
-                        .filter(m -> m.getRelease().getId() == (lastTrainingReleaseId + 1))
-                        .collect(Collectors.toList());
-                runSingleTemporalIteration(i, trainingMethods, testingMethods);
-            }
-        } else if (this.projectName.equalsIgnoreCase("SYNCOPE")) {
-            final int windowSize = 5;
-            LOGGER.log(Level.INFO, "Applying Sliding Window validation for SYNCOPE with windowSize = {0}.", windowSize);
-            for (int i = 1; i < totalReleases; i++) {
-                final int lastTrainingReleaseId = i;
-                List<JavaMethod> trainingMethods = allMethods.stream()
-                        .filter(m -> {
-                            int releaseId = m.getRelease().getId();
-                            return releaseId > lastTrainingReleaseId - windowSize && releaseId <= lastTrainingReleaseId;
-                        })
-                        .collect(Collectors.toList());
-                List<JavaMethod> testingMethods = allMethods.stream()
-                        .filter(m -> m.getRelease().getId() == (lastTrainingReleaseId + 1))
-                        .collect(Collectors.toList());
-                runSingleTemporalIteration(i, trainingMethods, testingMethods);
+    private void runClassificationOnTemporal(int numIterations) throws Exception {
+        LOGGER.info("Starting classification on temporal iterations...");
+        for (int i = 1; i <= numIterations; i++) {
+            String dirPath = String.format("arffFiles/%s/temporal/iteration_%d/", projectName.toLowerCase(), i);
+            if (new File(dirPath).exists()) {
+                performSingleClassification(dirPath, "temporal", 0, i, null); // null perché non aggreghiamo
             }
         }
     }
 
-    // --- NUOVO METODO HELPER PER LA VALIDAZIONE TEMPORALE ---
-    private void runSingleTemporalIteration(int iterationNum, List<JavaMethod> trainingMethods, List<JavaMethod> testingMethods) throws Exception {
-        if (trainingMethods.isEmpty() || testingMethods.isEmpty()) {
-            LOGGER.log(Level.INFO, "Skipping temporal iteration {0}: training or testing set is empty.", iterationNum);
-            return;
-        }
+    // --- MOTORE DI CLASSIFICAZIONE UNIFICATO ---
+    private void performSingleClassification(String dirPath, String validationType, int run, int foldOrIteration, Map<String, List<AcumeMethod>> aggregatedPredictions) {
+        try {
+            if (!new File(dirPath + "training.arff").exists()) return;
+            DataSource trainingSource = new DataSource(dirPath + "training.arff");
+            Instances trainingSet = trainingSource.getDataSet();
+            trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
+            DataSource testingSource = new DataSource(dirPath + "testing.arff");
+            Instances testingSet = testingSource.getDataSet();
+            testingSet.setClassIndex(testingSet.numAttributes() - 1);
+            if (testingSet.isEmpty()) return;
 
-        Instances trainingSet = WekaUtils.buildInstances(trainingMethods, projectName + "-Training-" + iterationNum);
-        Instances testingSet = WekaUtils.buildInstances(testingMethods, projectName + "-Testing-" + iterationNum);
+            List<WekaClassifier> classifiersToTest = ClassifierBuilder.buildClassifiers(trainingSet);
+            int positiveClassIndex = trainingSet.classAttribute().indexOfValue("yes");
+            List<ClassifierEvaluation> resultsList = "cv".equals(validationType) ? this.cvEvaluationResults : this.temporalEvaluationResults;
+            int iterationId = "cv".equals(validationType) ? (run - 1) * 10 + foldOrIteration : foldOrIteration;
 
-        trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
-        testingSet.setClassIndex(testingSet.numAttributes() - 1);
+            for (WekaClassifier wekaConfig : classifiersToTest) {
+                try {
+                    Classifier classifier = wekaConfig.getClassifier();
+                    classifier.buildClassifier(trainingSet);
 
-        int positiveClassIndex = trainingSet.classAttribute().indexOfValue("yes");
-        if (positiveClassIndex == -1) {
-            LOGGER.log(Level.WARNING, "Skipping temporal iteration {0}: class 'yes' not found in training data.", iterationNum);
-            return;
-        }
+                    List<AcumeMethod> predictions = getAcumePredictions(classifier, testingSet);
+                    String configName = buildClassifierConfigName(wekaConfig);
 
-        int numBuggyInstances = 0;
-        for (int j = 0; j < trainingSet.numInstances(); j++) {
-            if (trainingSet.get(j).classValue() == positiveClassIndex) numBuggyInstances++;
-        }
-        final int SMOTE_MIN_INSTANCES = 6;
+                    if ("cv".equals(validationType) && aggregatedPredictions != null) {
+                        // Se è CV, aggrega le previsioni
+                        aggregatedPredictions.computeIfAbsent(configName, k -> new ArrayList<>()).addAll(predictions);
+                    } else {
+                        // Se è temporale, scrivi subito il file ACUME
+                        String fileName = String.format("%s_iter%d", configName, foldOrIteration);
+                        PrintUtils.createAcumeFile(projectName, validationType, predictions, fileName);
+                    }
 
-        LOGGER.log(Level.INFO, "--- Temporal Iteration {0}: Training on {1} instances ({2} buggy), Testing on {3} instances ---",
-                new Object[]{iterationNum, trainingSet.numInstances(), numBuggyInstances, testingSet.numInstances()});
-
-        List<WekaClassifier> classifiersToTest = ClassifierBuilder.buildClassifiers(trainingSet);
-
-        for (WekaClassifier wekaConfig : classifiersToTest) {
-            if (wekaConfig.getSampling().equals("SMOTE") && numBuggyInstances < SMOTE_MIN_INSTANCES) {
-                continue;
+                    Evaluation eval = new Evaluation(trainingSet);
+                    eval.evaluateModel(classifier, testingSet);
+                    if (positiveClassIndex != -1) {
+                        resultsList.add(new ClassifierEvaluation(projectName, iterationId, wekaConfig.getName(), wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(), eval.precision(positiveClassIndex), eval.recall(positiveClassIndex), eval.areaUnderROC(positiveClassIndex), eval.kappa(), eval.fMeasure(positiveClassIndex), eval.matthewsCorrelationCoefficient(positiveClassIndex)));
+                    }
+                } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Could not evaluate classifier " + wekaConfig.getName(), e);
+                }
             }
-
-            wekaConfig.getClassifier().buildClassifier(trainingSet);
-            Evaluation eval = new Evaluation(trainingSet);
-            eval.evaluateModel(wekaConfig.getClassifier(), testingSet);
-
-            ClassifierEvaluation result = new ClassifierEvaluation(
-                    projectName, iterationNum, wekaConfig.getName(),
-                    wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(),
-                    eval.precision(positiveClassIndex), eval.recall(positiveClassIndex),
-                    eval.areaUnderROC(positiveClassIndex), eval.kappa(),
-                    eval.fMeasure(positiveClassIndex), eval.matthewsCorrelationCoefficient(positiveClassIndex)
-            );
-            this.temporalEvaluationResults.add(result); // Salva nella lista temporale
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed classification for " + dirPath, e);
         }
     }
 
-    private void saveResults() throws IOException {
+    // --- METODI HELPER (INVARIATI) ---
+    private List<AcumeMethod> getAcumePredictions(Classifier classifier, Instances dataSet) throws Exception {
+        List<AcumeMethod> predictions = new ArrayList<>();
+        int positiveClassIndex = dataSet.classAttribute().indexOfValue("yes");
+        if (positiveClassIndex == -1) positiveClassIndex = 1;
+        Attribute locAttribute = dataSet.attribute("LOC");
+        if (locAttribute == null) {
+            LOGGER.severe("Attribute 'LOC' not found. Cannot create ACUME predictions.");
+            return predictions;
+        }
+        int locIndex = locAttribute.index();
+
+        for (int i = 0; i < dataSet.numInstances(); i++) {
+            Instance instance = dataSet.instance(i);
+            double[] distribution = classifier.distributionForInstance(instance);
+            double predictedProbability = distribution[positiveClassIndex];
+            String actualValueLabel = instance.classAttribute().value((int) instance.classValue());
+            int size = (int) instance.value(locIndex);
+            predictions.add(new AcumeMethod(i, size, predictedProbability, actualValueLabel));
+        }
+        return predictions;
+    }
+
+    private String buildClassifierConfigName(WekaClassifier wekaConfig) {
+        StringBuilder nameBuilder = new StringBuilder(wekaConfig.getName());
+        if (!"none".equals(wekaConfig.getFeatureSelection())) nameBuilder.append("_BestFirst");
+        if (!"none".equals(wekaConfig.getSampling())) nameBuilder.append("_").append(wekaConfig.getSampling());
+        if (!"none".equals(wekaConfig.getCostSensitive())) nameBuilder.append("_CostSensitive");
+        return nameBuilder.toString();
+    }
+
+    private void saveAllResults() throws IOException {
         if (!this.cvEvaluationResults.isEmpty()) {
             LOGGER.info("Saving cross-validation evaluation results...");
-            // Aggiungo il suffisso "_cv" per distinguere il file
             PrintUtils.printEvaluationResults(projectName, this.cvEvaluationResults, "_cv");
-        } else {
-            LOGGER.warning("No cross-validation results to save.");
         }
-
         if (!this.temporalEvaluationResults.isEmpty()) {
             LOGGER.info("Saving temporal validation evaluation results...");
-            // Aggiungo il suffisso "_temporal" per distinguere il file
             PrintUtils.printEvaluationResults(projectName, this.temporalEvaluationResults, "_temporal");
-        } else {
-            LOGGER.warning("No temporal validation results to save.");
         }
     }
 }

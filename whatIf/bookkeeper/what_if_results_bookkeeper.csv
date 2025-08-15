@@ -1,0 +1,5 @@
+Dataset,Description,Actual_Defective_Count,Predicted_Defective_Count
+A,Total Dataset,14032,14761
+B+,Smelly Methods (Original),147,1198
+B,Smelly Methods (What-If: No Smells),N/A,1198
+C,Not Smelly Methods,12981,13563
