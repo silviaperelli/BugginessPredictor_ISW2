@@ -46,8 +46,8 @@ public class WekaClassification {
     public void execute() {
         LOGGER.log(Level.INFO, "--- Starting WEKA analysis for project: {0} ---", projectName);
         try {
-            //executeCrossValidation();
-            executeTemporalValidation();
+            executeCrossValidation();
+            //executeTemporalValidation();
             saveAllResults();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "A critical error occurred during WEKA analysis", e);
@@ -58,7 +58,7 @@ public class WekaClassification {
     public void executeCrossValidation() {
         System.out.println("Starting Cross Validation");
         try {
-            final int numRuns = "BOOKKEEPER".equalsIgnoreCase(this.projectName) ? 10 : 1;
+            final int numRuns = "BOOKKEEPER".equalsIgnoreCase(this.projectName) ? 10 : 2;
             final int numFolds = 10;
             prepareCrossValidationData(numRuns, numFolds);
             runClassificationOnFolds(numRuns, numFolds);

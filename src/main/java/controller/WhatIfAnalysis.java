@@ -8,6 +8,8 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
+import weka.core.converters.CSVSaver;
+import java.io.File;
 
 import java.io.*;
 import java.util.logging.Logger;
@@ -42,7 +44,7 @@ public class WhatIfAnalysis {
 
     public static void main(String[] args) throws Exception {
         Logger.getLogger("").setLevel(Level.SEVERE);
-        String projectToAnalyze = "BOOKKEEPER";
+        String projectToAnalyze = "SYNCOPE";
         WhatIfAnalysis analysis = new WhatIfAnalysis(projectToAnalyze);
         analysis.execute();
     }
@@ -64,6 +66,30 @@ public class WhatIfAnalysis {
         int nSmellsIndex = datasetB.attribute("NumCodeSmells").index();
         if (nSmellsIndex == -1) throw new IllegalStateException("Feature 'NSmells' not found.");
         datasetB.forEach(instance -> instance.setValue(nSmellsIndex, 0));
+
+        // --- 2. NUOVA SEZIONE: Salvataggio dei dataset B, B+, C su file ---
+        LOGGER.info("Saving intermediate datasets B, B+, and C to CSV files...");
+        String outputDir = String.format("whatIf/%s/", this.project.toLowerCase());
+        new File(outputDir).mkdirs(); // Crea la directory se non esiste
+
+        CSVSaver saver = new CSVSaver();
+
+        // Salva B.csv
+        saver.setInstances(datasetB);
+        saver.setFile(new File(outputDir + "B.csv"));
+        saver.writeBatch();
+
+        // Salva B_plus.csv
+        saver.setInstances(datasetBPlus);
+        saver.setFile(new File(outputDir + "B_plus.csv"));
+        saver.writeBatch();
+
+        // Salva C.csv
+        saver.setInstances(datasetC);
+        saver.setFile(new File(outputDir + "C.csv"));
+        saver.writeBatch();
+        LOGGER.info("Intermediate datasets saved successfully.");
+        // --- FINE NUOVA SEZIONE ---
 
         // --- Addestrare BClassifier su A (BClassifierA) ---
         LOGGER.info("Training BClassifier on the full dataset A...");
@@ -87,7 +113,6 @@ public class WhatIfAnalysis {
         int estimatedB = countBuggyPredictions(bClassifierA, datasetB);
 
         // --- Passo 13: Salva i risultati in un file CSV ---
-        String outputDir = String.format("whatIf/%s/", this.project.toLowerCase());
         String outputFile = outputDir + "whatIf_results_" + project.toLowerCase() + ".csv";
         printWhatIfResultsToCsv(outputFile,
                 actualA, estimatedA,
@@ -161,7 +186,8 @@ public class WhatIfAnalysis {
     }
 
     public static void printWhatIfResultsToCsv(String filePath, int... params) throws IOException {
-        File file = new File(filePath);    file.getParentFile().mkdirs();
+        File file = new File(filePath);
+        file.getParentFile().mkdirs();
         try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
             writer.println("Dataset,Type,Count");        writer.printf("A,Actual,%d%n", params[0]);
             writer.printf("A,Estimated,%d%n", params[1]);        writer.printf("B+,Actual,%d%n", params[2]);

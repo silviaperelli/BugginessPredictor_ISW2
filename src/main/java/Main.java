@@ -24,10 +24,10 @@ public class Main {
         String project2 = "SYNCOPE";
 
         // Decommenta per eseguire l'analisi per il primo progetto
-        runAnalysisForProject(project1);
+        //runAnalysisForProject(project1);
 
         // Esegui l'analisi per il secondo progetto
-        //runAnalysisForProject(project2);
+        runAnalysisForProject(project2);
     }
 
     /**
