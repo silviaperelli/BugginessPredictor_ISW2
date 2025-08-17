@@ -1,238 +1,173 @@
-package controller;
+package controller; // Assicurati che il package sia corretto
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
+import utils.PrintUtils;
+import utils.WekaUtils;
 import weka.classifiers.Classifier;
-import weka.classifiers.CostMatrix;
-import weka.classifiers.meta.CostSensitiveClassifier;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.converters.CSVLoader;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Remove;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
+import java.io.*;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 public class WhatIfAnalysis {
-
     private static final Logger LOGGER = Logger.getLogger(WhatIfAnalysis.class.getName());
-    private final String projectName;
+    private final String project;
+    private final String projectLower;
+    private final Instances datasetA;
 
-    public WhatIfAnalysis(String projectName) {
-        this.projectName = projectName.toUpperCase();
+
+    public WhatIfAnalysis(String projectName) throws Exception {
+        String datasetCsvPath = String.format("csvFiles/%s/Dataset.csv", projectName.toLowerCase());
+        LOGGER.info("Loading full dataset from CSV: " + datasetCsvPath);
+
+        Instances rawData = WekaUtils.loadInstancesFromCsv(datasetCsvPath);
+
+        Remove removeFilter = new Remove();
+        removeFilter.setAttributeIndices("1"); // Rimuove la prima colonna (FullyQualifiedName)
+        removeFilter.setInputFormat(rawData);
+        Instances fulldataset = Filter.useFilter(rawData, removeFilter);
+
+        if (fulldataset.classIndex() == -1) {
+            fulldataset.setClassIndex(fulldataset.numAttributes() - 1);
+        }
+
+        this.project = projectName.toUpperCase();
+        this.projectLower = projectName.toLowerCase();
+        this.datasetA = new Instances(fulldataset);
     }
 
-    /**
-     * Punto di ingresso per l'analisi What-If.
-     */
     public static void main(String[] args) throws Exception {
-        Logger rootLogger = Logger.getLogger("");
-        rootLogger.setLevel(Level.SEVERE);
-        // Puoi cambiare il nome del progetto qui per eseguirlo su un altro
+        Logger.getLogger("").setLevel(Level.SEVERE);
         String projectToAnalyze = "BOOKKEEPER";
-
         WhatIfAnalysis analysis = new WhatIfAnalysis(projectToAnalyze);
         analysis.execute();
     }
 
-    /**
-     * Orchestra l'intera pipeline di analisi What-If.
-     */
     public void execute() throws Exception {
-        System.out.println("\n--- Starting What-If Analysis for project: " + projectName + " ---");
+        LOGGER.info("--- Starting What-If Analysis ---");
 
-        // FASE 1: Creazione dei dataset B, B+, C
-        createWhatIfDatasets();
+        // --- Creare i dataset B+, C, e B ---
+        LOGGER.info("Creating sub-datasets based on NSmells...");
 
-        // FASE 2: Analisi
-        runAnalysis();
+        // --- B+: Porzione di A con NSmells > 0
+        Instances datasetBPlus = filterBySmell(this.datasetA, 0, "greater");
+
+        // --- C: Porzione di A con NSmells = 0
+        Instances datasetC = filterBySmell(this.datasetA, 0, "equals");
+
+        // --- B: Una copia di B+ ma con NSmells manipolato a 0
+        Instances datasetB = new Instances(datasetBPlus);
+        int nSmellsIndex = datasetB.attribute("NumCodeSmells").index();
+        if (nSmellsIndex == -1) throw new IllegalStateException("Feature 'NSmells' not found.");
+        datasetB.forEach(instance -> instance.setValue(nSmellsIndex, 0));
+
+        // --- Addestrare BClassifier su A (BClassifierA) ---
+        LOGGER.info("Training BClassifier on the full dataset A...");
+        Classifier bClassifierA = new RandomForest();
+        bClassifierA.buildClassifier(this.datasetA);
+
+        // --- Predire e contare Actual/Estimated su A, B, B+, C ---
+        LOGGER.info("Counting actual and estimated bugs on all datasets...");
+
+        // Calcola i valori "Actual"
+        int actualA = countActualBugs(this.datasetA);
+        int actualBPlus = countActualBugs(datasetBPlus);
+        int actualC = countActualBugs(datasetC);
+        // Nota: B e B+ hanno gli stessi metodi, quindi gli Actual sono identici.
+        int actualB = actualBPlus;
+
+        // Calcola i valori "Estimated"
+        int estimatedA = countBuggyPredictions(bClassifierA, this.datasetA);
+        int estimatedBPlus = countBuggyPredictions(bClassifierA, datasetBPlus);
+        int estimatedC = countBuggyPredictions(bClassifierA, datasetC);
+        int estimatedB = countBuggyPredictions(bClassifierA, datasetB);
+
+        // --- Passo 13: Salva i risultati in un file CSV ---
+        String outputDir = String.format("whatIf/%s/", this.project.toLowerCase());
+        String outputFile = outputDir + "whatIf_results_" + project.toLowerCase() + ".csv";
+        printWhatIfResultsToCsv(outputFile,
+                actualA, estimatedA,
+                actualBPlus, estimatedBPlus,
+                actualB, estimatedB,
+                actualC, estimatedC);
+
     }
 
-    /**
-     * Passo 10: Crea i dataset B, B+, e C partendo dal Dataset.csv principale.
-     */
-    private void createWhatIfDatasets() throws IOException {
-        System.out.println("--- Phase 1: Creating What-If Datasets ---");
 
-        String projectLower = projectName.toLowerCase();
-        Path inputFileA = Paths.get("csvFiles", projectLower, "Dataset.csv");
-        Path outputDir = Paths.get("whatIf", projectLower);
-        Files.createDirectories(outputDir);
+    // Filtra un dataset basato sul valore della feature "NSmells"
+    private Instances filterBySmell(Instances data, double value, String comparison) {
+        int attrIndex = data.attribute("NumCodeSmells").index();
+        if (attrIndex == -1) {
+            throw new IllegalArgumentException("Attribute not found: " + "NumCodeSmells");
+        }
 
-        Path outputFileC = outputDir.resolve("C.csv");
-        Path outputFileBPlus = outputDir.resolve("B_plus.csv");
-        Path outputFileB = outputDir.resolve("B.csv");
+        Instances filteredData = new Instances(data, 0);
 
-        try (
-                Reader readerA = new FileReader(inputFileA.toFile());
-                CSVParser csvParser = new CSVParser(readerA, CSVFormat.DEFAULT.withFirstRecordAsHeader());
-                CSVPrinter printerC = new CSVPrinter(new FileWriter(outputFileC.toFile()), CSVFormat.DEFAULT);
-                CSVPrinter printerBPlus = new CSVPrinter(new FileWriter(outputFileBPlus.toFile()), CSVFormat.DEFAULT);
-                CSVPrinter printerB = new CSVPrinter(new FileWriter(outputFileB.toFile()), CSVFormat.DEFAULT)
-        ) {
-            List<String> header = csvParser.getHeaderNames();
-            printerC.printRecord(header);
-            printerBPlus.printRecord(header);
-            printerB.printRecord(header);
+        for (int i = 0; i < data.numInstances(); i++) {
+            Instance inst = data.instance(i);
+            double currentValue = inst.value(attrIndex);
+            boolean conditionMet = false;
 
-            int smellColumnIndex = header.indexOf("NumCodeSmells");
-            if (smellColumnIndex == -1) {
-                LOGGER.severe("Column 'NumCodeSmells' not found.");
-                return;
+            switch (comparison) {
+                case "equals":
+                    if (currentValue == value) conditionMet = true;
+                    break;
+                case "greater":
+                    if (currentValue > value) conditionMet = true;
+                    break;
+                case "less":
+                    if (currentValue < value) conditionMet = true;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Comparison type not supported: " + comparison);
             }
 
-            for (CSVRecord record : csvParser) {
-                int smellCount = Integer.parseInt(record.get("NumCodeSmells"));
-                if (smellCount > 0) {
-                    printerBPlus.printRecord(record);
-                    List<String> manipulatedRecord = new ArrayList<>();
-                    record.forEach(manipulatedRecord::add);
-                    manipulatedRecord.set(smellColumnIndex, "0");
-                    printerB.printRecord(manipulatedRecord);
-                } else {
-                    printerC.printRecord(record);
-                }
+            if (conditionMet) {
+                filteredData.add(inst);
             }
         }
+        return filteredData;
     }
 
-    /**
-     * Passi 11-12: Addestra il modello su A e predice su tutti i dataset.
-     */
-    private void runAnalysis() throws Exception {
-        System.out.println("\n--- Phase 2: Training and Prediction ---");
 
-        Instances datasetA = loadDatasetFromCsv("csvFiles/" + projectName.toLowerCase() + "/Dataset.csv");
-        if (datasetA == null) return;
-
-        Classifier bClassifier = buildBestClassifier();
-        System.out.println("Training the best classifier on dataset A...");
-        bClassifier.buildClassifier(datasetA);
-
-        System.out.println("Loading What-If datasets and predicting bugginess for each dataset...");
-        Instances datasetB = loadDatasetFromCsv("whatIf/" + projectName.toLowerCase() + "/B.csv");
-        Instances datasetBPlus = loadDatasetFromCsv("whatIf/" + projectName.toLowerCase() + "/B_plus.csv");
-        Instances datasetC = loadDatasetFromCsv("whatIf/" + projectName.toLowerCase() + "/C.csv");
-
-        if (datasetB == null || datasetBPlus == null || datasetC == null) return;
-
-        int actualA = countActualDefective(datasetA);
-        int predictedA = predictDefectiveCount(bClassifier, datasetA);
-        int actualBPlus = countActualDefective(datasetBPlus);
-        int predictedBPlus = predictDefectiveCount(bClassifier, datasetBPlus);
-        int predictedB = predictDefectiveCount(bClassifier, datasetB);
-        int actualC = countActualDefective(datasetC);
-        int predictedC = predictDefectiveCount(bClassifier, datasetC);
-
-        saveResultsToCsv(actualA, predictedA, actualBPlus, predictedBPlus, predictedB, actualC, predictedC);
-    }
-
-    /**
-     * Costruisce e configura il classificatore migliore identificato:
-     * RandomForest avvolto da un CostSensitiveClassifier.
-     */
-    private Classifier buildBestClassifier() {
-        RandomForest rf = new RandomForest();
-
-        // Chiama direttamente il metodo pubblico e statico da ClassifierBuilder
-        CostMatrix costMatrix = ClassifierBuilder.createCostMatrix();
-
-        CostSensitiveClassifier csc = new CostSensitiveClassifier();
-        csc.setClassifier(rf);
-        csc.setCostMatrix(costMatrix);
-        csc.setMinimizeExpectedCost(false);
-
-        return csc;
-    }
-
-    /**
-     * Carica un dataset da un file CSV.
-     */
-    private Instances loadDatasetFromCsv(String path) throws IOException {
-        File file = new File(path);
-        if (!file.exists()) {
-            LOGGER.severe("File not found: " + path);
-            return null;
-        }
-
-        CSVLoader loader = new CSVLoader();
-        loader.setSource(file);
-        Instances data = loader.getDataSet();
-        data.setClassIndex(data.numAttributes() - 1);
-        return data;
-    }
-
-    /**
-     * Conta il numero di istanze "buggy" reali in un dataset.
-     */
-    private int countActualDefective(Instances data) {
-        int count = 0;
-        int classIndex = data.classIndex();
-        // L'indice di "yes" è 1 perché Weka ordina alfabeticamente {"no", "yes"}
-        int positiveClassIndexValue = 1;
-
-        for (Instance instance : data) {
-            if ((int) instance.value(classIndex) == positiveClassIndexValue) {
-                count++;
+    // Conta le istanze predette come "buggy" in un dataset.
+    private int countBuggyPredictions(Classifier classifier, Instances data) throws Exception {
+        if (data.isEmpty()) return 0;
+        int buggyCount = 0;
+        int buggyClassIndex = data.classAttribute().indexOfValue("yes");
+        for (int i = 0; i < data.numInstances(); i++) {
+            if (classifier.classifyInstance(data.instance(i)) == buggyClassIndex) {
+                buggyCount++;
             }
         }
-        return count;
+        return buggyCount;
     }
 
-    /**
-     * Usa un classificatore addestrato per predire il numero di istanze "buggy".
-     */
-    private int predictDefectiveCount(Classifier classifier, Instances data) throws Exception {
-        int count = 0;
-        int positiveClassIndexValue = 1;
-
-        for (Instance instance : data) {
-            if ((int) classifier.classifyInstance(instance) == positiveClassIndexValue) {
-                count++;
+    // Conta le istanze che sono effettivamente "buggy" in un dataset.
+    private int countActualBugs(Instances data) {
+        if (data.isEmpty()) return 0;
+        int actualBuggyCount = 0;
+        int buggyClassIndex = data.classAttribute().indexOfValue("yes");
+        for (int i = 0; i < data.numInstances(); i++) {
+            if (data.instance(i).classValue() == buggyClassIndex) {
+                actualBuggyCount++;
             }
         }
-        return count;
+        return actualBuggyCount;
     }
 
-
-    private void saveResultsToCsv(int actualA, int predictedA, int actualBPlus, int predictedBPlus,
-                                  int predictedB, int actualC, int predictedC) throws IOException {
-
-        String outputDir = "whatIf/" + projectName.toLowerCase();
-        // Assicura che la cartella esista
-        Files.createDirectories(Paths.get(outputDir));
-        String outputFile = outputDir + "/what_if_results_" + projectName.toLowerCase() + ".csv";
-
-        System.out.println("Saving What-If analysis results to: " + outputFile);
-
-        // Usa try-with-resources per garantire che il file venga chiuso correttamente
-        try (FileWriter fileWriter = new FileWriter(outputFile);
-             PrintWriter writer = new PrintWriter(fileWriter)) {
-
-            // Scrivi l'header del CSV
-            writer.println("Dataset,Description,Actual_Defective_Count,Predicted_Defective_Count");
-
-            // Scrivi i dati per ogni dataset
-            writer.printf("A,Total Dataset,%d,%d%n", actualA, predictedA);
-            writer.printf("B+,Smelly Methods (Original),%d,%d%n", actualBPlus, predictedBPlus);
-            writer.printf("B,Smelly Methods (What-If: No Smells),%s,%d%n", "N/A", predictedB);
-            writer.printf("C,Not Smelly Methods,%d,%d%n", actualC, predictedC);
-        }
-
-        System.out.println("What-If results saved successfully.");
+    public static void printWhatIfResultsToCsv(String filePath, int... params) throws IOException {
+        File file = new File(filePath);    file.getParentFile().mkdirs();
+        try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+            writer.println("Dataset,Type,Count");        writer.printf("A,Actual,%d%n", params[0]);
+            writer.printf("A,Estimated,%d%n", params[1]);        writer.printf("B+,Actual,%d%n", params[2]);
+            writer.printf("B+,Estimated,%d%n", params[3]);        writer.printf("B,Actual,%d%n", params[4]);
+            writer.printf("B,Estimated,%d%n", params[5]);        writer.printf("C,Actual,%d%n", params[6]);
+            writer.printf("C,Estimated,%d%n", params[7]);    }
     }
 
 }

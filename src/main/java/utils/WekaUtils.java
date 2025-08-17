@@ -4,7 +4,10 @@ import model.JavaMethod;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instances;
+import weka.core.converters.CSVLoader;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -81,6 +84,18 @@ public final class WekaUtils {
             data.add(new DenseInstance(1.0, values));
         }
 
+        return data;
+    }
+
+    public static Instances loadInstancesFromCsv(String csvPath) throws IOException {
+        CSVLoader loader = new CSVLoader();
+        loader.setSource(new File(csvPath));
+        Instances data = loader.getDataSet();
+
+        // È fondamentale impostare l'attributo della classe (l'ultimo)
+        if (data.classIndex() == -1) {
+            data.setClassIndex(data.numAttributes() - 1);
+        }
         return data;
     }
 }
