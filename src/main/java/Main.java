@@ -1,42 +1,137 @@
 import controller.GitDataExtractor;
 import controller.JiraDataExtractor;
 import controller.WekaClassification;
+import controller.WhatIfAnalysis;
 import model.JavaMethod;
 import model.Release;
 import model.Ticket;
-import org.eclipse.jgit.revwalk.RevCommit; // <-- Aggiunto import necessario
-import utils.CorrelationCalculator;
+import org.eclipse.jgit.revwalk.RevCommit;
+import controller.CorrelationCalculator;
 import utils.PrintUtils;
 
-
-import java.io.IOException; // <-- Aggiunto import necessario
+import java.io.IOException;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
-        Logger rootLogger = Logger.getLogger("");
-        rootLogger.setLevel(Level.SEVERE);
+    public static void main(String[] args) {
+        // Impostazioni iniziali
+        Logger.getLogger("").setLevel(Level.SEVERE);
+        Scanner scanner = new Scanner(System.in);
 
-        String project1 = "BOOKKEEPER";
-        String project2 = "SYNCOPE";
+        // 1. PRIMO PASSO: Scelta obbligatoria del progetto
+        String selectedProject = selectProject(scanner);
 
-        // Decommenta per eseguire l'analisi per il primo progetto
-        //runAnalysisForProject(project1);
+        // 2. SECONDO PASSO: Menù delle azioni per il progetto scelto
+        handleProjectActions(selectedProject, scanner);
 
-        // Esegui l'analisi per il secondo progetto
-        runAnalysisForProject(project2);
+        // Chiusura finale
+        scanner.close();
+        System.out.println("\nApplicazione terminata.");
     }
 
     /**
-     * Metodo helper per eseguire l'intera pipeline per un singolo progetto.
-     * @param projectName Il nome del progetto (es. "BOOKKEEPER")
+     * Mostra il menù iniziale per la selezione OBBLIGATORIA del progetto.
+     * Il programma non prosegue finché non viene fatta una scelta valida.
+     * @param scanner L'oggetto Scanner per leggere l'input dell'utente.
+     * @return Il nome del progetto scelto ("BOOKKEEPER" o "SYNCOPE").
      */
-    public static void runAnalysisForProject(String projectName) throws Exception {
+    private static String selectProject(Scanner scanner) {
+        System.out.println("=====================================");
+        System.out.println("  SELEZIONA IL PROGETTO DA ANALIZZARE  ");
+        System.out.println("=====================================");
+        System.out.println("1. BOOKKEEPER");
+        System.out.println("2. SYNCOPE");
+        System.out.print("Inserisci la tua scelta (1 o 2): ");
+
+        while (true) { // Cicla finché non riceve un input valido
+            if (!scanner.hasNextInt()) {
+                System.out.println("Input non valido. Per favore, inserisci 1 o 2.");
+                scanner.next(); // Pulisce l'input errato
+                System.out.print("Inserisci la tua scelta (1 o 2): ");
+                continue;
+            }
+
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    return "BOOKKEEPER";
+                case 2:
+                    return "SYNCOPE";
+                default:
+                    System.out.println("Scelta non valida. Riprova.");
+                    System.out.print("Inserisci la tua scelta (1 o 2): ");
+            }
+        }
+    }
+
+    /**
+     * Mostra il sottomenù con le azioni disponibili e l'opzione per uscire.
+     * @param projectName Il nome del progetto su cui operare.
+     * @param scanner L'oggetto Scanner per leggere l'input dell'utente.
+     */
+    private static void handleProjectActions(String projectName, Scanner scanner) {
+        while (true) {
+            System.out.println("\n--- PROGETTO: " + projectName.toUpperCase() + " ---");
+            System.out.println("Seleziona l'azione da eseguire:");
+            System.out.println("1. Fase 1 (Creazione Dataset) + Fase 2 (Classificazione Weka)");
+            System.out.println("2. Calcolo Correlazione Feature");
+            System.out.println("3. Analisi What-If");
+            System.out.println("-------------------------------------");
+            System.out.println("0. Exit"); // Opzione per terminare il programma
+            System.out.print("Inserisci la tua scelta: ");
+
+            while (!scanner.hasNextInt()) {
+                System.out.println("Input non valido. Per favore, inserisci un numero.");
+                scanner.next(); // Pulisce l'input errato
+                System.out.print("Inserisci la tua scelta: ");
+            }
+            int action = scanner.nextInt();
+
+            if (action == 0) {
+                // Esce dal ciclo e permette al programma di terminare
+                return;
+            }
+
+            try {
+                switch (action) {
+                    case 1:
+                        System.out.println("\n>>> Avvio Fase 1 e 2...");
+                        runCompleteAnalysis(projectName);
+                        break;
+                    case 2:
+                        System.out.println("\n>>> Avvio calcolo della correlazione...");
+                        CorrelationCalculator.calculateAndSave(projectName);
+                        System.out.println(">>> Calcolo della correlazione completato.");
+                        break;
+                    case 3:
+                        System.out.println("\n>>> Avvio analisi What-If...");
+                        WhatIfAnalysis analysis = new WhatIfAnalysis(projectName);
+                        analysis.execute();
+                        break;
+                    default:
+                        System.out.println("Scelta non valida. Riprova.");
+                        break;
+                }
+            } catch (Exception e) {
+                System.err.println("\n!!! SI È VERIFICATO UN ERRORE: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Esegue l'intera pipeline di analisi: estrazione dati, creazione dataset e classificazione.
+     * (Questo metodo rimane invariato)
+     * @param projectName Il nome del progetto.
+     */
+    public static void runCompleteAnalysis(String projectName) throws Exception {
         System.out.println("\n==================================================");
-        System.out.println("STARTING ANALYSIS FOR PROJECT: " + projectName.toUpperCase());
+        System.out.println("STARTING FULL ANALYSIS FOR PROJECT: " + projectName.toUpperCase());
         System.out.println("==================================================");
 
         // --- FASE 1: DATASET CREATION ---
@@ -50,15 +145,15 @@ public class Main {
         System.out.println(projectName + ": " + ticketList.size() + " tickets extracted.");
 
         GitDataExtractor gitExtractor = new GitDataExtractor(projectName, fullReleaseList, ticketList);
-        List<RevCommit> allCommits = gitExtractor.getAllCommitsAndAssignToReleases(); // <-- Salva la lista dei commit
-        System.out.println(projectName + ": commits assigned to releases.");
+        List<RevCommit> allCommits = gitExtractor.getAllCommitsAndAssignToReleases();
+        System.out.println(projectName + ": Commits assigned to releases.");
 
         gitExtractor.filterCommitsOfIssues();
-        ticketList = gitExtractor.getTicketList(); // Aggiorna la lista di ticket
-        System.out.println(projectName + ": commits filtered by ticket IDs.");
+        ticketList = gitExtractor.getTicketList();
+        System.out.println(projectName + ": Commits filtered by ticket IDs.");
 
         List<JavaMethod> allMethods = gitExtractor.getMethodsFromReleases();
-        System.out.println(projectName + ": " + allMethods.size() + " method entries extracted across analyzed releases.");
+        System.out.println(projectName + ": " + allMethods.size() + " method entries extracted.");
 
         System.out.println("Labeling method bugginess...");
         gitExtractor.setMethodBuggyness(allMethods);
@@ -85,21 +180,11 @@ public class Main {
         } catch (IOException e) {
             System.err.println("Error while generating intermediate report files: " + e.getMessage());
         }
-        // --- FINE NUOVA PARTE ---
 
         System.out.println("\nCreating the final dataset for Weka...");
         PrintUtils.printMethodsDataset(projectName, allMethods);
         System.out.println(projectName + ": Dataset CSV created successfully.");
-
-        // --- INIZIO NUOVA PARTE: FASE 1.5 ---
-        System.out.println("\n--- Correlation Analysis ---");
-        try {
-            CorrelationCalculator.calculateAndSave(projectName);
-        } catch (IOException e) {
-            System.err.println("Error during correlation analysis: " + e.getMessage());
-        }
         System.out.println("--- Phase 1 Complete ---");
-        // --- FINE NUOVA PARTE ---
 
         // --- FASE 2: WEKA CLASSIFICATION ---
         System.out.println("\n--- Phase 2: Weka Classification ---");
@@ -111,5 +196,4 @@ public class Main {
         System.out.println("ANALYSIS FOR " + projectName.toUpperCase() + " FINISHED");
         System.out.println("==================================================");
     }
-
 }
