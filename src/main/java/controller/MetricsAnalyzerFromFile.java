@@ -22,26 +22,28 @@ import java.util.stream.Collectors;
 
 public class MetricsAnalyzerFromFile {
 
-    public static void main(String[] args) throws IOException {
+    private final String projectName;
+    private final String feature;
 
-        String projectName = "SYNCOPE";
+    public MetricsAnalyzerFromFile(String projectName, String feature) {
+        this.projectName = projectName;
+        this.feature = feature;
+    }
+
+    public void execute() throws IOException {
         String originalMethodName;
         String refactoredMethodName;
 
-        // Cambia questa variabile per decidere quale refactoring analizzare
-        String feature = "NSmell"; // Opzioni: "NSmell" o "LOC"
-
-        if ("BOOKKEEPER".equals(projectName)){
-            if ("NSmell".equals(feature)){
+        // La logica di selezione ora è più semplice
+        if ("BOOKKEEPER".equals(projectName)) {
+            if ("NSmell".equals(feature)) {
                 originalMethodName = "readEntry";
                 refactoredMethodName = "readEntry2";
-            } else {
+            } else { // Assumiamo LOC
                 originalMethodName = "main";
                 refactoredMethodName = "main2";
             }
-        }
-        else {
-            feature = "NSmell";
+        } else { // Assumiamo SYNCOPE
             originalMethodName = "getTaskTO";
             refactoredMethodName = "getTaskTO2";
         }
@@ -50,8 +52,13 @@ public class MetricsAnalyzerFromFile {
         String inputFile = String.format("%s/Refactoring_%s_%s.java", dir, feature, projectName.toLowerCase());
         String outputFile = String.format("%s/feature_comparison_%s_%s.csv", dir, feature, projectName.toLowerCase());
 
-        Files.createDirectories(Paths.get(dir));
+        if (!Files.exists(Paths.get(inputFile))) {
+            System.err.println("\nERRORE: File di input non trovato: " + inputFile);
+            System.err.println("Assicurati di aver creato il file con i metodi originale e refattorizzato.");
+            return;
+        }
 
+        Files.createDirectories(Paths.get(dir));
         System.out.println("Analizzando il file: " + inputFile);
         System.out.println("Salvando il report in: " + outputFile + "\n");
 

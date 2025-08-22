@@ -2,6 +2,7 @@ import controller.GitDataExtractor;
 import controller.JiraDataExtractor;
 import controller.WekaClassification;
 import controller.WhatIfAnalysis;
+import controller.MetricsAnalyzerFromFile;
 import model.JavaMethod;
 import model.Release;
 import model.Ticket;
@@ -80,20 +81,20 @@ public class Main {
             System.out.println("Seleziona l'azione da eseguire:");
             System.out.println("1. Fase 1 (Creazione Dataset) + Fase 2 (Classificazione Weka)");
             System.out.println("2. Calcolo Correlazione Feature");
-            System.out.println("3. Analisi What-If");
+            System.out.println("3. Analisi Metriche del Refactoring (da file)");
+            System.out.println("4. Analisi What-If");
             System.out.println("-------------------------------------");
-            System.out.println("0. Exit"); // Opzione per terminare il programma
+            System.out.println("0. Exit");
             System.out.print("Inserisci la tua scelta: ");
 
             while (!scanner.hasNextInt()) {
                 System.out.println("Input non valido. Per favore, inserisci un numero.");
-                scanner.next(); // Pulisce l'input errato
+                scanner.next();
                 System.out.print("Inserisci la tua scelta: ");
             }
             int action = scanner.nextInt();
 
             if (action == 0) {
-                // Esce dal ciclo e permette al programma di terminare
                 return;
             }
 
@@ -108,7 +109,23 @@ public class Main {
                         CorrelationCalculator.calculateAndSave(projectName);
                         System.out.println(">>> Calcolo della correlazione completato.");
                         break;
-                    case 3:
+                    case 3: // <-- LOGICA MODIFICATA QUI
+                        System.out.println("\n>>> Avvio analisi metriche del refactoring...");
+
+                        String featureType;
+                        if ("BOOKKEEPER".equals(projectName)) {
+                            // Chiedi il tipo solo per Bookkeeper
+                            featureType = selectFeatureTypeForBookkeeper(scanner);
+                        } else {
+                            // Per Syncope, imposta direttamente NSmell
+                            System.out.println("Analisi per SYNCOPE impostata su refactoring NSmell.");
+                            featureType = "NSmell";
+                        }
+
+                        MetricsAnalyzerFromFile analyzer = new MetricsAnalyzerFromFile(projectName, featureType);
+                        analyzer.execute();
+                        break;
+                    case 4:
                         System.out.println("\n>>> Avvio analisi What-If...");
                         WhatIfAnalysis analysis = new WhatIfAnalysis(projectName);
                         analysis.execute();
@@ -121,6 +138,28 @@ public class Main {
                 System.err.println("\n!!! SI È VERIFICATO UN ERRORE: " + e.getMessage());
                 e.printStackTrace();
             }
+        }
+    }
+
+    // NUOVO METODO HELPER AGGIUNTO AL MAIN
+    private static String selectFeatureTypeForBookkeeper(Scanner scanner) {
+        System.out.println("\nSeleziona il tipo di refactoring da analizzare per BOOKKEEPER:");
+        System.out.println("1. Basato su LOC (Lines of Code)");
+        System.out.println("2. Basato su NSmell (Number of Code Smells)");
+        System.out.print("Inserisci la tua scelta (1 o 2): ");
+
+        while (true) {
+            if (!scanner.hasNextInt()) {
+                System.out.println("Input non valido. Per favore, inserisci 1 o 2.");
+                scanner.next();
+                System.out.print("Inserisci la tua scelta (1 o 2): ");
+                continue;
+            }
+            int choice = scanner.nextInt();
+            if (choice == 1) return "LOC";
+            if (choice == 2) return "NSmell";
+            System.out.println("Scelta non valida. Riprova.");
+            System.out.print("Inserisci la tua scelta (1 o 2): ");
         }
     }
 
