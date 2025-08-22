@@ -2,7 +2,10 @@ package controller; // Assicurati che il package sia corretto
 
 import utils.WekaUtils;
 import weka.classifiers.Classifier;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.meta.CostSensitiveClassifier;
 import weka.classifiers.trees.RandomForest;
+import weka.classifiers.lazy.IBk;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -12,6 +15,8 @@ import java.io.File;
 
 import java.io.*;
 import java.util.logging.Logger;
+
+import static controller.ClassifierBuilder.createCostMatrix;
 
 public class WhatIfAnalysis {
     private static final Logger LOGGER = Logger.getLogger(WhatIfAnalysis.class.getName());
@@ -83,7 +88,16 @@ public class WhatIfAnalysis {
 
         // --- Addestrare BClassifier su A (BClassifierA) ---
         System.out.println("Training BClassifier on the full dataset A...");
-        Classifier bClassifierA = new RandomForest();
+        Classifier bClassifierA;
+
+        // Seleziona dinamicamente il classificatore in base al nome del progetto
+        if ("SYNCOPE".equals(this.project)) {
+            bClassifierA = new RandomForest();
+        } else {
+            bClassifierA = new RandomForest();
+        }
+
+        // Addestra il classificatore che è stato scelto
         bClassifierA.buildClassifier(this.datasetA);
 
         // --- Predire e contare Actual/Estimated su A, B, B+, C ---
