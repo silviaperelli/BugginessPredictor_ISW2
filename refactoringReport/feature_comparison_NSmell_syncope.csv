@@ -1,0 +1,15 @@
+MethodName,Version,LOC,NumParameters,NumBranches,NestingDepth,NumCodeSmells,NumLocalVariables
+getTaskTO,Original,52,3,21,3,3,5
+
+// --- Dettaglio Metodi Refattorizzati ---
+getTaskTO2,Refactored_EntryPoint,23,3,6,1,0,1
+mapLatestExecutionDetails,Refactored_Helper,7,2,1,1,0,1
+mapAllExecutions,Refactored_Helper,4,3,3,3,0,1
+mapPropagationTaskDetails,Refactored_Helper,5,2,1,1,0,1
+mapSchedTaskDetails,Refactored_Helper,3,2,1,1,0,0
+mapPullTaskDetails,Refactored_Helper,10,2,4,1,0,2
+mapPushTaskDetails,Refactored_Helper,9,2,4,1,0,2
+mapNotificationTaskDetails,Refactored_Helper,4,2,2,2,0,1
+
+// --- Riepilogo Aggregato per Confronto (Feature 1 vs Feature 2) ---
+getTaskTO2 (refactored system),Refactored_Aggregate,65,3,22,3,0,9

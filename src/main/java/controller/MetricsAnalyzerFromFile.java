@@ -2,6 +2,7 @@ package controller;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ConditionalExpr;
@@ -10,8 +11,6 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.stmt.*;
 import utils.NestingDepthVisitor;
 
-import java.util.stream.Collectors;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,24 +18,32 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MetricsAnalyzerFromFile {
 
     public static void main(String[] args) throws IOException {
 
-        String projectName = "BOOKKEEPER";
+        String projectName = "SYNCOPE";
         String originalMethodName;
         String refactoredMethodName;
 
         // Cambia questa variabile per decidere quale refactoring analizzare
-        String feature = "NSmell"; // Opzioni: "NSmell" o "NBranches"
+        String feature = "NSmell"; // Opzioni: "NSmell" o "LOC"
 
-        if ("NSmell".equals(feature)){
-            originalMethodName = "readEntry";
-            refactoredMethodName = "readEntry2";
-        } else {
-            originalMethodName = "main";
-            refactoredMethodName = "main2";
+        if ("BOOKKEEPER".equals(projectName)){
+            if ("NSmell".equals(feature)){
+                originalMethodName = "readEntry";
+                refactoredMethodName = "readEntry2";
+            } else {
+                originalMethodName = "main";
+                refactoredMethodName = "main2";
+            }
+        }
+        else {
+            feature = "NSmell";
+            originalMethodName = "getTaskTO";
+            refactoredMethodName = "getTaskTO2";
         }
 
         String dir = "refactoringReport";
@@ -48,24 +55,14 @@ public class MetricsAnalyzerFromFile {
         System.out.println("Analizzando il file: " + inputFile);
         System.out.println("Salvando il report in: " + outputFile + "\n");
 
-        // --- INIZIO CORREZIONE PER IL PARSING ---
-
-        // 1. Leggi tutte le righe del file di input
         List<String> allLines = Files.readAllLines(Paths.get(inputFile));
-
-        // 2. Separa le righe che sono 'import' da quelle che sono codice dei metodi
         String importsSection = allLines.stream()
                 .filter(line -> line.trim().startsWith("import"))
                 .collect(Collectors.joining("\n"));
-
         String methodsCodeSection = allLines.stream()
                 .filter(line -> !line.trim().startsWith("import"))
                 .collect(Collectors.joining("\n"));
-
-        // 3. Costruisci il codice completo da parsare, con gli import all'esterno
         String fullCodeToParse = importsSection + "\n\n" + "class DummyWrapperClass { \n" + methodsCodeSection + "\n }";
-
-        // --- FINE CORREZIONE PER IL PARSING ---
 
         CompilationUnit cu;
         try {
@@ -76,10 +73,24 @@ public class MetricsAnalyzerFromFile {
             return;
         }
 
-        // Cerca i metodi usando i nomi corretti
-        Optional<MethodDeclaration> originalMethodOpt = cu.findFirst(MethodDeclaration.class, md -> md.getNameAsString().equals(originalMethodName));
-        Optional<MethodDeclaration> refactoredEntryPointOpt = cu.findFirst(MethodDeclaration.class, md -> md.getNameAsString().equals(refactoredMethodName));
-        List<MethodDeclaration> allRefactoredMethods = cu.findAll(MethodDeclaration.class, md -> !md.getNameAsString().equals(originalMethodName));
+        // --- INIZIO MODIFICA 1: Ricerca metodi più precisa ---
+        // Prima troviamo la classe wrapper che abbiamo creato
+        Optional<ClassOrInterfaceDeclaration> wrapperClassOpt = cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString().equals("DummyWrapperClass"));
+        if (!wrapperClassOpt.isPresent()) {
+            System.err.println("ERRORE: Impossibile trovare la classe wrapper 'DummyWrapperClass'.");
+            return;
+        }
+        ClassOrInterfaceDeclaration wrapperClass = wrapperClassOpt.get();
+
+        // Ora cerchiamo i metodi solo all'interno della classe wrapper
+        Optional<MethodDeclaration> originalMethodOpt = wrapperClass.getMethodsByName(originalMethodName).stream().findFirst();
+        Optional<MethodDeclaration> refactoredEntryPointOpt = wrapperClass.getMethodsByName(refactoredMethodName).stream().findFirst();
+
+        // Prendiamo tutti i metodi della classe wrapper, escluso quello originale
+        List<MethodDeclaration> allRefactoredMethods = wrapperClass.getMethods().stream()
+                .filter(md -> !md.getNameAsString().equals(originalMethodName))
+                .collect(Collectors.toList());
+        // --- FINE MODIFICA 1 ---
 
         if (!originalMethodOpt.isPresent() || !refactoredEntryPointOpt.isPresent()) {
             System.err.printf("ERRORE: Impossibile trovare i metodi '%s' e/o '%s' nel file.%n", originalMethodName, refactoredMethodName);
@@ -103,7 +114,6 @@ public class MetricsAnalyzerFromFile {
         System.out.println("Analisi completata. Report CSV generato con successo.");
     }
 
-    // --- METODO UNIFICATO PER STAMPARE LE METRICHE ---
     private static void printMetrics(MethodDeclaration md, String version, PrintWriter writer) {
         int loc = calculateLOC(md);
         int numParams = md.getParameters().size();
@@ -131,7 +141,6 @@ public class MetricsAnalyzerFromFile {
             String versionTag = md.getNameAsString().equals(mainRefactored.getNameAsString()) ? "Refactored_EntryPoint" : "Refactored_Helper";
             printMetrics(md, versionTag, writer); // Riutilizziamo il metodo di stampa
 
-            // Aggregazione delle metriche
             totalLoc += calculateLOC(md);
             totalBranches += calculateNumBranches(md);
             int nestingDepth = calculateNestingDepth(md);
@@ -145,15 +154,17 @@ public class MetricsAnalyzerFromFile {
 
         writer.println();
         writer.println("// --- Riepilogo Aggregato per Confronto (Feature 1 vs Feature 2) ---");
-        writer.println("MethodName,Version,LOC,NumParameters,NumBranches,NestingDepth,NumCodeSmells,NumLocalVariables");
+
+        // --- INIZIO MODIFICA 2: Rimozione dell'header duplicato ---
+        // La riga seguente è stata rimossa per evitare un header duplicato nel CSV
+        // writer.println("MethodName,Version,LOC,NumParameters,NumBranches,NestingDepth,NumCodeSmells,NumLocalVariables");
+        // --- FINE MODIFICA 2 ---
 
         writer.printf("%s (refactored system),%s,%d,%d,%d,%d,%d,%d%n",
                 mainRefactored.getNameAsString(), "Refactored_Aggregate", totalLoc, mainParams, totalBranches, maxNesting, totalSmells, totalVars);
     }
 
-    // ===========================================================================
-    // LOGICA DI CALCOLO (IDENTICA A GitDataExtractor)
-    // ===========================================================================
+    // ... (tutti i metodi di calcolo delle metriche rimangono invariati) ...
 
     private static int calculateLOC(MethodDeclaration md) {
         if (md.getBody().isPresent()) {
@@ -260,5 +271,4 @@ public class MetricsAnalyzerFromFile {
         }
         return smellCount;
     }
-
 }

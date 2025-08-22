@@ -5,10 +5,6 @@
 //    Lines of Code (LOC) > 30 (Smell #2)
 //    Magic Numbers > 1 (Smell #3)
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 byte[] readEntry(long ledgerId, long entryId, long location) throws IOException, Bookie.NoEntryException {
     long entryLogId = location >> 32L;
     long pos = location & 0xffffffffL;
