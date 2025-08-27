@@ -5,6 +5,7 @@ import java.util.List;
 
 public class MathUtils {
 
+    private MathUtils() {}
     public static float median(List<Float> array){
         float median;
 

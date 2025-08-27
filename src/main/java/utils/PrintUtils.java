@@ -242,7 +242,7 @@ public class PrintUtils {
         );
 
         // Stampa il riepilogo sul flusso di output standard (console normale, non "rossa")
-        System.out.println(statsSummary);
+        Console.info(statsSummary);
         // --- FINE MODIFICA ---
     }
 
@@ -270,7 +270,7 @@ public class PrintUtils {
             }
 
             // Logga il nome completo del file per chiarezza
-            logger.info("Weka Evaluation results written to " + filename);
+            Console.info("Weka Evaluation results written to " + filename);
 
         } catch (IOException e) {
             logger.severe("Error writing Weka Evaluation results to " + filename + ": " + e.getMessage());

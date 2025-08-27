@@ -6,7 +6,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.OptionalDouble;
 
 public class JavaMethod {
     private final String fullyQualifiedName;

@@ -18,6 +18,8 @@ import java.util.Objects;
 
 public class JiraUtils {
 
+    private JiraUtils(){}
+
     public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
         InputStream is = new URL(url).openStream();
         try {

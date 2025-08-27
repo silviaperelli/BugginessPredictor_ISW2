@@ -1,6 +1,7 @@
 package utils;
 
 import model.Release;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.text.SimpleDateFormat;
@@ -9,6 +10,8 @@ import java.util.Date;
 import java.util.List;
 
 public class GitUtils {
+
+    private GitUtils() {}
 
     public static Release getReleaseOfCommit(RevCommit commit, List<Release> releaseList) {
 

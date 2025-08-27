@@ -16,6 +16,8 @@ public class ClassifierEvaluation {
     private final double f1Score;
     private final double mcc;
 
+    public static final String CSV_HEADER = "Project,Iteration,Classifier,FeatureSelection,Sampling,CostSensitive,Precision,Recall,AUC,Kappa,F1-Score,MCC";
+
     public ClassifierEvaluation(String project, int iteration, String classifierName, String featureSelection, String sampling, String costSensitive, double precision, double recall, double auc, double kappa, double f1Score, double mcc) {
         this.project = project;
         this.iteration = iteration;
@@ -33,7 +35,7 @@ public class ClassifierEvaluation {
 
 
     public static String getCsvHeader() {
-        return "Project,Iteration,Classifier,FeatureSelection,Sampling,CostSensitive,Precision,Recall,AUC,Kappa,F1-Score,MCC";
+        return CSV_HEADER;
     }
 
     public String toCsvString() {

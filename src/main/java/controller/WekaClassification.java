@@ -213,11 +213,11 @@ public class WekaClassification {
                         resultsList.add(new ClassifierEvaluation(projectName, iterationId, wekaConfig.getName(), wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(), eval.precision(positiveClassIndex), eval.recall(positiveClassIndex), eval.areaUnderROC(positiveClassIndex), eval.kappa(), eval.fMeasure(positiveClassIndex), eval.matthewsCorrelationCoefficient(positiveClassIndex)));
                     }
                 } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Could not evaluate classifier " + wekaConfig.getName(), e);
+                    LOGGER.log(Level.SEVERE, "Could not evaluate classifier {0}", wekaConfig.getName());
                 }
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed classification for " + dirPath, e);
+            LOGGER.log(Level.SEVERE, "Failed classification for {0}", dirPath);
         }
     }
 
