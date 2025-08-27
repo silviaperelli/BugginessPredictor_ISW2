@@ -16,9 +16,9 @@ public class Proportion {
 
     private List<Float> proportionList;
     private float totalProportion;
-    final int MIN_PROPORTIONS_FOR_INCREMENT = 5;
-    final int MIN_PROPORTIONS_FOR_MOVING_WINDOW = 10;
-    final int MOVING_WINDOW_SIZE = 5;
+    final static int MIN_PROPORTIONS_FOR_INCREMENT = 5;
+    final static int MIN_PROPORTIONS_FOR_MOVING_WINDOW = 10;
+    final static int MOVING_WINDOW_SIZE = 5;
 
     private enum Projects {
         AVRO,
@@ -41,16 +41,9 @@ public class Proportion {
         //if we have less than 5 ticket of which we know the proportion, use cold start
         if(proportionList.size() < MIN_PROPORTIONS_FOR_INCREMENT){
             proportion = coldStart(ticket.getResolutionDate());
-            //System.out.println("Cold start: "+proportion);
         }else{ //otherwise use increment
             proportion = increment();
-            //System.out.println("Increment: "+proportion);
         }
-        /*else if (proportionList.size() < MIN_PROPORTIONS_FOR_MOVING_WINDOW) {
-            proportion = increment();
-        } else {
-            proportion = movingWindowAverage(MOVING_WINDOW_SIZE);
-        }*/
 
         //calculate IV
         estimatedIV = obtainIV(proportion, ticket);
@@ -115,27 +108,6 @@ public class Proportion {
 
         // use cold start method, by computing the median among other projects
         return MathUtils.median(proportionListTemp);
-    }
-
-    private float movingWindowAverage(int windowSize) {
-        // take the starting index for the window and take the last "windowSize" elements
-        int listSize = proportionList.size();
-        int startIndex = Math.max(0, listSize - windowSize);
-
-        float sumOfWindowElements = 0;
-        int elementsInWindow = 0;
-
-        // sum elements in the window
-        for (int i = startIndex; i < listSize; i++) {
-            sumOfWindowElements += proportionList.get(i);
-            elementsInWindow++;
-        }
-
-        if (elementsInWindow == 0) {
-            return 0.0f;
-        }
-
-        return sumOfWindowElements / elementsInWindow;
     }
 
     private int obtainIV(float proportion, Ticket ticket){

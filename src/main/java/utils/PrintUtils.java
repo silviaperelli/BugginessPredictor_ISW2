@@ -27,6 +27,13 @@ public class PrintUtils {
     public static final String ERROR = "Error in writeOnReportFiles when trying to create directory";
     private static final String CSV_FILES_DIR = "csvFiles/"; // Nuova cartella base per i CSV
 
+    public static class Console {
+        @SuppressWarnings("java:S106")
+        public static void info(String msg) {
+            System.out.println(msg);
+        }
+    }
+
     // ... [I metodi printCommits, printTickets, printReleases, printMethods rimangono invariati] ...
     public static void printCommits(String project, List<RevCommit> commitList, String name) throws IOException {
         project = project.toLowerCase();

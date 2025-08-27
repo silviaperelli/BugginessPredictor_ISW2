@@ -10,6 +10,7 @@ import com.github.javaparser.ast.expr.InstanceOfExpr;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.stmt.*;
 import utils.NestingDepthVisitor;
+import utils.PrintUtils.Console;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,12 +19,16 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MetricsAnalyzerFromFile {
 
     private final String projectName;
     private final String feature;
+
+    private static final Logger LOGGER = Logger.getLogger(MetricsAnalyzerFromFile.class.getName());
 
     public MetricsAnalyzerFromFile(String projectName, String feature) {
         this.projectName = projectName;
@@ -53,14 +58,13 @@ public class MetricsAnalyzerFromFile {
         String outputFile = String.format("%s/feature_comparison_%s_%s.csv", dir, feature, projectName.toLowerCase());
 
         if (!Files.exists(Paths.get(inputFile))) {
-            System.err.println("\nERRORE: File di input non trovato: " + inputFile);
-            System.err.println("Assicurati di aver creato il file con i metodi originale e refattorizzato.");
+            LOGGER.log(Level.SEVERE,"\nERRORE: File di input non trovato: {0}", inputFile);
             return;
         }
 
         Files.createDirectories(Paths.get(dir));
-        System.out.println("Analizzando il file: " + inputFile);
-        System.out.println("Salvando il report in: " + outputFile + "\n");
+        Console.info("Analizzando il file: " + inputFile);
+        Console.info("Salvando il report in: " + outputFile + "\n");
 
         List<String> allLines = Files.readAllLines(Paths.get(inputFile));
         String importsSection = allLines.stream()
@@ -75,7 +79,7 @@ public class MetricsAnalyzerFromFile {
         try {
             cu = StaticJavaParser.parse(fullCodeToParse);
         } catch (Exception e) {
-            System.err.println("ERRORE GRAVE DI PARSING: Controlla che il file " + inputFile + " contenga codice Java valido.");
+            LOGGER.log(Level.SEVERE,"ERRORE GRAVE DI PARSING: Controlla che il file {0} contenga codice Java valido.", inputFile);
             e.printStackTrace();
             return;
         }
@@ -84,7 +88,7 @@ public class MetricsAnalyzerFromFile {
         // Prima troviamo la classe wrapper che abbiamo creato
         Optional<ClassOrInterfaceDeclaration> wrapperClassOpt = cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString().equals("DummyWrapperClass"));
         if (!wrapperClassOpt.isPresent()) {
-            System.err.println("ERRORE: Impossibile trovare la classe wrapper 'DummyWrapperClass'.");
+            LOGGER.log(Level.SEVERE,"ERRORE: Impossibile trovare la classe wrapper 'DummyWrapperClass'.");
             return;
         }
         ClassOrInterfaceDeclaration wrapperClass = wrapperClassOpt.get();
@@ -100,7 +104,7 @@ public class MetricsAnalyzerFromFile {
         // --- FINE MODIFICA 1 ---
 
         if (!originalMethodOpt.isPresent() || !refactoredEntryPointOpt.isPresent()) {
-            System.err.printf("ERRORE: Impossibile trovare i metodi '%s' e/o '%s' nel file.%n", originalMethodName, refactoredMethodName);
+            LOGGER.log(Level.SEVERE,"ERRORE: Impossibile trovare i metodi {0} e/o {1} nel file.", new Object[]{originalMethodName, refactoredMethodName});
             return;
         }
 
@@ -114,11 +118,11 @@ public class MetricsAnalyzerFromFile {
             printRefactoredMetrics(refactoredEntryPointOpt.get(), allRefactoredMethods, writer);
 
         } catch (IOException e) {
-            System.err.println("ERRORE: Impossibile scrivere il file CSV.");
+            LOGGER.log(Level.SEVERE,"ERRORE: Impossibile scrivere il file CSV.");
             e.printStackTrace();
         }
 
-        System.out.println("Analisi completata. Report CSV generato con successo.");
+        Console.info("Analisi completata. Report CSV generato con successo.");
     }
 
     private static void printMetrics(MethodDeclaration md, String version, PrintWriter writer) {
@@ -161,11 +165,6 @@ public class MetricsAnalyzerFromFile {
 
         writer.println();
         writer.println("// --- Riepilogo Aggregato per Confronto (Feature 1 vs Feature 2) ---");
-
-        // --- INIZIO MODIFICA 2: Rimozione dell'header duplicato ---
-        // La riga seguente è stata rimossa per evitare un header duplicato nel CSV
-        // writer.println("MethodName,Version,LOC,NumParameters,NumBranches,NestingDepth,NumCodeSmells,NumLocalVariables");
-        // --- FINE MODIFICA 2 ---
 
         writer.printf("%s (refactored system),%s,%d,%d,%d,%d,%d,%d%n",
                 mainRefactored.getNameAsString(), "Refactored_Aggregate", totalLoc, mainParams, totalBranches, maxNesting, totalSmells, totalVars);

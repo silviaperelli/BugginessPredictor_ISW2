@@ -200,7 +200,7 @@ public class GitDataExtractor {
         }
 
         allMethods.addAll(methodCache.values());
-        addCommitsToMethods(allMethods, this.commitList);
+        addCommits(allMethods, this.commitList);
         calculateHasFixHistory(allMethods);
         return allMethods;
     }
@@ -254,7 +254,7 @@ public class GitDataExtractor {
     /**
      * Analizza la storia dei commit per calcolare le metriche di processo (churn, autori, revisioni) per ogni metodo.
      */
-    public void addCommitsToMethods(List<JavaMethod> allMethods, List<RevCommit> allCommits) throws IOException {
+    public void addCommits(List<JavaMethod> allMethods, List<RevCommit> allCommits) throws IOException {
         Map<String, List<JavaMethod>> methodMap = allMethods.stream()
                 .collect(Collectors.groupingBy(JavaMethod::getFullyQualifiedName));
 
@@ -263,47 +263,67 @@ public class GitDataExtractor {
 
         for (RevCommit commit : sortedCommits) {
             if (commit.getParentCount() == 0) continue;
-            RevCommit parent = commit.getParent(0);
+            processCommitForMethodMetrics(commit, methodMap);
+        }
 
-            List<DiffEntry> diffs;
-            try {
-                diffs = getDiffEntries(parent, commit);
-            } catch (IOException e) {
-                LOGGER.log(Level.WARNING, "Impossibile calcolare diff per commit " + commit.getName(), e);
-                continue;
-            }
+        // Calcola NAuth e AvgChurn dopo aver processato tutti i commit.
+        calculateFinalMethodMetrics(allMethods);
+    }
 
-            Map<String, String> oldFileContents = getFileContents(parent, diffs, true);
-            Map<String, String> newFileContents = getFileContents(commit, diffs, false);
+    /**
+     * Processa un singolo commit per aggiornare le metriche dei metodi.
+     */
+    private void processCommitForMethodMetrics(RevCommit commit, Map<String, List<JavaMethod>> methodMap) throws IOException {
+        RevCommit parent = commit.getParent(0);
 
-            for (DiffEntry diff : diffs) {
-                String filePath = diff.getChangeType() == DiffEntry.ChangeType.DELETE ? diff.getOldPath() : diff.getNewPath();
-                if (!filePath.endsWith(javaExtension) || filePath.contains(directoryTest)) continue;
+        List<DiffEntry> diffs;
+        try {
+            diffs = getDiffEntries(parent, commit);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Impossibile calcolare diff per commit " + commit.getName(), e);
+            return;
+        }
 
-                Map<String, MethodDeclaration> oldMethods = parseMethods(oldFileContents.getOrDefault(diff.getOldPath(), ""));
-                Map<String, MethodDeclaration> newMethods = parseMethods(newFileContents.getOrDefault(diff.getNewPath(), ""));
+        Map<String, String> oldFileContents = getFileContents(parent, diffs, true);
+        Map<String, String> newFileContents = getFileContents(commit, diffs, false);
 
-                for (Map.Entry<String, MethodDeclaration> newMethodEntry : newMethods.entrySet()) {
-                    String signature = newMethodEntry.getKey();
-                    MethodDeclaration newMd = newMethodEntry.getValue();
-                    MethodDeclaration oldMd = oldMethods.get(signature);
+        for (DiffEntry diff : diffs) {
+            processDiffEntryForMethodMetrics(diff, commit, methodMap, oldFileContents, newFileContents);
+        }
+    }
 
-                    String newBodyHash = calculateBodyHash(newMd);
-                    String oldBodyHash = (oldMd != null) ? calculateBodyHash(oldMd) : null;
+    /**
+     * Processa una singola voce di diff per aggiornare le metriche dei metodi.
+     */
+    private void processDiffEntryForMethodMetrics(DiffEntry diff, RevCommit commit, Map<String, List<JavaMethod>> methodMap, Map<String, String> oldFileContents, Map<String, String> newFileContents) {
+        String filePath = diff.getChangeType() == DiffEntry.ChangeType.DELETE ? diff.getOldPath() : diff.getNewPath();
+        if (!filePath.endsWith(javaExtension) || filePath.contains(directoryTest)) return;
 
-                    if (oldMd == null || !newBodyHash.equals(oldBodyHash)) { // Se il metodo è nuovo o cambiato
-                        String fqn = filePath + "/" + signature;
-                        if (methodMap.containsKey(fqn)) {
-                            List<JavaMethod> methodsToUpdate = methodMap.get(fqn);
-                            updateMethodMetricsForCommit(methodsToUpdate, commit, newMd, oldMd, newBodyHash);
-                        }
-                    }
+        Map<String, MethodDeclaration> oldMethods = parseMethods(oldFileContents.getOrDefault(diff.getOldPath(), ""));
+        Map<String, MethodDeclaration> newMethods = parseMethods(newFileContents.getOrDefault(diff.getNewPath(), ""));
+
+        for (Map.Entry<String, MethodDeclaration> newMethodEntry : newMethods.entrySet()) {
+            String signature = newMethodEntry.getKey();
+            MethodDeclaration newMd = newMethodEntry.getValue();
+            MethodDeclaration oldMd = oldMethods.get(signature);
+
+            String newBodyHash = calculateBodyHash(newMd);
+            String oldBodyHash = (oldMd != null) ? calculateBodyHash(oldMd) : null;
+
+            if (oldMd == null || !newBodyHash.equals(oldBodyHash)) { // Se il metodo è nuovo o cambiato
+                String fqn = filePath + "/" + signature;
+                if (methodMap.containsKey(fqn)) {
+                    List<JavaMethod> methodsToUpdate = methodMap.get(fqn);
+                    updateMethodMetricsForCommit(methodsToUpdate, commit, newMd, oldMd, newBodyHash);
                 }
             }
         }
+    }
 
-        // --- MODIFICA 2: SOSTITUZIONE DI computeFinalMetrics() ---
-        // Calcola NAuth e AvgChurn dopo aver processato tutti i commit.
+    /**
+     * Calcola le metriche finali (NAuth, AvgChurn) per tutti i metodi dopo che tutti i commit sono stati processati.
+     */
+    private void calculateFinalMethodMetrics(List<JavaMethod> allMethods) {
         for (JavaMethod method : allMethods) {
             // Calcolo NAuth
             if (!method.getCommits().isEmpty()) {
@@ -315,7 +335,7 @@ public class GitDataExtractor {
                 method.setNumAuthors(0);
             }
 
-            // Calcolo AvgChurn (logica presa dal secondo codice)
+            // Calcolo AvgChurn
             if (method.getNumRevisions() > 0) {
                 double avgChurn = (double) (method.getTotalStmtAdded() + method.getTotalStmtDeleted()) / method.getNumRevisions();
                 method.setAvgChurn(avgChurn);
@@ -324,6 +344,7 @@ public class GitDataExtractor {
             }
         }
     }
+
 
     /**
      * Aggiorna le metriche di un metodo basate su un singolo commit.

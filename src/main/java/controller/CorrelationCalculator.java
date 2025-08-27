@@ -5,6 +5,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import utils.PrintUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -47,16 +48,16 @@ public class CorrelationCalculator {
             }
 
             // Estrai i dati dal CSV
-            for (CSVRecord record : csvParser) {
+            for (CSVRecord csvRecord : csvParser) {
                 for (String feature : numericColumns) {
                     try {
-                        featureValues.get(feature).add(Double.parseDouble(record.get(feature)));
+                        featureValues.get(feature).add(Double.parseDouble(csvRecord.get(feature)));
                     } catch (NumberFormatException e) {
                         // Aggiunge un valore nullo o di default se il parsing fallisce
                         featureValues.get(feature).add(0.0);
                     }
                 }
-                String label = record.get("IsBuggy").trim().toLowerCase();
+                String label = csvRecord.get("IsBuggy").trim().toLowerCase();
                 labelValues.add(label.equals("yes") ? 1.0 : 0.0);
             }
 
@@ -99,7 +100,7 @@ public class CorrelationCalculator {
             for (String[] row : results) {
                 csvPrinter.printRecord(row[0], row[1]);
             }
-            System.out.println("Correlation CSV file created");
+            PrintUtils.Console.info("Correlation CSV file created");
         }
     }
 }

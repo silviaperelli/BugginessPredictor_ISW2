@@ -5,6 +5,7 @@ import model.ClassifierEvaluation;
 import model.JavaMethod;
 import model.WekaClassifier;
 import utils.PrintUtils;
+import utils.PrintUtils.Console;
 import utils.WekaUtils;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
@@ -44,19 +45,19 @@ public class WekaClassification {
     }
 
     public void execute() {
-        LOGGER.log(Level.INFO, "--- Starting WEKA analysis for project: {0} ---", projectName);
+        Console.info("--- Starting WEKA analysis for project: " + projectName + "---");
         try {
-            executeCrossValidation();
-            //executeTemporalValidation();
+            //executeCrossValidation();
+            executeTemporalValidation();
             saveAllResults();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "A critical error occurred during WEKA analysis", e);
         }
-        LOGGER.log(Level.INFO, "--- WEKA analysis finished for project: {0} ---", projectName);
+        Console.info("--- WEKA analysis finished for project: " + projectName + "---");
     }
 
     public void executeCrossValidation() {
-        System.out.println("Starting Cross Validation");
+        Console.info("Starting Cross Validation");
         try {
             final int numRuns = "BOOKKEEPER".equalsIgnoreCase(this.projectName) ? 10 : 2;
             final int numFolds = 10;
@@ -68,7 +69,7 @@ public class WekaClassification {
     }
 
     public void executeTemporalValidation() {
-        System.out.println("Starting Temporal Validation");
+        Console.info("Starting Temporal Validation");
         try {
             int numIterations = prepareTemporalData();
             runClassificationOnTemporal(numIterations);
@@ -78,7 +79,7 @@ public class WekaClassification {
     }
 
     private void prepareCrossValidationData(int numRuns, int numFolds) throws IOException {
-        LOGGER.info("Preparing data for cross-validation...");
+        Console.info("Preparing data for cross-validation...");
         List<JavaMethod> methodsForCv;
         if ("SYNCOPE".equalsIgnoreCase(this.projectName)) {
             int totalReleases = (int) allMethods.stream().map(m -> m.getRelease().getId()).distinct().count();
@@ -107,11 +108,11 @@ public class WekaClassification {
                 saver.writeBatch();
             }
         }
-        LOGGER.info("Cross-validation data preparation complete.");
+        Console.info("Cross-validation data preparation complete.");
     }
 
     private int prepareTemporalData() throws IOException {
-        LOGGER.info("Preparing data for temporal validation...");
+        Console.info("Preparing data for temporal validation...");
         int numReleases = (int) allMethods.stream().map(m -> m.getRelease().getId()).distinct().count();
         int lastIteration = 0;
         for (int i = 1; i < numReleases; i++) {
@@ -138,14 +139,14 @@ public class WekaClassification {
             saver.writeBatch();
             lastIteration = i;
         }
-        LOGGER.info("Temporal validation data preparation complete.");
+        Console.info("Temporal validation data preparation complete.");
         return lastIteration;
     }
 
-    private void runClassificationOnFolds(int numRuns, int numFolds) throws Exception {
-        LOGGER.info("Starting classification on CV folds...");
+    private void runClassificationOnFolds(int numRuns, int numFolds) throws IOException {
+        Console.info("Starting classification on CV folds...");
         for (int run = 1; run <= numRuns; run++) {
-            LOGGER.log(Level.INFO, "--- CV Run {0}/{1} ---", new Object[]{run, numRuns});
+            Console.info("--- CV Run " + run + " / " + numRuns);
             Map<String, List<AcumeMethod>> aggregatedPredictions = new HashMap<>();
 
             for (int fold = 0; fold < numFolds; fold++) {
@@ -153,7 +154,7 @@ public class WekaClassification {
                 performSingleClassification(dirPath, "cv", run, fold, aggregatedPredictions);
             }
 
-            LOGGER.info("Aggregating predictions and writing ACUME files for Run " + run);
+            Console.info("Aggregating predictions and writing ACUME files for Run " + run);
             for (Map.Entry<String, List<AcumeMethod>> entry : aggregatedPredictions.entrySet()) {
                 String configName = entry.getKey();
                 String finalFileName = String.format("%s_run%d", configName, run);
@@ -163,7 +164,7 @@ public class WekaClassification {
     }
 
     private void runClassificationOnTemporal(int numIterations) throws Exception {
-        LOGGER.info("Starting classification on temporal iterations...");
+        Console.info("Starting classification on temporal iterations...");
         for (int i = 1; i <= numIterations; i++) {
             String dirPath = String.format("arffFiles/%s/temporal/iteration_%d/", projectName.toLowerCase(), i);
             if (new File(dirPath).exists()) {
@@ -227,7 +228,7 @@ public class WekaClassification {
         if (positiveClassIndex == -1) positiveClassIndex = 1;
         Attribute locAttribute = dataSet.attribute("LOC");
         if (locAttribute == null) {
-            LOGGER.severe("Attribute 'LOC' not found. Cannot create ACUME predictions.");
+            LOGGER.log(Level.SEVERE,"Attribute 'LOC' not found. Cannot create ACUME predictions.");
             return predictions;
         }
         int locIndex = locAttribute.index();
@@ -253,11 +254,11 @@ public class WekaClassification {
 
     private void saveAllResults() throws IOException {
         if (!this.cvEvaluationResults.isEmpty()) {
-            LOGGER.info("Saving cross-validation evaluation results...");
+            Console.info("Saving cross-validation evaluation results...");
             PrintUtils.printEvaluationResults(projectName, this.cvEvaluationResults, "_cv");
         }
         if (!this.temporalEvaluationResults.isEmpty()) {
-            LOGGER.info("Saving temporal validation evaluation results...");
+            Console.info("Saving temporal validation evaluation results...");
             PrintUtils.printEvaluationResults(projectName, this.temporalEvaluationResults, "_temporal");
         }
     }

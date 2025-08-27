@@ -1,6 +1,7 @@
 package controller; // Assicurati che il package sia corretto
 
 import utils.WekaUtils;
+import utils.PrintUtils.Console;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instance;
@@ -19,14 +20,6 @@ public class WhatIfAnalysis {
     private final String project;
     private final String projectLower;
     private final Instances datasetA;
-
-
-    private static class Console {
-        @SuppressWarnings("java:S106")
-        public static void info(String msg) {
-            System.out.println(msg);
-        }
-    }
 
     public WhatIfAnalysis(String projectName) throws Exception {
         Logger.getLogger("").setLevel(Level.SEVERE);

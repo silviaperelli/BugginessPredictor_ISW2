@@ -1,23 +1,24 @@
-import controller.GitDataExtractor;
-import controller.JiraDataExtractor;
-import controller.WekaClassification;
-import controller.WhatIfAnalysis;
-import controller.MetricsAnalyzerFromFile;
+package controller;
+
 import model.JavaMethod;
 import model.Release;
 import model.Ticket;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import controller.CorrelationCalculator;
 import utils.PrintUtils;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class Main {
+public class StarterBugginessPredictor {
 
     static String choiceString = "Inserisci la tua scelta (1 o 2): ";
     static String notValid = "Scelta non valida. Riprova.";
+
+    private static final Logger LOGGER = Logger.getLogger(StarterBugginessPredictor.class.getName());
 
     public static void main(String[] args) {
 
@@ -31,14 +32,7 @@ public class Main {
 
         // Chiusura finale
         scanner.close();
-        Console.info("\nApplicazione terminata.");
-    }
-
-    private static class Console {
-        @SuppressWarnings("java:S106")
-        public static void info(String msg) {
-            System.out.println(msg);
-        }
+        PrintUtils.Console.info("\nApplicazione terminata.");
     }
 
     /**
@@ -48,18 +42,18 @@ public class Main {
      * @return Il nome del progetto scelto ("BOOKKEEPER" o "SYNCOPE").
      */
     private static String selectProject(Scanner scanner) {
-        Console.info("=====================================");
-        Console.info("  SELEZIONA IL PROGETTO DA ANALIZZARE  ");
-        Console.info("=====================================");
-        Console.info("1. BOOKKEEPER");
-        Console.info("2. SYNCOPE");
-        Console.info(choiceString);
+        PrintUtils.Console.info("=====================================");
+        PrintUtils.Console.info("  SELEZIONA IL PROGETTO DA ANALIZZARE  ");
+        PrintUtils.Console.info("=====================================");
+        PrintUtils.Console.info("1. BOOKKEEPER");
+        PrintUtils.Console.info("2. SYNCOPE");
+        PrintUtils.Console.info(choiceString);
 
         while (true) { // Cicla finché non riceve un input valido
             if (!scanner.hasNextInt()) {
-                Console.info(notValid);
+                PrintUtils.Console.info(notValid);
                 scanner.next(); // Pulisce l'input errato
-                Console.info(choiceString);
+                PrintUtils.Console.info(choiceString);
                 continue;
             }
 
@@ -71,8 +65,8 @@ public class Main {
                 case 2:
                     return "SYNCOPE";
                 default:
-                    Console.info(notValid);
-                    Console.info(choiceString);
+                    PrintUtils.Console.info(notValid);
+                    PrintUtils.Console.info(choiceString);
             }
         }
     }
@@ -84,20 +78,20 @@ public class Main {
      */
     private static void handleProjectActions(String projectName, Scanner scanner) {
         while (true) {
-            Console.info("\n--- PROGETTO: " + projectName.toUpperCase() + " ---");
-            Console.info("Seleziona l'azione da eseguire:");
-            Console.info("1. Fase 1 (Creazione Dataset) + Fase 2 (Classificazione Weka)");
-            Console.info("2. Calcolo Correlazione Feature");
-            Console.info("3. Analisi Metriche del Refactoring (da file)");
-            Console.info("4. Analisi What-If");
-            Console.info("-------------------------------------");
-            Console.info("0. Exit");
-            Console.info("Inserisci la tua scelta: ");
+            PrintUtils.Console.info("\n--- PROGETTO: " + projectName.toUpperCase() + " ---");
+            PrintUtils.Console.info("Seleziona l'azione da eseguire:");
+            PrintUtils.Console.info("1. Fase 1 (Creazione Dataset) + Fase 2 (Classificazione Weka)");
+            PrintUtils.Console.info("2. Calcolo Correlazione Feature");
+            PrintUtils.Console.info("3. Analisi Metriche del Refactoring (da file)");
+            PrintUtils.Console.info("4. Analisi What-If");
+            PrintUtils.Console.info("-------------------------------------");
+            PrintUtils.Console.info("0. Exit");
+            PrintUtils.Console.info("Inserisci la tua scelta: ");
 
             while (!scanner.hasNextInt()) {
-                Console.info("Input non valido. Per favore, inserisci un numero.");
+                PrintUtils.Console.info("Input non valido. Per favore, inserisci un numero.");
                 scanner.next();
-                Console.info("Inserisci la tua scelta: ");
+                PrintUtils.Console.info("Inserisci la tua scelta: ");
             }
             int action = scanner.nextInt();
 
@@ -108,16 +102,16 @@ public class Main {
             try {
                 switch (action) {
                     case 1:
-                        Console.info("\n>>> Avvio Fase 1 e 2...");
+                        PrintUtils.Console.info("\n>>> Avvio Fase 1 e 2...");
                         runCompleteAnalysis(projectName);
                         break;
                     case 2:
-                        Console.info("\n>>> Avvio calcolo della correlazione...");
+                        PrintUtils.Console.info("\n>>> Avvio calcolo della correlazione...");
                         CorrelationCalculator.calculateAndSave(projectName);
-                        Console.info(">>> Calcolo della correlazione completato.");
+                        PrintUtils.Console.info(">>> Calcolo della correlazione completato.");
                         break;
                     case 3: // <-- LOGICA MODIFICATA QUI
-                        System.out.println("\n>>> Avvio analisi metriche del refactoring...");
+                        PrintUtils.Console.info("\n>>> Avvio analisi metriche del refactoring...");
 
                         String featureType;
                         if ("BOOKKEEPER".equals(projectName)) {
@@ -125,7 +119,7 @@ public class Main {
                             featureType = selectFeatureTypeForBookkeeper(scanner);
                         } else {
                             // Per Syncope, imposta direttamente NSmell
-                            System.out.println("Analisi per SYNCOPE impostata su refactoring NSmell.");
+                            PrintUtils.Console.info("Analisi per SYNCOPE impostata su refactoring NSmell.");
                             featureType = "NSmell";
                         }
 
@@ -133,15 +127,15 @@ public class Main {
                         analyzer.execute();
                         break;
                     case 4:
-                        Console.info("\n>>> Avvio analisi What-If...");
+                        PrintUtils.Console.info("\n>>> Avvio analisi What-If...");
                         WhatIfAnalysis analysis = new WhatIfAnalysis(projectName);
                         analysis.execute();
                         break;
                     default:
-                        Console.info(notValid);
+                        PrintUtils.Console.info(notValid);
                 }
             } catch (Exception e) {
-                Console.info("\n!!! SI È VERIFICATO UN ERRORE: " + e.getMessage());
+                PrintUtils.Console.info("\n!!! SI È VERIFICATO UN ERRORE: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -149,23 +143,23 @@ public class Main {
 
     // NUOVO METODO HELPER AGGIUNTO AL MAIN
     private static String selectFeatureTypeForBookkeeper(Scanner scanner) {
-        Console.info("\nSeleziona il tipo di refactoring da analizzare per BOOKKEEPER:");
-        Console.info("1. Basato su LOC (Lines of Code)");
-        Console.info("2. Basato su NSmell (Number of Code Smells)");
-        Console.info(choiceString);
+        PrintUtils.Console.info("\nSeleziona il tipo di refactoring da analizzare per BOOKKEEPER:");
+        PrintUtils.Console.info("1. Basato su LOC (Lines of Code)");
+        PrintUtils.Console.info("2. Basato su NSmell (Number of Code Smells)");
+        PrintUtils.Console.info(choiceString);
 
         while (true) {
             if (!scanner.hasNextInt()) {
-                Console.info(notValid);
+                PrintUtils.Console.info(notValid);
                 scanner.next();
-                Console.info(choiceString);
+                PrintUtils.Console.info(choiceString);
                 continue;
             }
             int choice = scanner.nextInt();
             if (choice == 1) return "LOC";
             if (choice == 2) return "NSmell";
-            Console.info(notValid);
-            Console.info(choiceString);
+            PrintUtils.Console.info(notValid);
+            PrintUtils.Console.info(choiceString);
         }
     }
 
@@ -174,71 +168,71 @@ public class Main {
      * (Questo metodo rimane invariato)
      * @param projectName Il nome del progetto.
      */
-    public static void runCompleteAnalysis(String projectName) throws Exception {
-        Console.info("\n==================================================");
-        Console.info("STARTING FULL ANALYSIS FOR PROJECT: " + projectName.toUpperCase());
-        Console.info("==================================================");
+    public static void runCompleteAnalysis(String projectName) throws IOException, GitAPIException {
+        PrintUtils.Console.info("\n==================================================");
+        PrintUtils.Console.info("STARTING FULL ANALYSIS FOR PROJECT: " + projectName.toUpperCase());
+        PrintUtils.Console.info("==================================================");
 
         // --- FASE 1: DATASET CREATION ---
-        Console.info("\n--- Phase 1: Dataset Creation ---");
+        PrintUtils.Console.info("\n--- Phase 1: Dataset Creation ---");
 
         JiraDataExtractor jiraExtractor = new JiraDataExtractor(projectName);
         List<Release> fullReleaseList = jiraExtractor.getReleases();
-        Console.info(projectName + ": " + fullReleaseList.size() + " releases extracted.");
+        PrintUtils.Console.info(projectName + ": " + fullReleaseList.size() + " releases extracted.");
 
         List<Ticket> ticketList = jiraExtractor.getFinalTickets(fullReleaseList, true);
-        Console.info(projectName + ": " + ticketList.size() + " tickets extracted.");
+        PrintUtils.Console.info(projectName + ": " + ticketList.size() + " tickets extracted.");
 
         GitDataExtractor gitExtractor = new GitDataExtractor(projectName, fullReleaseList, ticketList);
         List<RevCommit> allCommits = gitExtractor.getAllCommitsAndAssignToReleases();
-        Console.info(projectName + ": Commits assigned to releases.");
+        PrintUtils.Console.info(projectName + ": Commits assigned to releases.");
 
         gitExtractor.filterCommitsOfIssues();
         ticketList = gitExtractor.getTicketList();
-        Console.info(projectName + ": Commits filtered by ticket IDs.");
+        PrintUtils.Console.info(projectName + ": Commits filtered by ticket IDs.");
 
         List<JavaMethod> allMethods = gitExtractor.getMethodsFromReleases();
-        Console.info(projectName + ": " + allMethods.size() + " method entries extracted.");
+        PrintUtils.Console.info(projectName + ": " + allMethods.size() + " method entries extracted.");
 
-        Console.info("Labeling method bugginess...");
+        PrintUtils.Console.info("Labeling method bugginess...");
         gitExtractor.setMethodBuggyness(allMethods);
 
         // --- INIZIO NUOVA PARTE: Stampe di Report Intermedi ---
-        Console.info("\n--- Generating Intermediate Report Files ---");
+        PrintUtils.Console.info("\n--- Generating Intermediate Report Files ---");
         try {
             // Stampa la lista di tutte le release analizzate con i loro dettagli
             PrintUtils.printReleases(projectName, gitExtractor.getReleaseList(), "AnalyzedReleases.csv");
-            Console.info(projectName + ": Report 'AnalyzedReleases.csv' created.");
+            PrintUtils.Console.info(projectName + ": Report 'AnalyzedReleases.csv' created.");
 
             // Stampa la lista di tutti i ticket con i loro dettagli
             PrintUtils.printTickets(projectName, ticketList);
-            Console.info(projectName + ": Report 'AllTickets.csv' created.");
+            PrintUtils.Console.info(projectName + ": Report 'AllTickets.csv' created.");
 
             // Stampa la lista di tutti i commit
             PrintUtils.printCommits(projectName, allCommits, "AllCommits.csv");
-            Console.info(projectName + ": Report 'AllCommits.csv' created.");
+            PrintUtils.Console.info(projectName + ": Report 'AllCommits.csv' created.");
 
             // Stampa una vista semplificata dei metodi (opzionale, ma può essere utile)
             PrintUtils.printMethods(projectName, allMethods, "AllMethods.csv");
-            Console.info(projectName + ": Report 'AllMethods.csv' created.");
+            PrintUtils.Console.info(projectName + ": Report 'AllMethods.csv' created.");
 
         } catch (IOException e) {
-            System.err.println("Error while generating intermediate report files: " + e.getMessage());
+            LOGGER.log(Level.SEVERE,"Error while generating intermediate report files: {0}", e.getMessage());
         }
 
-        Console.info("\nCreating the final dataset for Weka...");
+        PrintUtils.Console.info("\nCreating the final dataset for Weka...");
         PrintUtils.printMethodsDataset(projectName, allMethods);
-        Console.info(projectName + ": Dataset CSV created successfully.");
-        Console.info("--- Phase 1 Complete ---");
+        PrintUtils.Console.info(projectName + ": Dataset CSV created successfully.");
+        PrintUtils.Console.info("--- Phase 1 Complete ---");
 
         // --- FASE 2: WEKA CLASSIFICATION ---
-        Console.info("\n--- Phase 2: Weka Classification ---");
+        PrintUtils.Console.info("\n--- Phase 2: Weka Classification ---");
         WekaClassification wekaAnalysis = new WekaClassification(projectName, allMethods);
         wekaAnalysis.execute();
-        Console.info("--- Phase 2 Complete ---");
+        PrintUtils.Console.info("--- Phase 2 Complete ---");
 
-        Console.info("\n==================================================");
-        Console.info("ANALYSIS FOR " + projectName.toUpperCase() + " FINISHED");
-        Console.info("==================================================");
+        PrintUtils.Console.info("\n==================================================");
+        PrintUtils.Console.info("ANALYSIS FOR " + projectName.toUpperCase() + " FINISHED");
+        PrintUtils.Console.info("==================================================");
     }
 }
