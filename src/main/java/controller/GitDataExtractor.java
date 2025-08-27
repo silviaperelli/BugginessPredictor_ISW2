@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 
 public class GitDataExtractor {
     private static final Logger LOGGER = Logger.getLogger(GitDataExtractor.class.getName());
+    private static String directoryTest = "/test/";
+    private static String javaExtension = ".java";
 
     private List<Ticket> ticketList;
     private List<Release> releaseList;
@@ -190,7 +192,7 @@ public class GitDataExtractor {
                 treeWalk.setRecursive(true);
 
                 while (treeWalk.next()) {
-                    if (treeWalk.getPathString().endsWith(".java") && !treeWalk.getPathString().contains("/test/")) {
+                    if (treeWalk.getPathString().endsWith(javaExtension) && !treeWalk.getPathString().contains(directoryTest)) {
                         processJavaFile(treeWalk, release, methodCache);
                     }
                 }
@@ -276,7 +278,7 @@ public class GitDataExtractor {
 
             for (DiffEntry diff : diffs) {
                 String filePath = diff.getChangeType() == DiffEntry.ChangeType.DELETE ? diff.getOldPath() : diff.getNewPath();
-                if (!filePath.endsWith(".java") || filePath.contains("/test/")) continue;
+                if (!filePath.endsWith(javaExtension) || filePath.contains(directoryTest)) continue;
 
                 Map<String, MethodDeclaration> oldMethods = parseMethods(oldFileContents.getOrDefault(diff.getOldPath(), ""));
                 Map<String, MethodDeclaration> newMethods = parseMethods(newFileContents.getOrDefault(diff.getNewPath(), ""));
@@ -419,7 +421,7 @@ public class GitDataExtractor {
 
                     for (DiffEntry diff : diffs) {
                         String filePath = diff.getNewPath();
-                        if (!filePath.endsWith(".java") || filePath.contains("/test/")) continue;
+                        if (!filePath.endsWith(javaExtension) || filePath.contains(directoryTest)) continue;
 
                         String newContent = newFileContentsInFix.getOrDefault(filePath, "");
                         Map<String, MethodDeclaration> newMethodsInFix = parseMethods(newContent);

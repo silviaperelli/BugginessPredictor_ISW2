@@ -13,14 +13,17 @@ import utils.PrintUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Main {
 
+    static String choiceString = "Inserisci la tua scelta (1 o 2): ";
+    static String notValid = "Scelta non valida. Riprova.";
+
     public static void main(String[] args) {
-        // Impostazioni iniziali
-        Logger.getLogger("").setLevel(Level.SEVERE);
+
         Scanner scanner = new Scanner(System.in);
 
         // 1. PRIMO PASSO: Scelta obbligatoria del progetto
@@ -31,7 +34,14 @@ public class Main {
 
         // Chiusura finale
         scanner.close();
-        System.out.println("\nApplicazione terminata.");
+        Console.info("\nApplicazione terminata.");
+    }
+
+    private static class Console {
+        @SuppressWarnings("java:S106")
+        public static void info(String msg) {
+            System.out.println(msg);
+        }
     }
 
     /**
@@ -41,18 +51,18 @@ public class Main {
      * @return Il nome del progetto scelto ("BOOKKEEPER" o "SYNCOPE").
      */
     private static String selectProject(Scanner scanner) {
-        System.out.println("=====================================");
+        Console.info("=====================================");
         System.out.println("  SELEZIONA IL PROGETTO DA ANALIZZARE  ");
         System.out.println("=====================================");
         System.out.println("1. BOOKKEEPER");
         System.out.println("2. SYNCOPE");
-        System.out.print("Inserisci la tua scelta (1 o 2): ");
+        System.out.print(choiceString);
 
         while (true) { // Cicla finché non riceve un input valido
             if (!scanner.hasNextInt()) {
-                System.out.println("Input non valido. Per favore, inserisci 1 o 2.");
+                System.out.println(notValid);
                 scanner.next(); // Pulisce l'input errato
-                System.out.print("Inserisci la tua scelta (1 o 2): ");
+                System.out.print(choiceString);
                 continue;
             }
 
@@ -64,8 +74,8 @@ public class Main {
                 case 2:
                     return "SYNCOPE";
                 default:
-                    System.out.println("Scelta non valida. Riprova.");
-                    System.out.print("Inserisci la tua scelta (1 o 2): ");
+                    System.out.println(notValid);
+                    System.out.print(choiceString);
             }
         }
     }
@@ -131,8 +141,7 @@ public class Main {
                         analysis.execute();
                         break;
                     default:
-                        System.out.println("Scelta non valida. Riprova.");
-                        break;
+                        System.out.println(notValid);
                 }
             } catch (Exception e) {
                 System.err.println("\n!!! SI È VERIFICATO UN ERRORE: " + e.getMessage());
@@ -146,20 +155,20 @@ public class Main {
         System.out.println("\nSeleziona il tipo di refactoring da analizzare per BOOKKEEPER:");
         System.out.println("1. Basato su LOC (Lines of Code)");
         System.out.println("2. Basato su NSmell (Number of Code Smells)");
-        System.out.print("Inserisci la tua scelta (1 o 2): ");
+        System.out.print(choiceString);
 
         while (true) {
             if (!scanner.hasNextInt()) {
-                System.out.println("Input non valido. Per favore, inserisci 1 o 2.");
+                System.out.println(notValid);
                 scanner.next();
-                System.out.print("Inserisci la tua scelta (1 o 2): ");
+                System.out.print(choiceString);
                 continue;
             }
             int choice = scanner.nextInt();
             if (choice == 1) return "LOC";
             if (choice == 2) return "NSmell";
-            System.out.println("Scelta non valida. Riprova.");
-            System.out.print("Inserisci la tua scelta (1 o 2): ");
+            System.out.println(notValid);
+            System.out.print(choiceString);
         }
     }
 
