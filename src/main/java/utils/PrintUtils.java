@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PrintUtils {
@@ -21,13 +22,15 @@ public class PrintUtils {
     public static final String DELIMITER = "\n";
     public static final String SEPARATOR = ",";
     public static final String CLASS = PrintUtils.class.getName();
-    private static final Logger logger = Logger.getLogger(CLASS);
+    private static final Logger LOGGER = Logger.getLogger(CLASS);
     private static final String MAINDIR = "reportFiles/";
     public static final String SLASH = "/";
     public static final String ERROR = "Error in writeOnReportFiles when trying to create directory";
     private static final String CSV_FILES_DIR = "csvFiles/"; // Nuova cartella base per i CSV
 
     public static class Console {
+        private Console(){}
+
         @SuppressWarnings("java:S106")
         public static void info(String msg) {
             System.out.println(msg);
@@ -51,7 +54,7 @@ public class PrintUtils {
                         .append(String.valueOf(LocalDate.parse((new SimpleDateFormat("yyyy-MM-dd").format(commit.getCommitterIdent().getWhen()))))).append(DELIMITER);
             }
         } catch (IOException e) {
-            logger.info(ERROR);
+            LOGGER.info(ERROR);
         }
     }
 
@@ -97,7 +100,7 @@ public class PrintUtils {
                         .append(DELIMITER);
             }
         } catch (IOException e) {
-            logger.info(ERROR);
+            LOGGER.info(ERROR);
         }
     }
 
@@ -117,7 +120,7 @@ public class PrintUtils {
                         .append(String.valueOf(release.getCommitList().size())).append(DELIMITER);
             }
         } catch (IOException e) {
-            logger.info(ERROR);
+            LOGGER.info(ERROR);
         }
     }
 
@@ -139,7 +142,7 @@ public class PrintUtils {
                         .append(DELIMITER);
             }
         } catch (IOException e) {
-            logger.info(ERROR);
+            LOGGER.log(Level.SEVERE, ERROR);
         }
     }
 
@@ -148,15 +151,12 @@ public class PrintUtils {
         String projectDirName = projectName.toLowerCase();
         File projectCsvDir = new File(CSV_FILES_DIR + projectDirName);
 
-        if (!projectCsvDir.exists()) {
-            if (!projectCsvDir.mkdirs()) {
-                logger.severe("ERRORE: Impossibile creare la cartella " + projectCsvDir.getAbsolutePath());
-                throw new IOException("Impossibile creare la cartella: " + projectCsvDir.getAbsolutePath());
-            }
+        if (!projectCsvDir.exists() && !projectCsvDir.mkdirs()) {
+                LOGGER.log(Level.SEVERE, "ERRORE: Impossibile creare la cartella {0}", projectCsvDir.getAbsolutePath());
         }
 
         File datasetFile = new File(projectCsvDir.getAbsolutePath() + SLASH + "Dataset.csv");
-        logger.info("Scrittura del dataset in: " + datasetFile.getAbsolutePath());
+        Console.info("Scrittura del dataset in: " + datasetFile.getAbsolutePath());
 
         // --- NUOVA PARTE: Inizializzazione dei contatori per le statistiche ---
         int totalInstances = 0;
@@ -219,8 +219,7 @@ public class PrintUtils {
                         .append(DELIMITER);
             }
         } catch (IOException e) {
-            logger.severe("Errore durante la scrittura del dataset CSV: " + e.getMessage());
-            throw e;
+            LOGGER.log(Level.SEVERE, "Errore durante la scrittura del dataset CSV: {0}", e.getMessage());
         }
 
         // --- NUOVA PARTE: Calcolo finale e stampa delle statistiche ---
@@ -273,7 +272,7 @@ public class PrintUtils {
             Console.info("Weka Evaluation results written to " + filename);
 
         } catch (IOException e) {
-            logger.severe("Error writing Weka Evaluation results to " + filename + ": " + e.getMessage());
+            LOGGER.log(Level.SEVERE,"Error writing Weka Evaluation results to {0}: {1}", new Object[]{filename, e.getMessage()});
         }
     }
 
@@ -295,11 +294,9 @@ public class PrintUtils {
 
         // Crea le cartelle di destinazione se non esistono
         File dir = new File(dirPath);
-        if (!dir.exists()) {
-            if (!dir.mkdirs()) {
+        if (!dir.exists() && !dir.mkdirs()) {
                 // Lancia un'eccezione se la creazione della cartella fallisce
                 throw new IOException("Could not create directory: " + dir.getAbsolutePath());
-            }
         }
 
         // Crea il percorso completo del file CSV

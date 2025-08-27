@@ -284,8 +284,8 @@ public class GitDataExtractor {
             return;
         }
 
-        Map<String, String> oldFileContents = getFileContents(parent, diffs, true);
-        Map<String, String> newFileContents = getFileContents(commit, diffs, false);
+        Map<String, String> oldFileContents = getFileContents(diffs, true);
+        Map<String, String> newFileContents = getFileContents(diffs, false);
 
         for (DiffEntry diff : diffs) {
             processDiffEntryForMethodMetrics(diff, commit, methodMap, oldFileContents, newFileContents);
@@ -437,8 +437,8 @@ public class GitDataExtractor {
                     RevCommit parentOfFix = fixCommit.getParent(0);
                     List<DiffEntry> diffs = getDiffEntries(parentOfFix, fixCommit);
 
-                    Map<String, String> newFileContentsInFix = getFileContents(fixCommit, diffs, false);
-                    Map<String, String> oldFileContentsInFix = getFileContents(parentOfFix, diffs, true);
+                    Map<String, String> newFileContentsInFix = getFileContents(diffs, false);
+                    Map<String, String> oldFileContentsInFix = getFileContents(diffs, true);
 
                     for (DiffEntry diff : diffs) {
                         String filePath = diff.getNewPath();
@@ -641,7 +641,7 @@ public class GitDataExtractor {
         }
     }
 
-    private Map<String, String> getFileContents(RevCommit commit, List<DiffEntry> diffs, boolean useOldPath) throws IOException {
+    private Map<String, String> getFileContents(List<DiffEntry> diffs, boolean useOldPath) throws IOException {
         Map<String, String> contents = new HashMap<>();
         try (ObjectReader reader = repository.newObjectReader()) {
             for (DiffEntry diff : diffs) {
@@ -653,7 +653,7 @@ public class GitDataExtractor {
                     ObjectLoader loader = reader.open(id);
                     contents.put(path, new String(loader.getBytes(), StandardCharsets.UTF_8));
                 } catch (org.eclipse.jgit.errors.MissingObjectException e) {
-                    LOGGER.log(Level.WARNING, "Missing object: " + id + " for path " + path, e);
+                    LOGGER.log(Level.WARNING, "Missing object: {0} for path {1} {2}", new Object[]{id, path, e});
                 }
             }
         }

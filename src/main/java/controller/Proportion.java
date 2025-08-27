@@ -16,9 +16,9 @@ public class Proportion {
 
     private List<Float> proportionList;
     private float totalProportion;
-    final static int MIN_PROPORTIONS_FOR_INCREMENT = 5;
-    final static int MIN_PROPORTIONS_FOR_MOVING_WINDOW = 10;
-    final static int MOVING_WINDOW_SIZE = 5;
+    static final int MIN_PROPORTIONS_FOR_INCREMENT = 5;
+    static final int MIN_PROPORTIONS_FOR_MOVING_WINDOW = 10;
+    static final int MOVING_WINDOW_SIZE = 5;
 
     private enum Projects {
         AVRO,

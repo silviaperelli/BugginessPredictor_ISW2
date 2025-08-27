@@ -38,6 +38,7 @@ public class WekaClassification {
     private final List<ClassifierEvaluation> temporalEvaluationResults;
 
     public WekaClassification(String projectName, List<JavaMethod> allMethods) {
+        LOGGER.setLevel(Level.SEVERE);
         this.projectName = projectName;
         this.allMethods = allMethods;
         this.cvEvaluationResults = new ArrayList<>();
@@ -163,7 +164,7 @@ public class WekaClassification {
         }
     }
 
-    private void runClassificationOnTemporal(int numIterations) throws Exception {
+    private void runClassificationOnTemporal(int numIterations) {
         Console.info("Starting classification on temporal iterations...");
         for (int i = 1; i <= numIterations; i++) {
             String dirPath = String.format("arffFiles/%s/temporal/iteration_%d/", projectName.toLowerCase(), i);
