@@ -2,10 +2,7 @@ package controller; // Assicurati che il package sia corretto
 
 import utils.WekaUtils;
 import weka.classifiers.Classifier;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.meta.CostSensitiveClassifier;
 import weka.classifiers.trees.RandomForest;
-import weka.classifiers.lazy.IBk;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -14,9 +11,8 @@ import weka.core.converters.CSVSaver;
 import java.io.File;
 
 import java.io.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static controller.ClassifierBuilder.createCostMatrix;
 
 public class WhatIfAnalysis {
     private static final Logger LOGGER = Logger.getLogger(WhatIfAnalysis.class.getName());
@@ -25,9 +21,18 @@ public class WhatIfAnalysis {
     private final Instances datasetA;
 
 
+    private static class Console {
+        @SuppressWarnings("java:S106")
+        public static void info(String msg) {
+            System.out.println(msg);
+        }
+    }
+
     public WhatIfAnalysis(String projectName) throws Exception {
+        Logger.getLogger("").setLevel(Level.SEVERE);
+
         String datasetCsvPath = String.format("csvFiles/%s/Dataset.csv", projectName.toLowerCase());
-        System.out.println("Loading full dataset from CSV: " + datasetCsvPath);
+        Console.info("Loading full dataset from CSV: " + datasetCsvPath);
 
         Instances rawData = WekaUtils.loadInstancesFromCsv(datasetCsvPath);
 
@@ -46,10 +51,10 @@ public class WhatIfAnalysis {
     }
 
     public void execute() throws Exception {
-        System.out.println("--- Starting What-If Analysis ---");
+        Console.info("--- Starting What-If Analysis ---");
 
         // --- Creare i dataset B+, C, e B ---
-        System.out.println("Creating sub-datasets based on NSmells...");
+        Console.info("Creating sub-datasets based on NSmells...");
 
         // --- B+: Porzione di A con NSmells > 0
         Instances datasetBPlus = filterBySmell(this.datasetA, 0, "greater");
@@ -83,11 +88,11 @@ public class WhatIfAnalysis {
         saver.setInstances(datasetC);
         saver.setFile(new File(outputDir + "C.csv"));
         saver.writeBatch();
-        System.out.println("Intermediate datasets B, B+, C saved successfully.");
+        Console.info("Intermediate datasets B, B+, C saved successfully.");
         // --- FINE NUOVA SEZIONE ---
 
         // --- Addestrare BClassifier su A (BClassifierA) ---
-        System.out.println("Training BClassifier on the full dataset A...");
+        Console.info("Training BClassifier on the full dataset A...");
         Classifier bClassifierA;
 
         // Seleziona dinamicamente il classificatore in base al nome del progetto
@@ -101,7 +106,7 @@ public class WhatIfAnalysis {
         bClassifierA.buildClassifier(this.datasetA);
 
         // --- Predire e contare Actual/Estimated su A, B, B+, C ---
-        System.out.println("Counting actual and estimated bugs on all datasets...");
+        Console.info("Counting actual and estimated bugs on all datasets...");
 
         // Calcola i valori "Actual"
         int actualA = countActualBugs(this.datasetA);
@@ -201,19 +206,19 @@ public class WhatIfAnalysis {
     }
 
     private void analyzeFinalResults(int totalActualDefects, int predictedDefectsWithSmells, int predictedDefectsWithoutSmells) {
-        System.out.println("\n--- Final Analysis ---");
-        System.out.println("Predicted defects on smelly methods (B+): " + predictedDefectsWithSmells);
-        System.out.println("Predicted defects if smells were removed (B): " + predictedDefectsWithoutSmells);
+        Console.info("\n--- Final Analysis ---");
+        Console.info("Predicted defects on smelly methods (B+): " + predictedDefectsWithSmells);
+        Console.info("Predicted defects if smells were removed (B): " + predictedDefectsWithoutSmells);
         int preventableDefects = predictedDefectsWithSmells - predictedDefectsWithoutSmells;
-        System.out.println("\n>> Estimated number of preventable defects by removing code smells: " + preventableDefects);
+        Console.info("\n>> Estimated number of preventable defects by removing code smells: " + preventableDefects);
         if (totalActualDefects > 0) {
             double percentageOfTotal = ((double) preventableDefects / totalActualDefects) * 100;
-            System.out.printf(">> This represents %.2f%% of the total actual defects in the project.%n", percentageOfTotal);
+            Console.info(">> This represents " + String.format("%.3f", percentageOfTotal)  + "% of the total actual defects in the project.");
         }
         if (predictedDefectsWithSmells > 0) {
             double percentageOfSmelly = ((double) preventableDefects / predictedDefectsWithSmells) * 100;
-            System.out.printf(">> This represents a %.2f%% reduction in defects among the methods that were originally smelly.%n", percentageOfSmelly);
+            Console.info(">> This represents a " + String.format("%.3f", percentageOfSmelly)  + "% reduction in defects among the methods that were originally smelly.");
         }
-        LOGGER.info("---------------------\n");
+        Console.info("---------------------\n");
     }
 }

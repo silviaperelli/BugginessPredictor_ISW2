@@ -216,29 +216,29 @@ public class Main {
 
             // Stampa la lista di tutti i commit
             PrintUtils.printCommits(projectName, allCommits, "AllCommits.csv");
-            System.out.println(projectName + ": Report 'AllCommits.csv' created.");
+            Console.info(projectName + ": Report 'AllCommits.csv' created.");
 
             // Stampa una vista semplificata dei metodi (opzionale, ma può essere utile)
             PrintUtils.printMethods(projectName, allMethods, "AllMethods.csv");
-            System.out.println(projectName + ": Report 'AllMethods.csv' created.");
+            Console.info(projectName + ": Report 'AllMethods.csv' created.");
 
         } catch (IOException e) {
             System.err.println("Error while generating intermediate report files: " + e.getMessage());
         }
 
-        System.out.println("\nCreating the final dataset for Weka...");
+        Console.info("\nCreating the final dataset for Weka...");
         PrintUtils.printMethodsDataset(projectName, allMethods);
-        System.out.println(projectName + ": Dataset CSV created successfully.");
-        System.out.println("--- Phase 1 Complete ---");
+        Console.info(projectName + ": Dataset CSV created successfully.");
+        Console.info("--- Phase 1 Complete ---");
 
         // --- FASE 2: WEKA CLASSIFICATION ---
-        System.out.println("\n--- Phase 2: Weka Classification ---");
+        Console.info("\n--- Phase 2: Weka Classification ---");
         WekaClassification wekaAnalysis = new WekaClassification(projectName, allMethods);
         wekaAnalysis.execute();
-        System.out.println("--- Phase 2 Complete ---");
+        Console.info("--- Phase 2 Complete ---");
 
-        System.out.println("\n==================================================");
-        System.out.println("ANALYSIS FOR " + projectName.toUpperCase() + " FINISHED");
-        System.out.println("==================================================");
+        Console.info("\n==================================================");
+        Console.info("ANALYSIS FOR " + projectName.toUpperCase() + " FINISHED");
+        Console.info("==================================================");
     }
 }
