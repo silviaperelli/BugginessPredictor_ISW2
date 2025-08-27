@@ -13,9 +13,6 @@ import utils.PrintUtils;
 import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Main {
 
@@ -52,17 +49,17 @@ public class Main {
      */
     private static String selectProject(Scanner scanner) {
         Console.info("=====================================");
-        System.out.println("  SELEZIONA IL PROGETTO DA ANALIZZARE  ");
-        System.out.println("=====================================");
-        System.out.println("1. BOOKKEEPER");
-        System.out.println("2. SYNCOPE");
-        System.out.print(choiceString);
+        Console.info("  SELEZIONA IL PROGETTO DA ANALIZZARE  ");
+        Console.info("=====================================");
+        Console.info("1. BOOKKEEPER");
+        Console.info("2. SYNCOPE");
+        Console.info(choiceString);
 
         while (true) { // Cicla finché non riceve un input valido
             if (!scanner.hasNextInt()) {
-                System.out.println(notValid);
+                Console.info(notValid);
                 scanner.next(); // Pulisce l'input errato
-                System.out.print(choiceString);
+                Console.info(choiceString);
                 continue;
             }
 
@@ -74,8 +71,8 @@ public class Main {
                 case 2:
                     return "SYNCOPE";
                 default:
-                    System.out.println(notValid);
-                    System.out.print(choiceString);
+                    Console.info(notValid);
+                    Console.info(choiceString);
             }
         }
     }
@@ -87,20 +84,20 @@ public class Main {
      */
     private static void handleProjectActions(String projectName, Scanner scanner) {
         while (true) {
-            System.out.println("\n--- PROGETTO: " + projectName.toUpperCase() + " ---");
-            System.out.println("Seleziona l'azione da eseguire:");
-            System.out.println("1. Fase 1 (Creazione Dataset) + Fase 2 (Classificazione Weka)");
-            System.out.println("2. Calcolo Correlazione Feature");
-            System.out.println("3. Analisi Metriche del Refactoring (da file)");
-            System.out.println("4. Analisi What-If");
-            System.out.println("-------------------------------------");
-            System.out.println("0. Exit");
-            System.out.print("Inserisci la tua scelta: ");
+            Console.info("\n--- PROGETTO: " + projectName.toUpperCase() + " ---");
+            Console.info("Seleziona l'azione da eseguire:");
+            Console.info("1. Fase 1 (Creazione Dataset) + Fase 2 (Classificazione Weka)");
+            Console.info("2. Calcolo Correlazione Feature");
+            Console.info("3. Analisi Metriche del Refactoring (da file)");
+            Console.info("4. Analisi What-If");
+            Console.info("-------------------------------------");
+            Console.info("0. Exit");
+            Console.info("Inserisci la tua scelta: ");
 
             while (!scanner.hasNextInt()) {
-                System.out.println("Input non valido. Per favore, inserisci un numero.");
+                Console.info("Input non valido. Per favore, inserisci un numero.");
                 scanner.next();
-                System.out.print("Inserisci la tua scelta: ");
+                Console.info("Inserisci la tua scelta: ");
             }
             int action = scanner.nextInt();
 
@@ -111,13 +108,13 @@ public class Main {
             try {
                 switch (action) {
                     case 1:
-                        System.out.println("\n>>> Avvio Fase 1 e 2...");
+                        Console.info("\n>>> Avvio Fase 1 e 2...");
                         runCompleteAnalysis(projectName);
                         break;
                     case 2:
-                        System.out.println("\n>>> Avvio calcolo della correlazione...");
+                        Console.info("\n>>> Avvio calcolo della correlazione...");
                         CorrelationCalculator.calculateAndSave(projectName);
-                        System.out.println(">>> Calcolo della correlazione completato.");
+                        Console.info(">>> Calcolo della correlazione completato.");
                         break;
                     case 3: // <-- LOGICA MODIFICATA QUI
                         System.out.println("\n>>> Avvio analisi metriche del refactoring...");
@@ -136,15 +133,15 @@ public class Main {
                         analyzer.execute();
                         break;
                     case 4:
-                        System.out.println("\n>>> Avvio analisi What-If...");
+                        Console.info("\n>>> Avvio analisi What-If...");
                         WhatIfAnalysis analysis = new WhatIfAnalysis(projectName);
                         analysis.execute();
                         break;
                     default:
-                        System.out.println(notValid);
+                        Console.info(notValid);
                 }
             } catch (Exception e) {
-                System.err.println("\n!!! SI È VERIFICATO UN ERRORE: " + e.getMessage());
+                Console.info("\n!!! SI È VERIFICATO UN ERRORE: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -152,23 +149,23 @@ public class Main {
 
     // NUOVO METODO HELPER AGGIUNTO AL MAIN
     private static String selectFeatureTypeForBookkeeper(Scanner scanner) {
-        System.out.println("\nSeleziona il tipo di refactoring da analizzare per BOOKKEEPER:");
-        System.out.println("1. Basato su LOC (Lines of Code)");
-        System.out.println("2. Basato su NSmell (Number of Code Smells)");
-        System.out.print(choiceString);
+        Console.info("\nSeleziona il tipo di refactoring da analizzare per BOOKKEEPER:");
+        Console.info("1. Basato su LOC (Lines of Code)");
+        Console.info("2. Basato su NSmell (Number of Code Smells)");
+        Console.info(choiceString);
 
         while (true) {
             if (!scanner.hasNextInt()) {
-                System.out.println(notValid);
+                Console.info(notValid);
                 scanner.next();
-                System.out.print(choiceString);
+                Console.info(choiceString);
                 continue;
             }
             int choice = scanner.nextInt();
             if (choice == 1) return "LOC";
             if (choice == 2) return "NSmell";
-            System.out.println(notValid);
-            System.out.print(choiceString);
+            Console.info(notValid);
+            Console.info(choiceString);
         }
     }
 
@@ -178,44 +175,44 @@ public class Main {
      * @param projectName Il nome del progetto.
      */
     public static void runCompleteAnalysis(String projectName) throws Exception {
-        System.out.println("\n==================================================");
-        System.out.println("STARTING FULL ANALYSIS FOR PROJECT: " + projectName.toUpperCase());
-        System.out.println("==================================================");
+        Console.info("\n==================================================");
+        Console.info("STARTING FULL ANALYSIS FOR PROJECT: " + projectName.toUpperCase());
+        Console.info("==================================================");
 
         // --- FASE 1: DATASET CREATION ---
-        System.out.println("\n--- Phase 1: Dataset Creation ---");
+        Console.info("\n--- Phase 1: Dataset Creation ---");
 
         JiraDataExtractor jiraExtractor = new JiraDataExtractor(projectName);
         List<Release> fullReleaseList = jiraExtractor.getReleases();
-        System.out.println(projectName + ": " + fullReleaseList.size() + " releases extracted.");
+        Console.info(projectName + ": " + fullReleaseList.size() + " releases extracted.");
 
         List<Ticket> ticketList = jiraExtractor.getFinalTickets(fullReleaseList, true);
-        System.out.println(projectName + ": " + ticketList.size() + " tickets extracted.");
+        Console.info(projectName + ": " + ticketList.size() + " tickets extracted.");
 
         GitDataExtractor gitExtractor = new GitDataExtractor(projectName, fullReleaseList, ticketList);
         List<RevCommit> allCommits = gitExtractor.getAllCommitsAndAssignToReleases();
-        System.out.println(projectName + ": Commits assigned to releases.");
+        Console.info(projectName + ": Commits assigned to releases.");
 
         gitExtractor.filterCommitsOfIssues();
         ticketList = gitExtractor.getTicketList();
-        System.out.println(projectName + ": Commits filtered by ticket IDs.");
+        Console.info(projectName + ": Commits filtered by ticket IDs.");
 
         List<JavaMethod> allMethods = gitExtractor.getMethodsFromReleases();
-        System.out.println(projectName + ": " + allMethods.size() + " method entries extracted.");
+        Console.info(projectName + ": " + allMethods.size() + " method entries extracted.");
 
-        System.out.println("Labeling method bugginess...");
+        Console.info("Labeling method bugginess...");
         gitExtractor.setMethodBuggyness(allMethods);
 
         // --- INIZIO NUOVA PARTE: Stampe di Report Intermedi ---
-        System.out.println("\n--- Generating Intermediate Report Files ---");
+        Console.info("\n--- Generating Intermediate Report Files ---");
         try {
             // Stampa la lista di tutte le release analizzate con i loro dettagli
             PrintUtils.printReleases(projectName, gitExtractor.getReleaseList(), "AnalyzedReleases.csv");
-            System.out.println(projectName + ": Report 'AnalyzedReleases.csv' created.");
+            Console.info(projectName + ": Report 'AnalyzedReleases.csv' created.");
 
             // Stampa la lista di tutti i ticket con i loro dettagli
             PrintUtils.printTickets(projectName, ticketList);
-            System.out.println(projectName + ": Report 'AllTickets.csv' created.");
+            Console.info(projectName + ": Report 'AllTickets.csv' created.");
 
             // Stampa la lista di tutti i commit
             PrintUtils.printCommits(projectName, allCommits, "AllCommits.csv");
