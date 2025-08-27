@@ -280,7 +280,7 @@ public class GitDataExtractor {
         try {
             diffs = getDiffEntries(parent, commit);
         } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Impossibile calcolare diff per commit " + commit.getName(), e);
+            LOGGER.log(Level.SEVERE, "Impossibile calcolare diff per commit {0} {1}", new Object[]{commit.getName(), e});
             return;
         }
 
@@ -465,7 +465,7 @@ public class GitDataExtractor {
                         }
                     }
                 } catch (IOException e) {
-                    LOGGER.log(Level.WARNING, "Errore durante l'analisi del commit di fix " + fixCommit.getName(), e);
+                    LOGGER.log(Level.SEVERE, "Errore durante l'analisi del commit di fix {0} {1}" + new Object[]{fixCommit.getName(), e});
                 }
             }
         }

@@ -48,7 +48,7 @@ public class WekaClassification {
     public void execute() {
         Console.info("--- Starting WEKA analysis for project: " + projectName + "---");
         try {
-            //executeCrossValidation();
+            executeCrossValidation();
             executeTemporalValidation();
             saveAllResults();
         } catch (Exception e) {
