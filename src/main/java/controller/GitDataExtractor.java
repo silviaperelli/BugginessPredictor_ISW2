@@ -247,7 +247,7 @@ public class GitDataExtractor {
                 }
             });
         } catch (ParseProblemException | StackOverflowError e) {
-            LOGGER.log(Level.WARNING, "Errore di parsing per il file: " + filePath + ". " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Errore di parsing per il file: {0}",filePath);
         }
     }
 
