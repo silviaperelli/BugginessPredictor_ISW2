@@ -82,13 +82,8 @@ public class WekaClassification {
     private void prepareCrossValidationData(int numRuns, int numFolds) throws IOException {
         Console.info("Preparing data for cross-validation...");
         List<JavaMethod> methodsForCv;
-        if ("SYNCOPE".equalsIgnoreCase(this.projectName)) {
-            int totalReleases = (int) allMethods.stream().map(m -> m.getRelease().getId()).distinct().count();
-            int releasesToConsider = (int) Math.ceil(totalReleases * 0.35);
-            methodsForCv = allMethods.stream().filter(m -> m.getRelease().getId() <= releasesToConsider).collect(Collectors.toList());
-        } else {
-            methodsForCv = this.allMethods;
-        }
+        methodsForCv = this.allMethods;
+
         Instances fullDataset = WekaUtils.buildInstances(methodsForCv, projectName + "_full");
         fullDataset.setClassIndex(fullDataset.numAttributes() - 1);
         ArffSaver saver = new ArffSaver();
