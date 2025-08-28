@@ -5,7 +5,7 @@ import os
 
 # --- CONFIGURAZIONE ---
 # Modifica solo questa riga per cambiare progetto
-nome_progetto = 'BOOKKEEPER'
+nome_progetto = 'SYNCOPE'
 
 # Percorsi dei file di input e cartella di output
 file_risultati_cv = f'../wekaFiles/{nome_progetto.lower()}/classificationResults_cv.csv'
