@@ -60,7 +60,8 @@ public class WekaClassification {
     public void executeCrossValidation() {
         Console.info("Starting Cross Validation");
         try {
-            final int numRuns = "BOOKKEEPER".equalsIgnoreCase(this.projectName) ? 10 : 2;
+            final int numRuns = 10;
+            //final int numRuns = "BOOKKEEPER".equalsIgnoreCase(this.projectName) ? 10 : 2;
             final int numFolds = 10;
             prepareCrossValidationData(numRuns, numFolds);
             runClassificationOnFolds(numRuns, numFolds);

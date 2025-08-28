@@ -239,3 +239,963 @@ SYNCOPE,19,IBk,none,SMOTE,none,0.117,0.700,0.883,0.186,0.200,0.271
 SYNCOPE,19,RandomForest,none,none,SensitiveThreshold,0.333,0.650,0.884,0.433,0.441,0.458
 SYNCOPE,19,NaiveBayes,none,none,SensitiveThreshold,0.034,0.200,0.783,0.042,0.058,0.060
 SYNCOPE,19,IBk,none,none,SensitiveThreshold,0.292,0.650,0.886,0.395,0.403,0.428
+SYNCOPE,20,RandomForest,none,none,none,0.944,0.386,0.909,0.545,0.548,0.602
+SYNCOPE,20,NaiveBayes,none,none,none,0.067,0.295,0.790,0.093,0.109,0.121
+SYNCOPE,20,IBk,none,none,none,0.792,0.432,0.856,0.555,0.559,0.581
+SYNCOPE,20,RandomForest,BestFirst (backward),none,none,0.500,0.045,0.703,0.082,0.083,0.148
+SYNCOPE,20,NaiveBayes,BestFirst (backward),none,none,0.038,0.091,0.711,0.039,0.054,0.043
+SYNCOPE,20,IBk,BestFirst (backward),none,none,0.667,0.045,0.704,0.084,0.085,0.172
+SYNCOPE,20,RandomForest,none,SMOTE,none,0.120,0.614,0.839,0.186,0.201,0.255
+SYNCOPE,20,NaiveBayes,none,SMOTE,none,0.060,0.386,0.803,0.087,0.105,0.130
+SYNCOPE,20,IBk,none,SMOTE,none,0.118,0.614,0.817,0.183,0.199,0.253
+SYNCOPE,20,RandomForest,none,none,SensitiveThreshold,0.403,0.568,0.870,0.465,0.472,0.472
+SYNCOPE,20,NaiveBayes,none,none,SensitiveThreshold,0.065,0.318,0.790,0.091,0.107,0.123
+SYNCOPE,20,IBk,none,none,SensitiveThreshold,0.385,0.568,0.856,0.452,0.459,0.460
+SYNCOPE,21,RandomForest,none,none,none,0.941,0.348,0.875,0.505,0.508,0.570
+SYNCOPE,21,NaiveBayes,none,none,none,0.064,0.283,0.819,0.087,0.104,0.114
+SYNCOPE,21,IBk,none,none,none,1.000,0.348,0.814,0.513,0.516,0.588
+SYNCOPE,21,RandomForest,BestFirst (backward),none,none,0.833,0.109,0.776,0.190,0.192,0.299
+SYNCOPE,21,NaiveBayes,BestFirst (backward),none,none,0.064,0.152,0.794,0.075,0.090,0.083
+SYNCOPE,21,IBk,BestFirst (backward),none,none,1.000,0.087,0.777,0.158,0.160,0.293
+SYNCOPE,21,RandomForest,none,SMOTE,none,0.112,0.565,0.868,0.170,0.186,0.233
+SYNCOPE,21,NaiveBayes,none,SMOTE,none,0.061,0.391,0.798,0.087,0.106,0.131
+SYNCOPE,21,IBk,none,SMOTE,none,0.114,0.609,0.817,0.176,0.192,0.246
+SYNCOPE,21,RandomForest,none,none,SensitiveThreshold,0.307,0.500,0.885,0.371,0.380,0.383
+SYNCOPE,21,NaiveBayes,none,none,SensitiveThreshold,0.061,0.304,0.819,0.083,0.101,0.114
+SYNCOPE,21,IBk,none,none,SensitiveThreshold,0.321,0.543,0.814,0.394,0.403,0.409
+SYNCOPE,22,RandomForest,none,none,none,0.895,0.405,0.915,0.554,0.557,0.599
+SYNCOPE,22,NaiveBayes,none,none,none,0.068,0.310,0.811,0.096,0.112,0.127
+SYNCOPE,22,IBk,none,none,none,0.783,0.429,0.864,0.550,0.554,0.576
+SYNCOPE,22,RandomForest,BestFirst (backward),none,none,0.400,0.048,0.748,0.083,0.085,0.135
+SYNCOPE,22,NaiveBayes,BestFirst (backward),none,none,0.058,0.143,0.766,0.069,0.083,0.076
+SYNCOPE,22,IBk,BestFirst (backward),none,none,0.500,0.048,0.725,0.085,0.087,0.152
+SYNCOPE,22,RandomForest,none,SMOTE,none,0.117,0.643,0.861,0.183,0.198,0.258
+SYNCOPE,22,NaiveBayes,none,SMOTE,none,0.048,0.357,0.798,0.068,0.085,0.108
+SYNCOPE,22,IBk,none,SMOTE,none,0.121,0.690,0.864,0.191,0.206,0.273
+SYNCOPE,22,RandomForest,none,none,SensitiveThreshold,0.287,0.595,0.901,0.379,0.388,0.405
+SYNCOPE,22,NaiveBayes,none,none,SensitiveThreshold,0.067,0.357,0.810,0.096,0.112,0.134
+SYNCOPE,22,IBk,none,none,SensitiveThreshold,0.290,0.643,0.864,0.391,0.400,0.424
+SYNCOPE,23,RandomForest,none,none,none,0.846,0.250,0.829,0.383,0.386,0.457
+SYNCOPE,23,NaiveBayes,none,none,none,0.059,0.295,0.793,0.082,0.099,0.112
+SYNCOPE,23,IBk,none,none,none,0.737,0.318,0.805,0.441,0.444,0.481
+SYNCOPE,23,RandomForest,BestFirst (backward),none,none,0.833,0.114,0.726,0.198,0.200,0.306
+SYNCOPE,23,NaiveBayes,BestFirst (backward),none,none,0.071,0.205,0.714,0.091,0.106,0.104
+SYNCOPE,23,IBk,BestFirst (backward),none,none,0.625,0.114,0.705,0.190,0.192,0.264
+SYNCOPE,23,RandomForest,none,SMOTE,none,0.104,0.545,0.852,0.159,0.175,0.220
+SYNCOPE,23,NaiveBayes,none,SMOTE,none,0.046,0.318,0.814,0.062,0.080,0.096
+SYNCOPE,23,IBk,none,SMOTE,none,0.105,0.591,0.813,0.163,0.179,0.232
+SYNCOPE,23,RandomForest,none,none,SensitiveThreshold,0.298,0.568,0.863,0.382,0.391,0.402
+SYNCOPE,23,NaiveBayes,none,none,SensitiveThreshold,0.054,0.295,0.793,0.074,0.091,0.104
+SYNCOPE,23,IBk,none,none,SensitiveThreshold,0.289,0.591,0.806,0.379,0.388,0.404
+SYNCOPE,24,RandomForest,none,none,none,0.731,0.452,0.907,0.555,0.559,0.572
+SYNCOPE,24,NaiveBayes,none,none,none,0.043,0.190,0.754,0.054,0.070,0.070
+SYNCOPE,24,IBk,none,none,none,0.655,0.452,0.804,0.531,0.535,0.540
+SYNCOPE,24,RandomForest,BestFirst (backward),none,none,0.667,0.048,0.599,0.088,0.089,0.176
+SYNCOPE,24,NaiveBayes,BestFirst (backward),none,none,0.048,0.119,0.635,0.054,0.068,0.060
+SYNCOPE,24,IBk,BestFirst (backward),none,none,0.667,0.048,0.600,0.088,0.089,0.176
+SYNCOPE,24,RandomForest,none,SMOTE,none,0.104,0.571,0.861,0.161,0.176,0.227
+SYNCOPE,24,NaiveBayes,none,SMOTE,none,0.048,0.333,0.746,0.067,0.085,0.104
+SYNCOPE,24,IBk,none,SMOTE,none,0.107,0.619,0.841,0.167,0.182,0.240
+SYNCOPE,24,RandomForest,none,none,SensitiveThreshold,0.329,0.548,0.897,0.403,0.411,0.416
+SYNCOPE,24,NaiveBayes,none,none,SensitiveThreshold,0.047,0.238,0.754,0.061,0.078,0.084
+SYNCOPE,24,IBk,none,none,SensitiveThreshold,0.311,0.548,0.804,0.388,0.397,0.404
+SYNCOPE,25,RandomForest,none,none,none,0.833,0.349,0.898,0.489,0.492,0.536
+SYNCOPE,25,NaiveBayes,none,none,none,0.040,0.186,0.749,0.049,0.066,0.065
+SYNCOPE,25,IBk,none,none,none,0.667,0.372,0.861,0.474,0.478,0.494
+SYNCOPE,25,RandomForest,BestFirst (backward),none,none,0.571,0.093,0.767,0.157,0.160,0.228
+SYNCOPE,25,NaiveBayes,BestFirst (backward),none,none,0.044,0.116,0.738,0.049,0.064,0.055
+SYNCOPE,25,IBk,BestFirst (backward),none,none,0.667,0.093,0.769,0.161,0.163,0.247
+SYNCOPE,25,RandomForest,none,SMOTE,none,0.218,0.605,0.883,0.310,0.321,0.353
+SYNCOPE,25,NaiveBayes,none,SMOTE,none,0.044,0.302,0.775,0.059,0.077,0.091
+SYNCOPE,25,IBk,none,SMOTE,none,0.191,0.605,0.854,0.279,0.291,0.328
+SYNCOPE,25,RandomForest,none,none,SensitiveThreshold,0.282,0.465,0.888,0.342,0.351,0.353
+SYNCOPE,25,NaiveBayes,none,none,SensitiveThreshold,0.039,0.209,0.748,0.049,0.066,0.068
+SYNCOPE,25,IBk,none,none,SensitiveThreshold,0.273,0.488,0.861,0.341,0.350,0.356
+SYNCOPE,26,RandomForest,none,none,none,0.778,0.341,0.842,0.471,0.475,0.512
+SYNCOPE,26,NaiveBayes,none,none,none,0.043,0.220,0.801,0.056,0.073,0.077
+SYNCOPE,26,IBk,none,none,none,0.652,0.366,0.747,0.465,0.469,0.485
+SYNCOPE,26,RandomForest,BestFirst (backward),none,none,0.857,0.146,0.794,0.248,0.250,0.352
+SYNCOPE,26,NaiveBayes,BestFirst (backward),none,none,0.063,0.171,0.741,0.078,0.092,0.088
+SYNCOPE,26,IBk,BestFirst (backward),none,none,0.857,0.146,0.795,0.248,0.250,0.352
+SYNCOPE,26,RandomForest,none,SMOTE,none,0.102,0.537,0.793,0.157,0.172,0.218
+SYNCOPE,26,NaiveBayes,none,SMOTE,none,0.046,0.341,0.795,0.064,0.081,0.101
+SYNCOPE,26,IBk,none,SMOTE,none,0.100,0.561,0.758,0.156,0.170,0.221
+SYNCOPE,26,RandomForest,none,none,SensitiveThreshold,0.268,0.537,0.835,0.349,0.358,0.371
+SYNCOPE,26,NaiveBayes,none,none,SensitiveThreshold,0.046,0.268,0.801,0.062,0.078,0.089
+SYNCOPE,26,IBk,none,none,SensitiveThreshold,0.259,0.537,0.747,0.340,0.349,0.364
+SYNCOPE,27,RandomForest,none,none,none,0.857,0.409,0.864,0.551,0.554,0.589
+SYNCOPE,27,NaiveBayes,none,none,none,0.072,0.295,0.798,0.100,0.116,0.127
+SYNCOPE,27,IBk,none,none,none,0.739,0.386,0.832,0.504,0.507,0.531
+SYNCOPE,27,RandomForest,BestFirst (backward),none,none,0.857,0.136,0.765,0.233,0.235,0.340
+SYNCOPE,27,NaiveBayes,BestFirst (backward),none,none,0.098,0.273,0.814,0.130,0.144,0.148
+SYNCOPE,27,IBk,BestFirst (backward),none,none,0.857,0.136,0.721,0.233,0.235,0.340
+SYNCOPE,27,RandomForest,none,SMOTE,none,0.134,0.659,0.863,0.208,0.222,0.282
+SYNCOPE,27,NaiveBayes,none,SMOTE,none,0.069,0.455,0.810,0.103,0.120,0.156
+SYNCOPE,27,IBk,none,SMOTE,none,0.123,0.636,0.839,0.192,0.207,0.264
+SYNCOPE,27,RandomForest,none,none,SensitiveThreshold,0.353,0.545,0.879,0.421,0.429,0.431
+SYNCOPE,27,NaiveBayes,none,none,SensitiveThreshold,0.065,0.318,0.797,0.091,0.108,0.124
+SYNCOPE,27,IBk,none,none,SensitiveThreshold,0.343,0.545,0.832,0.413,0.421,0.425
+SYNCOPE,28,RandomForest,none,none,none,0.714,0.405,0.911,0.514,0.517,0.535
+SYNCOPE,28,NaiveBayes,none,none,none,0.035,0.189,0.748,0.044,0.059,0.062
+SYNCOPE,28,IBk,none,none,none,0.625,0.405,0.867,0.488,0.492,0.500
+SYNCOPE,28,RandomForest,BestFirst (backward),none,none,1.000,0.108,0.721,0.194,0.195,0.327
+SYNCOPE,28,NaiveBayes,BestFirst (backward),none,none,0.041,0.108,0.697,0.046,0.059,0.052
+SYNCOPE,28,IBk,BestFirst (backward),none,none,1.000,0.108,0.722,0.194,0.195,0.327
+SYNCOPE,28,RandomForest,none,SMOTE,none,0.090,0.595,0.868,0.142,0.156,0.215
+SYNCOPE,28,NaiveBayes,none,SMOTE,none,0.036,0.297,0.753,0.049,0.064,0.080
+SYNCOPE,28,IBk,none,SMOTE,none,0.087,0.595,0.846,0.137,0.151,0.210
+SYNCOPE,28,RandomForest,none,none,SensitiveThreshold,0.270,0.649,0.920,0.373,0.381,0.410
+SYNCOPE,28,NaiveBayes,none,none,SensitiveThreshold,0.030,0.189,0.748,0.037,0.052,0.054
+SYNCOPE,28,IBk,none,none,SensitiveThreshold,0.267,0.649,0.867,0.370,0.378,0.408
+SYNCOPE,29,RandomForest,none,none,none,0.375,0.136,0.837,0.198,0.200,0.224
+SYNCOPE,29,NaiveBayes,none,none,none,0.018,0.136,0.741,0.022,0.032,0.035
+SYNCOPE,29,IBk,none,none,none,0.333,0.182,0.730,0.232,0.235,0.243
+SYNCOPE,29,RandomForest,BestFirst (backward),none,none,0.333,0.045,0.683,0.079,0.080,0.121
+SYNCOPE,29,NaiveBayes,BestFirst (backward),none,none,0.025,0.091,0.699,0.031,0.039,0.038
+SYNCOPE,29,IBk,BestFirst (backward),none,none,0.333,0.045,0.684,0.079,0.080,0.121
+SYNCOPE,29,RandomForest,none,SMOTE,none,0.054,0.500,0.781,0.088,0.097,0.152
+SYNCOPE,29,NaiveBayes,none,SMOTE,none,0.027,0.318,0.762,0.040,0.050,0.077
+SYNCOPE,29,IBk,none,SMOTE,none,0.054,0.545,0.772,0.089,0.098,0.159
+SYNCOPE,29,RandomForest,none,none,SensitiveThreshold,0.138,0.364,0.809,0.194,0.200,0.217
+SYNCOPE,29,NaiveBayes,none,none,SensitiveThreshold,0.020,0.182,0.741,0.027,0.037,0.046
+SYNCOPE,29,IBk,none,none,SensitiveThreshold,0.133,0.364,0.730,0.189,0.195,0.213
+SYNCOPE,30,RandomForest,none,none,none,0.875,0.447,0.913,0.588,0.592,0.622
+SYNCOPE,30,NaiveBayes,none,none,none,0.041,0.149,0.781,0.047,0.065,0.057
+SYNCOPE,30,IBk,none,none,none,0.724,0.447,0.891,0.549,0.553,0.565
+SYNCOPE,30,RandomForest,BestFirst (backward),none,none,1.000,0.085,0.763,0.155,0.157,0.290
+SYNCOPE,30,NaiveBayes,BestFirst (backward),none,none,0.044,0.085,0.722,0.043,0.058,0.046
+SYNCOPE,30,IBk,BestFirst (backward),none,none,1.000,0.085,0.763,0.155,0.157,0.290
+SYNCOPE,30,RandomForest,none,SMOTE,none,0.133,0.617,0.887,0.203,0.219,0.270
+SYNCOPE,30,NaiveBayes,none,SMOTE,none,0.054,0.298,0.776,0.073,0.091,0.103
+SYNCOPE,30,IBk,none,SMOTE,none,0.127,0.617,0.878,0.195,0.211,0.263
+SYNCOPE,30,RandomForest,none,none,SensitiveThreshold,0.380,0.638,0.923,0.468,0.476,0.485
+SYNCOPE,30,NaiveBayes,none,none,SensitiveThreshold,0.037,0.149,0.781,0.041,0.059,0.052
+SYNCOPE,30,IBk,none,none,SensitiveThreshold,0.366,0.638,0.891,0.457,0.465,0.475
+SYNCOPE,31,RandomForest,none,none,none,0.750,0.462,0.885,0.569,0.571,0.586
+SYNCOPE,31,NaiveBayes,none,none,none,0.057,0.462,0.782,0.091,0.102,0.148
+SYNCOPE,31,IBk,none,none,none,0.765,0.500,0.850,0.603,0.605,0.616
+SYNCOPE,31,RandomForest,BestFirst (backward),none,none,0.500,0.077,0.692,0.132,0.133,0.194
+SYNCOPE,31,NaiveBayes,BestFirst (backward),none,none,0.053,0.231,0.696,0.077,0.086,0.099
+SYNCOPE,31,IBk,BestFirst (backward),none,none,0.667,0.077,0.694,0.137,0.138,0.225
+SYNCOPE,31,RandomForest,none,SMOTE,none,0.082,0.615,0.848,0.134,0.144,0.212
+SYNCOPE,31,NaiveBayes,none,SMOTE,none,0.040,0.462,0.795,0.062,0.073,0.118
+SYNCOPE,31,IBk,none,SMOTE,none,0.075,0.615,0.853,0.123,0.133,0.202
+SYNCOPE,31,RandomForest,none,none,SensitiveThreshold,0.247,0.692,0.885,0.357,0.364,0.407
+SYNCOPE,31,NaiveBayes,none,none,SensitiveThreshold,0.049,0.462,0.782,0.078,0.089,0.136
+SYNCOPE,31,IBk,none,none,SensitiveThreshold,0.233,0.654,0.850,0.337,0.343,0.384
+SYNCOPE,32,RandomForest,none,none,none,0.833,0.333,0.898,0.473,0.476,0.524
+SYNCOPE,32,NaiveBayes,none,none,none,0.062,0.244,0.800,0.083,0.099,0.104
+SYNCOPE,32,IBk,none,none,none,0.682,0.333,0.842,0.444,0.448,0.473
+SYNCOPE,32,RandomForest,BestFirst (backward),none,none,0.500,0.067,0.794,0.115,0.118,0.180
+SYNCOPE,32,NaiveBayes,BestFirst (backward),none,none,0.054,0.111,0.737,0.058,0.072,0.062
+SYNCOPE,32,IBk,BestFirst (backward),none,none,0.500,0.067,0.773,0.115,0.118,0.180
+SYNCOPE,32,RandomForest,none,SMOTE,none,0.144,0.667,0.918,0.222,0.236,0.294
+SYNCOPE,32,NaiveBayes,none,SMOTE,none,0.052,0.311,0.773,0.071,0.089,0.104
+SYNCOPE,32,IBk,none,SMOTE,none,0.136,0.667,0.850,0.212,0.226,0.286
+SYNCOPE,32,RandomForest,none,none,SensitiveThreshold,0.298,0.556,0.942,0.378,0.388,0.398
+SYNCOPE,32,NaiveBayes,none,none,SensitiveThreshold,0.064,0.289,0.800,0.088,0.104,0.115
+SYNCOPE,32,IBk,none,none,SensitiveThreshold,0.284,0.556,0.842,0.366,0.376,0.388
+SYNCOPE,33,RandomForest,none,none,none,0.750,0.255,0.790,0.377,0.381,0.434
+SYNCOPE,33,NaiveBayes,none,none,none,0.027,0.106,0.721,0.025,0.043,0.031
+SYNCOPE,33,IBk,none,none,none,0.667,0.298,0.762,0.407,0.412,0.442
+SYNCOPE,33,RandomForest,BestFirst (backward),none,none,0.750,0.064,0.695,0.116,0.118,0.217
+SYNCOPE,33,NaiveBayes,BestFirst (backward),none,none,0.043,0.085,0.697,0.042,0.057,0.044
+SYNCOPE,33,IBk,BestFirst (backward),none,none,0.750,0.064,0.696,0.116,0.118,0.217
+SYNCOPE,33,RandomForest,none,SMOTE,none,0.103,0.511,0.757,0.156,0.172,0.211
+SYNCOPE,33,NaiveBayes,none,SMOTE,none,0.030,0.191,0.736,0.033,0.052,0.049
+SYNCOPE,33,IBk,none,SMOTE,none,0.102,0.532,0.748,0.155,0.172,0.215
+SYNCOPE,33,RandomForest,none,none,SensitiveThreshold,0.297,0.468,0.792,0.354,0.364,0.364
+SYNCOPE,33,NaiveBayes,none,none,SensitiveThreshold,0.027,0.128,0.721,0.025,0.044,0.034
+SYNCOPE,33,IBk,none,none,SensitiveThreshold,0.282,0.468,0.762,0.342,0.352,0.354
+SYNCOPE,34,RandomForest,none,none,none,0.875,0.447,0.897,0.588,0.592,0.622
+SYNCOPE,34,NaiveBayes,none,none,none,0.103,0.404,0.828,0.149,0.165,0.186
+SYNCOPE,34,IBk,none,none,none,0.793,0.489,0.846,0.602,0.605,0.620
+SYNCOPE,34,RandomForest,BestFirst (backward),none,none,0.625,0.106,0.790,0.179,0.182,0.255
+SYNCOPE,34,NaiveBayes,BestFirst (backward),none,none,0.099,0.213,0.790,0.121,0.135,0.130
+SYNCOPE,34,IBk,BestFirst (backward),none,none,0.714,0.106,0.791,0.183,0.185,0.273
+SYNCOPE,34,RandomForest,none,SMOTE,none,0.135,0.660,0.884,0.208,0.224,0.282
+SYNCOPE,34,NaiveBayes,none,SMOTE,none,0.088,0.532,0.845,0.134,0.152,0.196
+SYNCOPE,34,IBk,none,SMOTE,none,0.133,0.681,0.846,0.207,0.222,0.284
+SYNCOPE,34,RandomForest,none,none,SensitiveThreshold,0.370,0.638,0.895,0.461,0.469,0.478
+SYNCOPE,34,NaiveBayes,none,none,SensitiveThreshold,0.090,0.404,0.828,0.131,0.147,0.171
+SYNCOPE,34,IBk,none,none,SensitiveThreshold,0.369,0.660,0.846,0.465,0.473,0.486
+SYNCOPE,35,RandomForest,none,none,none,0.826,0.452,0.915,0.581,0.585,0.608
+SYNCOPE,35,NaiveBayes,none,none,none,0.063,0.333,0.821,0.090,0.106,0.125
+SYNCOPE,35,IBk,none,none,none,0.760,0.452,0.821,0.564,0.567,0.583
+SYNCOPE,35,RandomForest,BestFirst (backward),none,none,0.875,0.167,0.751,0.278,0.280,0.380
+SYNCOPE,35,NaiveBayes,BestFirst (backward),none,none,0.042,0.143,0.817,0.049,0.065,0.059
+SYNCOPE,35,IBk,BestFirst (backward),none,none,0.875,0.167,0.753,0.278,0.280,0.380
+SYNCOPE,35,RandomForest,none,SMOTE,none,0.120,0.667,0.869,0.189,0.204,0.268
+SYNCOPE,35,NaiveBayes,none,SMOTE,none,0.057,0.405,0.811,0.083,0.100,0.129
+SYNCOPE,35,IBk,none,SMOTE,none,0.111,0.643,0.824,0.174,0.189,0.250
+SYNCOPE,35,RandomForest,none,none,SensitiveThreshold,0.287,0.690,0.897,0.397,0.406,0.437
+SYNCOPE,35,NaiveBayes,none,none,SensitiveThreshold,0.060,0.357,0.821,0.087,0.103,0.126
+SYNCOPE,35,IBk,none,none,SensitiveThreshold,0.283,0.714,0.821,0.396,0.405,0.441
+SYNCOPE,36,RandomForest,none,none,none,0.818,0.500,0.927,0.618,0.621,0.637
+SYNCOPE,36,NaiveBayes,none,none,none,0.042,0.222,0.819,0.056,0.070,0.078
+SYNCOPE,36,IBk,none,none,none,0.704,0.528,0.893,0.600,0.603,0.606
+SYNCOPE,36,RandomForest,BestFirst (backward),none,none,1.000,0.139,0.793,0.242,0.244,0.371
+SYNCOPE,36,NaiveBayes,BestFirst (backward),none,none,0.050,0.139,0.800,0.061,0.074,0.069
+SYNCOPE,36,IBk,BestFirst (backward),none,none,1.000,0.139,0.793,0.242,0.244,0.371
+SYNCOPE,36,RandomForest,none,SMOTE,none,0.119,0.778,0.899,0.194,0.207,0.291
+SYNCOPE,36,NaiveBayes,none,SMOTE,none,0.047,0.417,0.844,0.070,0.085,0.119
+SYNCOPE,36,IBk,none,SMOTE,none,0.121,0.833,0.912,0.199,0.211,0.305
+SYNCOPE,36,RandomForest,none,none,SensitiveThreshold,0.270,0.667,0.908,0.376,0.384,0.416
+SYNCOPE,36,NaiveBayes,none,none,SensitiveThreshold,0.041,0.250,0.819,0.055,0.070,0.081
+SYNCOPE,36,IBk,none,none,SensitiveThreshold,0.255,0.694,0.893,0.365,0.373,0.413
+SYNCOPE,37,RandomForest,none,none,none,0.833,0.319,0.834,0.458,0.462,0.513
+SYNCOPE,37,NaiveBayes,none,none,none,0.068,0.319,0.781,0.094,0.112,0.126
+SYNCOPE,37,IBk,none,none,none,0.577,0.319,0.772,0.406,0.411,0.424
+SYNCOPE,37,RandomForest,BestFirst (backward),none,none,0.800,0.085,0.705,0.152,0.154,0.259
+SYNCOPE,37,NaiveBayes,BestFirst (backward),none,none,0.101,0.234,0.709,0.127,0.141,0.138
+SYNCOPE,37,IBk,BestFirst (backward),none,none,0.800,0.085,0.686,0.152,0.154,0.259
+SYNCOPE,37,RandomForest,none,SMOTE,none,0.103,0.511,0.837,0.155,0.171,0.211
+SYNCOPE,37,NaiveBayes,none,SMOTE,none,0.064,0.426,0.796,0.093,0.111,0.141
+SYNCOPE,37,IBk,none,SMOTE,none,0.103,0.574,0.816,0.157,0.174,0.224
+SYNCOPE,37,RandomForest,none,none,SensitiveThreshold,0.284,0.447,0.866,0.338,0.347,0.347
+SYNCOPE,37,NaiveBayes,none,none,SensitiveThreshold,0.060,0.319,0.781,0.083,0.101,0.116
+SYNCOPE,37,IBk,none,none,SensitiveThreshold,0.262,0.468,0.772,0.326,0.336,0.340
+SYNCOPE,38,RandomForest,none,none,none,0.714,0.294,0.869,0.414,0.417,0.456
+SYNCOPE,38,NaiveBayes,none,none,none,0.041,0.206,0.749,0.055,0.069,0.075
+SYNCOPE,38,IBk,none,none,none,0.550,0.324,0.825,0.404,0.407,0.418
+SYNCOPE,38,RandomForest,BestFirst (backward),none,none,0.500,0.029,0.678,0.055,0.056,0.120
+SYNCOPE,38,NaiveBayes,BestFirst (backward),none,none,0.055,0.147,0.682,0.068,0.080,0.077
+SYNCOPE,38,IBk,BestFirst (backward),none,none,1.000,0.029,0.679,0.057,0.057,0.171
+SYNCOPE,38,RandomForest,none,SMOTE,none,0.062,0.441,0.809,0.096,0.109,0.148
+SYNCOPE,38,NaiveBayes,none,SMOTE,none,0.033,0.265,0.767,0.045,0.059,0.073
+SYNCOPE,38,IBk,none,SMOTE,none,0.068,0.500,0.810,0.106,0.120,0.167
+SYNCOPE,38,RandomForest,none,none,SensitiveThreshold,0.246,0.471,0.866,0.316,0.323,0.333
+SYNCOPE,38,NaiveBayes,none,none,SensitiveThreshold,0.039,0.235,0.749,0.053,0.067,0.077
+SYNCOPE,38,IBk,none,none,SensitiveThreshold,0.217,0.441,0.825,0.283,0.291,0.301
+SYNCOPE,39,RandomForest,none,none,none,0.636,0.206,0.887,0.308,0.311,0.359
+SYNCOPE,39,NaiveBayes,none,none,none,0.019,0.118,0.741,0.018,0.032,0.026
+SYNCOPE,39,IBk,none,none,none,0.467,0.206,0.804,0.282,0.286,0.306
+SYNCOPE,39,RandomForest,BestFirst (backward),none,none,0.333,0.059,0.720,0.098,0.100,0.137
+SYNCOPE,39,NaiveBayes,BestFirst (backward),none,none,0.017,0.059,0.702,0.013,0.026,0.016
+SYNCOPE,39,IBk,BestFirst (backward),none,none,0.333,0.059,0.720,0.098,0.100,0.137
+SYNCOPE,39,RandomForest,none,SMOTE,none,0.075,0.500,0.806,0.117,0.130,0.177
+SYNCOPE,39,NaiveBayes,none,SMOTE,none,0.026,0.235,0.731,0.032,0.047,0.055
+SYNCOPE,39,IBk,none,SMOTE,none,0.075,0.529,0.787,0.119,0.132,0.183
+SYNCOPE,39,RandomForest,none,none,SensitiveThreshold,0.233,0.412,0.866,0.290,0.298,0.302
+SYNCOPE,39,NaiveBayes,none,none,SensitiveThreshold,0.024,0.176,0.741,0.028,0.042,0.044
+SYNCOPE,39,IBk,none,none,SensitiveThreshold,0.219,0.412,0.804,0.278,0.286,0.292
+SYNCOPE,40,RandomForest,none,none,none,0.786,0.468,0.919,0.583,0.587,0.603
+SYNCOPE,40,NaiveBayes,none,none,none,0.065,0.277,0.807,0.088,0.105,0.113
+SYNCOPE,40,IBk,none,none,none,0.750,0.447,0.818,0.556,0.560,0.575
+SYNCOPE,40,RandomForest,BestFirst (backward),none,none,0.667,0.170,0.667,0.268,0.271,0.333
+SYNCOPE,40,NaiveBayes,BestFirst (backward),none,none,0.070,0.149,0.743,0.081,0.095,0.087
+SYNCOPE,40,IBk,BestFirst (backward),none,none,0.727,0.170,0.668,0.273,0.276,0.349
+SYNCOPE,40,RandomForest,none,SMOTE,none,0.108,0.574,0.860,0.166,0.182,0.231
+SYNCOPE,40,NaiveBayes,none,SMOTE,none,0.063,0.426,0.797,0.092,0.110,0.140
+SYNCOPE,40,IBk,none,SMOTE,none,0.104,0.574,0.810,0.160,0.176,0.226
+SYNCOPE,40,RandomForest,none,none,SensitiveThreshold,0.408,0.660,0.901,0.497,0.504,0.512
+SYNCOPE,40,NaiveBayes,none,none,SensitiveThreshold,0.063,0.319,0.807,0.087,0.105,0.120
+SYNCOPE,40,IBk,none,none,SensitiveThreshold,0.389,0.596,0.818,0.463,0.471,0.474
+SYNCOPE,41,RandomForest,none,none,none,0.882,0.333,0.850,0.481,0.484,0.540
+SYNCOPE,41,NaiveBayes,none,none,none,0.039,0.178,0.785,0.046,0.064,0.061
+SYNCOPE,41,IBk,none,none,none,0.789,0.333,0.782,0.465,0.469,0.510
+SYNCOPE,41,RandomForest,BestFirst (backward),none,none,0.875,0.156,0.777,0.262,0.264,0.367
+SYNCOPE,41,NaiveBayes,BestFirst (backward),none,none,0.043,0.111,0.741,0.047,0.063,0.053
+SYNCOPE,41,IBk,BestFirst (backward),none,none,0.875,0.156,0.777,0.262,0.264,0.367
+SYNCOPE,41,RandomForest,none,SMOTE,none,0.109,0.489,0.831,0.163,0.178,0.214
+SYNCOPE,41,NaiveBayes,none,SMOTE,none,0.050,0.333,0.758,0.069,0.087,0.105
+SYNCOPE,41,IBk,none,SMOTE,none,0.105,0.511,0.787,0.159,0.174,0.214
+SYNCOPE,41,RandomForest,none,none,SensitiveThreshold,0.325,0.556,0.860,0.401,0.410,0.416
+SYNCOPE,41,NaiveBayes,none,none,SensitiveThreshold,0.043,0.222,0.785,0.055,0.073,0.075
+SYNCOPE,41,IBk,none,none,SensitiveThreshold,0.316,0.556,0.782,0.395,0.403,0.411
+SYNCOPE,42,RandomForest,none,none,none,0.857,0.308,0.866,0.450,0.453,0.511
+SYNCOPE,42,NaiveBayes,none,none,none,0.071,0.333,0.816,0.103,0.118,0.137
+SYNCOPE,42,IBk,none,none,none,0.591,0.333,0.785,0.422,0.426,0.440
+SYNCOPE,42,RandomForest,BestFirst (backward),none,none,0.500,0.051,0.689,0.091,0.093,0.158
+SYNCOPE,42,NaiveBayes,BestFirst (backward),none,none,0.072,0.179,0.727,0.090,0.103,0.100
+SYNCOPE,42,IBk,BestFirst (backward),none,none,0.500,0.051,0.666,0.091,0.093,0.158
+SYNCOPE,42,RandomForest,none,SMOTE,none,0.093,0.538,0.817,0.144,0.158,0.207
+SYNCOPE,42,NaiveBayes,none,SMOTE,none,0.057,0.410,0.800,0.085,0.100,0.132
+SYNCOPE,42,IBk,none,SMOTE,none,0.089,0.564,0.776,0.140,0.154,0.208
+SYNCOPE,42,RandomForest,none,none,SensitiveThreshold,0.234,0.462,0.836,0.301,0.310,0.319
+SYNCOPE,42,NaiveBayes,none,none,SensitiveThreshold,0.070,0.385,0.816,0.104,0.119,0.146
+SYNCOPE,42,IBk,none,none,SensitiveThreshold,0.221,0.487,0.785,0.295,0.304,0.319
+SYNCOPE,43,RandomForest,none,none,none,0.813,0.406,0.921,0.539,0.542,0.572
+SYNCOPE,43,NaiveBayes,none,none,none,0.037,0.219,0.763,0.051,0.064,0.073
+SYNCOPE,43,IBk,none,none,none,0.722,0.406,0.817,0.517,0.520,0.539
+SYNCOPE,43,RandomForest,BestFirst (backward),none,none,1.000,0.094,0.764,0.170,0.171,0.305
+SYNCOPE,43,NaiveBayes,BestFirst (backward),none,none,0.040,0.125,0.714,0.049,0.061,0.057
+SYNCOPE,43,IBk,BestFirst (backward),none,none,1.000,0.094,0.765,0.170,0.171,0.305
+SYNCOPE,43,RandomForest,none,SMOTE,none,0.095,0.656,0.903,0.155,0.167,0.237
+SYNCOPE,43,NaiveBayes,none,SMOTE,none,0.033,0.313,0.782,0.046,0.060,0.081
+SYNCOPE,43,IBk,none,SMOTE,none,0.102,0.750,0.887,0.168,0.180,0.264
+SYNCOPE,43,RandomForest,none,none,SensitiveThreshold,0.254,0.500,0.918,0.330,0.337,0.349
+SYNCOPE,43,NaiveBayes,none,none,SensitiveThreshold,0.037,0.250,0.762,0.051,0.065,0.078
+SYNCOPE,43,IBk,none,none,SensitiveThreshold,0.242,0.500,0.817,0.319,0.327,0.341
+SYNCOPE,44,RandomForest,none,none,none,0.667,0.294,0.899,0.405,0.408,0.440
+SYNCOPE,44,NaiveBayes,none,none,none,0.043,0.235,0.780,0.058,0.072,0.082
+SYNCOPE,44,IBk,none,none,none,0.522,0.353,0.803,0.417,0.421,0.425
+SYNCOPE,44,RandomForest,BestFirst (backward),none,none,0.500,0.029,0.706,0.055,0.056,0.120
+SYNCOPE,44,NaiveBayes,BestFirst (backward),none,none,0.041,0.118,0.686,0.049,0.061,0.056
+SYNCOPE,44,IBk,BestFirst (backward),none,none,1.000,0.029,0.707,0.057,0.057,0.171
+SYNCOPE,44,RandomForest,none,SMOTE,none,0.093,0.588,0.849,0.147,0.160,0.219
+SYNCOPE,44,NaiveBayes,none,SMOTE,none,0.033,0.265,0.793,0.044,0.058,0.072
+SYNCOPE,44,IBk,none,SMOTE,none,0.093,0.618,0.793,0.149,0.162,0.225
+SYNCOPE,44,RandomForest,none,none,SensitiveThreshold,0.273,0.529,0.864,0.353,0.360,0.373
+SYNCOPE,44,NaiveBayes,none,none,SensitiveThreshold,0.038,0.235,0.780,0.051,0.065,0.076
+SYNCOPE,44,IBk,none,none,SensitiveThreshold,0.269,0.529,0.803,0.349,0.356,0.370
+SYNCOPE,45,RandomForest,none,none,none,0.958,0.411,0.844,0.571,0.575,0.624
+SYNCOPE,45,NaiveBayes,none,none,none,0.082,0.286,0.817,0.108,0.127,0.131
+SYNCOPE,45,IBk,none,none,none,0.889,0.429,0.841,0.574,0.578,0.614
+SYNCOPE,45,RandomForest,BestFirst (backward),none,none,0.400,0.036,0.802,0.063,0.066,0.116
+SYNCOPE,45,NaiveBayes,BestFirst (backward),none,none,0.080,0.161,0.776,0.089,0.107,0.095
+SYNCOPE,45,IBk,BestFirst (backward),none,none,0.500,0.018,0.786,0.034,0.034,0.093
+SYNCOPE,45,RandomForest,none,SMOTE,none,0.163,0.696,0.824,0.246,0.264,0.319
+SYNCOPE,45,NaiveBayes,none,SMOTE,none,0.061,0.339,0.830,0.082,0.104,0.116
+SYNCOPE,45,IBk,none,SMOTE,none,0.160,0.696,0.842,0.244,0.261,0.317
+SYNCOPE,45,RandomForest,none,none,SensitiveThreshold,0.457,0.571,0.842,0.500,0.508,0.503
+SYNCOPE,45,NaiveBayes,none,none,SensitiveThreshold,0.075,0.304,0.817,0.100,0.121,0.127
+SYNCOPE,45,IBk,none,none,SensitiveThreshold,0.452,0.589,0.841,0.504,0.512,0.508
+SYNCOPE,46,RandomForest,none,none,none,0.750,0.265,0.862,0.389,0.391,0.443
+SYNCOPE,46,NaiveBayes,none,none,none,0.063,0.353,0.782,0.095,0.108,0.133
+SYNCOPE,46,IBk,none,none,none,0.611,0.324,0.817,0.420,0.423,0.441
+SYNCOPE,46,RandomForest,BestFirst (backward),none,none,0.778,0.206,0.741,0.323,0.326,0.398
+SYNCOPE,46,NaiveBayes,BestFirst (backward),none,none,0.093,0.324,0.781,0.133,0.145,0.161
+SYNCOPE,46,IBk,BestFirst (backward),none,none,0.778,0.206,0.689,0.323,0.326,0.398
+SYNCOPE,46,RandomForest,none,SMOTE,none,0.078,0.500,0.823,0.123,0.135,0.182
+SYNCOPE,46,NaiveBayes,none,SMOTE,none,0.047,0.412,0.798,0.071,0.085,0.119
+SYNCOPE,46,IBk,none,SMOTE,none,0.077,0.529,0.789,0.121,0.134,0.186
+SYNCOPE,46,RandomForest,none,none,SensitiveThreshold,0.228,0.529,0.893,0.310,0.319,0.339
+SYNCOPE,46,NaiveBayes,none,none,SensitiveThreshold,0.053,0.353,0.782,0.078,0.092,0.118
+SYNCOPE,46,IBk,none,none,SensitiveThreshold,0.235,0.559,0.817,0.322,0.330,0.354
+SYNCOPE,47,RandomForest,none,none,none,0.750,0.462,0.951,0.568,0.571,0.585
+SYNCOPE,47,NaiveBayes,none,none,none,0.051,0.282,0.803,0.071,0.087,0.100
+SYNCOPE,47,IBk,none,none,none,0.621,0.462,0.903,0.525,0.529,0.531
+SYNCOPE,47,RandomForest,BestFirst (backward),none,none,1.000,0.026,0.763,0.050,0.050,0.159
+SYNCOPE,47,NaiveBayes,BestFirst (backward),none,none,0.043,0.128,0.721,0.051,0.065,0.059
+SYNCOPE,47,IBk,BestFirst (backward),none,none,1.000,0.026,0.764,0.050,0.050,0.159
+SYNCOPE,47,RandomForest,none,SMOTE,none,0.107,0.641,0.902,0.170,0.184,0.247
+SYNCOPE,47,NaiveBayes,none,SMOTE,none,0.044,0.359,0.806,0.063,0.079,0.103
+SYNCOPE,47,IBk,none,SMOTE,none,0.100,0.641,0.891,0.158,0.172,0.237
+SYNCOPE,47,RandomForest,none,none,SensitiveThreshold,0.313,0.667,0.950,0.418,0.426,0.450
+SYNCOPE,47,NaiveBayes,none,none,SensitiveThreshold,0.045,0.282,0.803,0.062,0.078,0.092
+SYNCOPE,47,IBk,none,none,SensitiveThreshold,0.293,0.692,0.902,0.404,0.412,0.443
+SYNCOPE,48,RandomForest,none,none,none,0.611,0.256,0.898,0.357,0.361,0.391
+SYNCOPE,48,NaiveBayes,none,none,none,0.037,0.163,0.733,0.043,0.060,0.056
+SYNCOPE,48,IBk,none,none,none,0.522,0.279,0.850,0.359,0.364,0.377
+SYNCOPE,48,RandomForest,BestFirst (backward),none,none,0.800,0.093,0.763,0.165,0.167,0.271
+SYNCOPE,48,NaiveBayes,BestFirst (backward),none,none,0.038,0.093,0.719,0.040,0.054,0.044
+SYNCOPE,48,IBk,BestFirst (backward),none,none,1.000,0.093,0.764,0.169,0.170,0.304
+SYNCOPE,48,RandomForest,none,SMOTE,none,0.103,0.535,0.876,0.157,0.172,0.217
+SYNCOPE,48,NaiveBayes,none,SMOTE,none,0.043,0.302,0.762,0.058,0.076,0.090
+SYNCOPE,48,IBk,none,SMOTE,none,0.106,0.581,0.869,0.165,0.180,0.232
+SYNCOPE,48,RandomForest,none,none,SensitiveThreshold,0.235,0.465,0.900,0.303,0.313,0.321
+SYNCOPE,48,NaiveBayes,none,none,SensitiveThreshold,0.047,0.233,0.733,0.062,0.078,0.084
+SYNCOPE,48,IBk,none,none,SensitiveThreshold,0.220,0.465,0.850,0.288,0.299,0.309
+SYNCOPE,49,RandomForest,none,none,none,0.722,0.361,0.855,0.478,0.481,0.508
+SYNCOPE,49,NaiveBayes,none,none,none,0.030,0.167,0.722,0.036,0.051,0.051
+SYNCOPE,49,IBk,none,none,none,0.636,0.389,0.861,0.479,0.483,0.494
+SYNCOPE,49,RandomForest,BestFirst (backward),none,none,1.000,0.028,0.730,0.054,0.054,0.166
+SYNCOPE,49,NaiveBayes,BestFirst (backward),none,none,0.037,0.111,0.714,0.043,0.056,0.049
+SYNCOPE,49,IBk,BestFirst (backward),none,none,1.000,0.028,0.731,0.054,0.054,0.166
+SYNCOPE,49,RandomForest,none,SMOTE,none,0.120,0.667,0.851,0.191,0.203,0.270
+SYNCOPE,49,NaiveBayes,none,SMOTE,none,0.035,0.278,0.717,0.047,0.063,0.077
+SYNCOPE,49,IBk,none,SMOTE,none,0.111,0.667,0.854,0.178,0.190,0.258
+SYNCOPE,49,RandomForest,none,none,SensitiveThreshold,0.339,0.528,0.877,0.407,0.413,0.417
+SYNCOPE,49,NaiveBayes,none,none,SensitiveThreshold,0.038,0.250,0.722,0.052,0.067,0.078
+SYNCOPE,49,IBk,none,none,SensitiveThreshold,0.317,0.528,0.861,0.389,0.396,0.402
+SYNCOPE,50,RandomForest,none,none,none,0.882,0.375,0.915,0.523,0.526,0.573
+SYNCOPE,50,NaiveBayes,none,none,none,0.037,0.175,0.819,0.045,0.061,0.060
+SYNCOPE,50,IBk,none,none,none,0.739,0.425,0.873,0.536,0.540,0.557
+SYNCOPE,50,RandomForest,BestFirst (backward),none,none,0.714,0.125,0.779,0.210,0.213,0.296
+SYNCOPE,50,NaiveBayes,BestFirst (backward),none,none,0.045,0.100,0.750,0.049,0.062,0.053
+SYNCOPE,50,IBk,BestFirst (backward),none,none,0.714,0.125,0.779,0.210,0.213,0.296
+SYNCOPE,50,RandomForest,none,SMOTE,none,0.114,0.675,0.889,0.182,0.196,0.263
+SYNCOPE,50,NaiveBayes,none,SMOTE,none,0.040,0.300,0.832,0.054,0.071,0.086
+SYNCOPE,50,IBk,none,SMOTE,none,0.104,0.650,0.855,0.164,0.179,0.243
+SYNCOPE,50,RandomForest,none,none,SensitiveThreshold,0.355,0.675,0.901,0.458,0.466,0.483
+SYNCOPE,50,NaiveBayes,none,none,SensitiveThreshold,0.032,0.175,0.819,0.037,0.054,0.053
+SYNCOPE,50,IBk,none,none,SensitiveThreshold,0.341,0.700,0.873,0.452,0.459,0.482
+SYNCOPE,51,RandomForest,none,none,none,0.684,0.342,0.877,0.453,0.456,0.481
+SYNCOPE,51,NaiveBayes,none,none,none,0.032,0.158,0.736,0.038,0.054,0.052
+SYNCOPE,51,IBk,none,none,none,0.565,0.342,0.850,0.422,0.426,0.436
+SYNCOPE,51,RandomForest,BestFirst (backward),none,none,0.429,0.079,0.798,0.131,0.133,0.181
+SYNCOPE,51,NaiveBayes,BestFirst (backward),none,none,0.032,0.105,0.759,0.035,0.049,0.042
+SYNCOPE,51,IBk,BestFirst (backward),none,none,0.500,0.079,0.778,0.134,0.136,0.196
+SYNCOPE,51,RandomForest,none,SMOTE,none,0.106,0.684,0.873,0.170,0.184,0.254
+SYNCOPE,51,NaiveBayes,none,SMOTE,none,0.037,0.289,0.754,0.050,0.066,0.081
+SYNCOPE,51,IBk,none,SMOTE,none,0.099,0.684,0.877,0.159,0.173,0.245
+SYNCOPE,51,RandomForest,none,none,SensitiveThreshold,0.316,0.658,0.877,0.420,0.427,0.449
+SYNCOPE,51,NaiveBayes,none,none,SensitiveThreshold,0.028,0.158,0.736,0.032,0.048,0.046
+SYNCOPE,51,IBk,none,none,SensitiveThreshold,0.293,0.632,0.850,0.392,0.400,0.422
+SYNCOPE,52,RandomForest,none,none,none,0.875,0.368,0.860,0.516,0.519,0.565
+SYNCOPE,52,NaiveBayes,none,none,none,0.036,0.158,0.754,0.043,0.058,0.056
+SYNCOPE,52,IBk,none,none,none,0.714,0.395,0.859,0.505,0.508,0.528
+SYNCOPE,52,RandomForest,BestFirst (backward),none,none,1.000,0.026,0.737,0.051,0.051,0.161
+SYNCOPE,52,NaiveBayes,BestFirst (backward),none,none,0.041,0.105,0.707,0.046,0.059,0.052
+SYNCOPE,52,IBk,BestFirst (backward),none,none,1.000,0.026,0.738,0.051,0.051,0.161
+SYNCOPE,52,RandomForest,none,SMOTE,none,0.112,0.658,0.851,0.177,0.191,0.256
+SYNCOPE,52,NaiveBayes,none,SMOTE,none,0.034,0.237,0.746,0.044,0.060,0.068
+SYNCOPE,52,IBk,none,SMOTE,none,0.112,0.684,0.873,0.178,0.192,0.262
+SYNCOPE,52,RandomForest,none,none,SensitiveThreshold,0.333,0.500,0.855,0.393,0.400,0.401
+SYNCOPE,52,NaiveBayes,none,none,SensitiveThreshold,0.041,0.211,0.754,0.053,0.068,0.073
+SYNCOPE,52,IBk,none,none,SensitiveThreshold,0.306,0.500,0.859,0.373,0.380,0.384
+SYNCOPE,53,RandomForest,none,none,none,0.909,0.465,0.887,0.613,0.615,0.648
+SYNCOPE,53,NaiveBayes,none,none,none,0.085,0.372,0.801,0.123,0.139,0.160
+SYNCOPE,53,IBk,none,none,none,0.828,0.558,0.841,0.664,0.667,0.677
+SYNCOPE,53,RandomForest,BestFirst (backward),none,none,0.800,0.279,0.841,0.411,0.414,0.470
+SYNCOPE,53,NaiveBayes,BestFirst (backward),none,none,0.107,0.302,0.802,0.145,0.159,0.166
+SYNCOPE,53,IBk,BestFirst (backward),none,none,0.917,0.256,0.770,0.397,0.400,0.482
+SYNCOPE,53,RandomForest,none,SMOTE,none,0.120,0.628,0.834,0.187,0.201,0.259
+SYNCOPE,53,NaiveBayes,none,SMOTE,none,0.063,0.465,0.803,0.093,0.110,0.148
+SYNCOPE,53,IBk,none,SMOTE,none,0.120,0.651,0.834,0.187,0.202,0.263
+SYNCOPE,53,RandomForest,none,none,SensitiveThreshold,0.329,0.651,0.882,0.429,0.438,0.455
+SYNCOPE,53,NaiveBayes,none,none,SensitiveThreshold,0.072,0.372,0.801,0.104,0.120,0.144
+SYNCOPE,53,IBk,none,none,SensitiveThreshold,0.326,0.674,0.841,0.431,0.439,0.461
+SYNCOPE,54,RandomForest,none,none,none,0.889,0.356,0.892,0.505,0.508,0.559
+SYNCOPE,54,NaiveBayes,none,none,none,0.053,0.244,0.784,0.070,0.087,0.093
+SYNCOPE,54,IBk,none,none,none,0.667,0.356,0.807,0.460,0.464,0.483
+SYNCOPE,54,RandomForest,BestFirst (backward),none,none,1.000,0.067,0.727,0.124,0.125,0.257
+SYNCOPE,54,NaiveBayes,BestFirst (backward),none,none,0.063,0.156,0.742,0.074,0.089,0.082
+SYNCOPE,54,IBk,BestFirst (backward),none,none,1.000,0.067,0.706,0.124,0.125,0.257
+SYNCOPE,54,RandomForest,none,SMOTE,none,0.108,0.556,0.856,0.165,0.181,0.228
+SYNCOPE,54,NaiveBayes,none,SMOTE,none,0.063,0.400,0.778,0.091,0.108,0.136
+SYNCOPE,54,IBk,none,SMOTE,none,0.121,0.644,0.829,0.188,0.204,0.262
+SYNCOPE,54,RandomForest,none,none,SensitiveThreshold,0.357,0.444,0.890,0.388,0.396,0.391
+SYNCOPE,54,NaiveBayes,none,none,SensitiveThreshold,0.067,0.333,0.784,0.094,0.111,0.128
+SYNCOPE,54,IBk,none,none,SensitiveThreshold,0.323,0.444,0.807,0.366,0.374,0.370
+SYNCOPE,55,RandomForest,none,none,none,0.889,0.390,0.884,0.539,0.542,0.586
+SYNCOPE,55,NaiveBayes,none,none,none,0.052,0.268,0.793,0.072,0.088,0.098
+SYNCOPE,55,IBk,none,none,none,0.727,0.390,0.785,0.504,0.508,0.529
+SYNCOPE,55,RandomForest,BestFirst (backward),none,none,0.600,0.073,0.660,0.128,0.130,0.207
+SYNCOPE,55,NaiveBayes,BestFirst (backward),none,none,0.054,0.146,0.711,0.064,0.078,0.073
+SYNCOPE,55,IBk,BestFirst (backward),none,none,0.667,0.049,0.661,0.090,0.091,0.179
+SYNCOPE,55,RandomForest,none,SMOTE,none,0.098,0.537,0.831,0.151,0.166,0.213
+SYNCOPE,55,NaiveBayes,none,SMOTE,none,0.051,0.390,0.777,0.073,0.090,0.117
+SYNCOPE,55,IBk,none,SMOTE,none,0.095,0.537,0.795,0.146,0.161,0.208
+SYNCOPE,55,RandomForest,none,none,SensitiveThreshold,0.253,0.585,0.873,0.344,0.353,0.375
+SYNCOPE,55,NaiveBayes,none,none,SensitiveThreshold,0.053,0.317,0.792,0.074,0.090,0.108
+SYNCOPE,55,IBk,none,none,SensitiveThreshold,0.242,0.585,0.785,0.333,0.343,0.367
+SYNCOPE,56,RandomForest,none,none,none,0.636,0.156,0.882,0.247,0.250,0.311
+SYNCOPE,56,NaiveBayes,none,none,none,0.061,0.289,0.804,0.084,0.101,0.112
+SYNCOPE,56,IBk,none,none,none,0.467,0.156,0.708,0.229,0.233,0.265
+SYNCOPE,56,RandomForest,BestFirst (backward),none,none,0.250,0.022,0.705,0.039,0.041,0.072
+SYNCOPE,56,NaiveBayes,BestFirst (backward),none,none,0.063,0.156,0.712,0.074,0.089,0.082
+SYNCOPE,56,IBk,BestFirst (backward),none,none,0.333,0.022,0.665,0.040,0.042,0.084
+SYNCOPE,56,RandomForest,none,SMOTE,none,0.084,0.400,0.787,0.122,0.138,0.164
+SYNCOPE,56,NaiveBayes,none,SMOTE,none,0.050,0.333,0.780,0.068,0.086,0.104
+SYNCOPE,56,IBk,none,SMOTE,none,0.081,0.400,0.707,0.118,0.134,0.160
+SYNCOPE,56,RandomForest,none,none,SensitiveThreshold,0.238,0.333,0.833,0.268,0.278,0.272
+SYNCOPE,56,NaiveBayes,none,none,SensitiveThreshold,0.054,0.289,0.804,0.073,0.091,0.102
+SYNCOPE,56,IBk,none,none,SensitiveThreshold,0.213,0.378,0.708,0.261,0.272,0.273
+SYNCOPE,57,RandomForest,none,none,none,0.818,0.450,0.891,0.578,0.581,0.604
+SYNCOPE,57,NaiveBayes,none,none,none,0.079,0.400,0.842,0.117,0.132,0.160
+SYNCOPE,57,IBk,none,none,none,0.760,0.475,0.834,0.581,0.585,0.598
+SYNCOPE,57,RandomForest,BestFirst (backward),none,none,0.500,0.100,0.823,0.164,0.167,0.220
+SYNCOPE,57,NaiveBayes,BestFirst (backward),none,none,0.066,0.200,0.780,0.085,0.099,0.099
+SYNCOPE,57,IBk,BestFirst (backward),none,none,0.800,0.100,0.826,0.176,0.178,0.281
+SYNCOPE,57,RandomForest,none,SMOTE,none,0.124,0.625,0.898,0.194,0.207,0.264
+SYNCOPE,57,NaiveBayes,none,SMOTE,none,0.055,0.425,0.854,0.081,0.097,0.131
+SYNCOPE,57,IBk,none,SMOTE,none,0.116,0.625,0.837,0.181,0.195,0.254
+SYNCOPE,57,RandomForest,none,none,SensitiveThreshold,0.299,0.500,0.920,0.366,0.374,0.378
+SYNCOPE,57,NaiveBayes,none,none,SensitiveThreshold,0.075,0.425,0.842,0.112,0.127,0.159
+SYNCOPE,57,IBk,none,none,SensitiveThreshold,0.299,0.500,0.834,0.366,0.374,0.378
+SYNCOPE,58,RandomForest,none,none,none,0.733,0.324,0.827,0.446,0.449,0.484
+SYNCOPE,58,NaiveBayes,none,none,none,0.015,0.088,0.695,0.011,0.025,0.016
+SYNCOPE,58,IBk,none,none,none,0.632,0.353,0.841,0.449,0.453,0.469
+SYNCOPE,58,RandomForest,BestFirst (backward),none,none,1.000,0.029,0.682,0.057,0.057,0.171
+SYNCOPE,58,NaiveBayes,BestFirst (backward),none,none,0.028,0.088,0.641,0.030,0.042,0.035
+SYNCOPE,58,IBk,BestFirst (backward),none,none,1.000,0.029,0.683,0.057,0.057,0.171
+SYNCOPE,58,RandomForest,none,SMOTE,none,0.100,0.588,0.833,0.159,0.171,0.229
+SYNCOPE,58,NaiveBayes,none,SMOTE,none,0.015,0.147,0.709,0.012,0.027,0.022
+SYNCOPE,58,IBk,none,SMOTE,none,0.095,0.588,0.816,0.151,0.164,0.222
+SYNCOPE,58,RandomForest,none,none,SensitiveThreshold,0.269,0.529,0.845,0.349,0.356,0.370
+SYNCOPE,58,NaiveBayes,none,none,SensitiveThreshold,0.013,0.088,0.695,0.008,0.023,0.012
+SYNCOPE,58,IBk,none,none,SensitiveThreshold,0.261,0.529,0.841,0.342,0.350,0.364
+SYNCOPE,59,RandomForest,none,none,none,0.842,0.390,0.902,0.530,0.533,0.571
+SYNCOPE,59,NaiveBayes,none,none,none,0.063,0.293,0.793,0.088,0.103,0.116
+SYNCOPE,59,IBk,none,none,none,0.739,0.415,0.865,0.528,0.531,0.550
+SYNCOPE,59,RandomForest,BestFirst (backward),none,none,0.786,0.268,0.739,0.397,0.400,0.456
+SYNCOPE,59,NaiveBayes,BestFirst (backward),none,none,0.077,0.220,0.813,0.100,0.114,0.115
+SYNCOPE,59,IBk,BestFirst (backward),none,none,0.786,0.268,0.720,0.397,0.400,0.456
+SYNCOPE,59,RandomForest,none,SMOTE,none,0.108,0.610,0.885,0.169,0.184,0.241
+SYNCOPE,59,NaiveBayes,none,SMOTE,none,0.068,0.463,0.810,0.102,0.118,0.157
+SYNCOPE,59,IBk,none,SMOTE,none,0.109,0.634,0.863,0.171,0.186,0.247
+SYNCOPE,59,RandomForest,none,none,SensitiveThreshold,0.286,0.585,0.893,0.375,0.384,0.401
+SYNCOPE,59,NaiveBayes,none,none,SensitiveThreshold,0.062,0.341,0.793,0.089,0.105,0.126
+SYNCOPE,59,IBk,none,none,SensitiveThreshold,0.282,0.585,0.865,0.372,0.381,0.398
+SYNCOPE,60,RandomForest,none,none,none,0.923,0.293,0.864,0.442,0.444,0.517
+SYNCOPE,60,NaiveBayes,none,none,none,0.077,0.390,0.813,0.113,0.128,0.155
+SYNCOPE,60,IBk,none,none,none,0.867,0.317,0.764,0.461,0.464,0.522
+SYNCOPE,60,RandomForest,BestFirst (backward),none,none,0.571,0.098,0.773,0.164,0.167,0.233
+SYNCOPE,60,NaiveBayes,BestFirst (backward),none,none,0.085,0.220,0.791,0.109,0.122,0.122
+SYNCOPE,60,IBk,BestFirst (backward),none,none,0.750,0.073,0.774,0.132,0.133,0.232
+SYNCOPE,60,RandomForest,none,SMOTE,none,0.090,0.488,0.831,0.138,0.153,0.193
+SYNCOPE,60,NaiveBayes,none,SMOTE,none,0.060,0.488,0.828,0.089,0.106,0.148
+SYNCOPE,60,IBk,none,SMOTE,none,0.102,0.585,0.820,0.159,0.174,0.228
+SYNCOPE,60,RandomForest,none,none,SensitiveThreshold,0.284,0.463,0.857,0.343,0.352,0.354
+SYNCOPE,60,NaiveBayes,none,none,SensitiveThreshold,0.074,0.439,0.813,0.111,0.126,0.161
+SYNCOPE,60,IBk,none,none,SensitiveThreshold,0.290,0.488,0.764,0.355,0.364,0.368
+SYNCOPE,61,RandomForest,none,none,none,0.471,0.242,0.884,0.316,0.320,0.334
+SYNCOPE,61,NaiveBayes,none,none,none,0.067,0.364,0.820,0.101,0.114,0.141
+SYNCOPE,61,IBk,none,none,none,0.588,0.303,0.785,0.397,0.400,0.419
+SYNCOPE,61,RandomForest,BestFirst (backward),none,none,0.400,0.061,0.735,0.103,0.105,0.153
+SYNCOPE,61,NaiveBayes,BestFirst (backward),none,none,0.074,0.242,0.817,0.102,0.113,0.121
+SYNCOPE,61,IBk,BestFirst (backward),none,none,0.333,0.061,0.652,0.100,0.103,0.139
+SYNCOPE,61,RandomForest,none,SMOTE,none,0.081,0.545,0.835,0.129,0.141,0.195
+SYNCOPE,61,NaiveBayes,none,SMOTE,none,0.050,0.424,0.811,0.076,0.090,0.127
+SYNCOPE,61,IBk,none,SMOTE,none,0.078,0.545,0.789,0.124,0.136,0.191
+SYNCOPE,61,RandomForest,none,none,SensitiveThreshold,0.214,0.545,0.869,0.299,0.308,0.334
+SYNCOPE,61,NaiveBayes,none,none,SensitiveThreshold,0.063,0.394,0.820,0.096,0.109,0.141
+SYNCOPE,61,IBk,none,none,SensitiveThreshold,0.214,0.545,0.785,0.299,0.308,0.334
+SYNCOPE,62,RandomForest,none,none,none,0.789,0.375,0.897,0.505,0.508,0.541
+SYNCOPE,62,NaiveBayes,none,none,none,0.035,0.175,0.759,0.042,0.058,0.057
+SYNCOPE,62,IBk,none,none,none,0.696,0.400,0.813,0.504,0.508,0.524
+SYNCOPE,62,RandomForest,BestFirst (backward),none,none,0.800,0.100,0.732,0.176,0.178,0.281
+SYNCOPE,62,NaiveBayes,BestFirst (backward),none,none,0.045,0.125,0.700,0.053,0.067,0.060
+SYNCOPE,62,IBk,BestFirst (backward),none,none,0.800,0.100,0.709,0.176,0.178,0.281
+SYNCOPE,62,RandomForest,none,SMOTE,none,0.104,0.600,0.844,0.163,0.177,0.234
+SYNCOPE,62,NaiveBayes,none,SMOTE,none,0.042,0.300,0.769,0.057,0.073,0.089
+SYNCOPE,62,IBk,none,SMOTE,none,0.109,0.675,0.824,0.174,0.188,0.256
+SYNCOPE,62,RandomForest,none,none,SensitiveThreshold,0.299,0.500,0.894,0.366,0.374,0.378
+SYNCOPE,62,NaiveBayes,none,none,SensitiveThreshold,0.035,0.200,0.759,0.044,0.060,0.062
+SYNCOPE,62,IBk,none,none,SensitiveThreshold,0.284,0.525,0.813,0.360,0.368,0.378
+SYNCOPE,63,RandomForest,none,none,none,0.885,0.418,0.846,0.564,0.568,0.605
+SYNCOPE,63,NaiveBayes,none,none,none,0.054,0.182,0.783,0.063,0.083,0.076
+SYNCOPE,63,IBk,none,none,none,0.724,0.382,0.831,0.495,0.500,0.521
+SYNCOPE,63,RandomForest,BestFirst (backward),none,none,0.600,0.055,0.685,0.098,0.100,0.178
+SYNCOPE,63,NaiveBayes,BestFirst (backward),none,none,0.055,0.091,0.637,0.052,0.068,0.054
+SYNCOPE,63,IBk,BestFirst (backward),none,none,0.750,0.055,0.686,0.100,0.102,0.200
+SYNCOPE,63,RandomForest,none,SMOTE,none,0.132,0.636,0.825,0.200,0.218,0.270
+SYNCOPE,63,NaiveBayes,none,SMOTE,none,0.059,0.291,0.798,0.077,0.098,0.105
+SYNCOPE,63,IBk,none,SMOTE,none,0.128,0.655,0.839,0.195,0.214,0.269
+SYNCOPE,63,RandomForest,none,none,SensitiveThreshold,0.402,0.600,0.858,0.473,0.482,0.483
+SYNCOPE,63,NaiveBayes,none,none,SensitiveThreshold,0.050,0.200,0.783,0.059,0.080,0.075
+SYNCOPE,63,IBk,none,none,SensitiveThreshold,0.386,0.618,0.831,0.466,0.476,0.480
+SYNCOPE,64,RandomForest,none,none,none,0.632,0.353,0.848,0.449,0.453,0.469
+SYNCOPE,64,NaiveBayes,none,none,none,0.036,0.206,0.723,0.047,0.061,0.067
+SYNCOPE,64,IBk,none,none,none,0.577,0.441,0.805,0.496,0.500,0.501
+SYNCOPE,64,RandomForest,BestFirst (backward),none,none,0.667,0.059,0.702,0.107,0.108,0.196
+SYNCOPE,64,NaiveBayes,BestFirst (backward),none,none,0.031,0.088,0.670,0.034,0.046,0.039
+SYNCOPE,64,IBk,BestFirst (backward),none,none,0.667,0.059,0.674,0.107,0.108,0.196
+SYNCOPE,64,RandomForest,none,SMOTE,none,0.097,0.618,0.824,0.156,0.168,0.231
+SYNCOPE,64,NaiveBayes,none,SMOTE,none,0.027,0.235,0.741,0.034,0.048,0.057
+SYNCOPE,64,IBk,none,SMOTE,none,0.092,0.618,0.808,0.148,0.160,0.224
+SYNCOPE,64,RandomForest,none,none,SensitiveThreshold,0.234,0.529,0.844,0.316,0.324,0.344
+SYNCOPE,64,NaiveBayes,none,none,SensitiveThreshold,0.030,0.206,0.723,0.038,0.052,0.058
+SYNCOPE,64,IBk,none,none,SensitiveThreshold,0.241,0.588,0.805,0.334,0.342,0.369
+SYNCOPE,65,RandomForest,none,none,none,0.815,0.537,0.915,0.644,0.647,0.658
+SYNCOPE,65,NaiveBayes,none,none,none,0.082,0.366,0.809,0.119,0.133,0.155
+SYNCOPE,65,IBk,none,none,none,0.759,0.537,0.854,0.625,0.629,0.635
+SYNCOPE,65,RandomForest,BestFirst (backward),none,none,0.857,0.146,0.762,0.248,0.250,0.352
+SYNCOPE,65,NaiveBayes,BestFirst (backward),none,none,0.081,0.195,0.768,0.101,0.114,0.112
+SYNCOPE,65,IBk,BestFirst (backward),none,none,1.000,0.122,0.763,0.216,0.217,0.348
+SYNCOPE,65,RandomForest,none,SMOTE,none,0.121,0.732,0.890,0.194,0.208,0.283
+SYNCOPE,65,NaiveBayes,none,SMOTE,none,0.070,0.488,0.819,0.106,0.122,0.164
+SYNCOPE,65,IBk,none,SMOTE,none,0.117,0.732,0.859,0.188,0.202,0.278
+SYNCOPE,65,RandomForest,none,none,SensitiveThreshold,0.333,0.659,0.898,0.435,0.443,0.461
+SYNCOPE,65,NaiveBayes,none,none,SensitiveThreshold,0.075,0.390,0.809,0.111,0.126,0.153
+SYNCOPE,65,IBk,none,none,SensitiveThreshold,0.314,0.659,0.854,0.417,0.425,0.447
+SYNCOPE,66,RandomForest,none,none,none,0.833,0.395,0.840,0.533,0.536,0.571
+SYNCOPE,66,NaiveBayes,none,none,none,0.043,0.237,0.788,0.058,0.073,0.081
+SYNCOPE,66,IBk,none,none,none,0.522,0.316,0.775,0.389,0.393,0.402
+SYNCOPE,66,RandomForest,BestFirst (backward),none,none,0.500,0.026,0.755,0.049,0.050,0.113
+SYNCOPE,66,NaiveBayes,BestFirst (backward),none,none,0.064,0.211,0.744,0.085,0.098,0.101
+SYNCOPE,66,IBk,BestFirst (backward),none,none,0.500,0.026,0.757,0.049,0.050,0.113
+SYNCOPE,66,RandomForest,none,SMOTE,none,0.105,0.579,0.835,0.165,0.178,0.232
+SYNCOPE,66,NaiveBayes,none,SMOTE,none,0.046,0.395,0.779,0.067,0.083,0.112
+SYNCOPE,66,IBk,none,SMOTE,none,0.105,0.605,0.795,0.165,0.178,0.236
+SYNCOPE,66,RandomForest,none,none,SensitiveThreshold,0.257,0.500,0.856,0.331,0.339,0.350
+SYNCOPE,66,NaiveBayes,none,none,SensitiveThreshold,0.045,0.289,0.788,0.063,0.078,0.093
+SYNCOPE,66,IBk,none,none,SensitiveThreshold,0.250,0.500,0.775,0.325,0.333,0.345
+SYNCOPE,67,RandomForest,none,none,none,0.857,0.286,0.877,0.426,0.429,0.492
+SYNCOPE,67,NaiveBayes,none,none,none,0.044,0.214,0.777,0.057,0.073,0.077
+SYNCOPE,67,IBk,none,none,none,0.867,0.310,0.812,0.453,0.456,0.515
+SYNCOPE,67,RandomForest,BestFirst (backward),none,none,1.000,0.048,0.742,0.090,0.091,0.217
+SYNCOPE,67,NaiveBayes,BestFirst (backward),none,none,0.059,0.143,0.729,0.070,0.084,0.077
+SYNCOPE,67,IBk,BestFirst (backward),none,none,1.000,0.048,0.742,0.090,0.091,0.217
+SYNCOPE,67,RandomForest,none,SMOTE,none,0.110,0.595,0.862,0.170,0.185,0.239
+SYNCOPE,67,NaiveBayes,none,SMOTE,none,0.035,0.262,0.799,0.044,0.062,0.070
+SYNCOPE,67,IBk,none,SMOTE,none,0.118,0.667,0.833,0.185,0.200,0.264
+SYNCOPE,67,RandomForest,none,none,SensitiveThreshold,0.304,0.571,0.884,0.388,0.397,0.408
+SYNCOPE,67,NaiveBayes,none,none,SensitiveThreshold,0.039,0.214,0.777,0.049,0.066,0.069
+SYNCOPE,67,IBk,none,none,SensitiveThreshold,0.309,0.595,0.812,0.398,0.407,0.420
+SYNCOPE,68,RandomForest,none,none,none,0.714,0.250,0.868,0.367,0.370,0.419
+SYNCOPE,68,NaiveBayes,none,none,none,0.054,0.250,0.791,0.074,0.089,0.098
+SYNCOPE,68,IBk,none,none,none,0.632,0.300,0.775,0.403,0.407,0.432
+SYNCOPE,68,RandomForest,BestFirst (backward),none,none,0.750,0.075,0.777,0.135,0.136,0.235
+SYNCOPE,68,NaiveBayes,BestFirst (backward),none,none,0.063,0.175,0.765,0.078,0.092,0.090
+SYNCOPE,68,IBk,BestFirst (backward),none,none,0.750,0.075,0.777,0.135,0.136,0.235
+SYNCOPE,68,RandomForest,none,SMOTE,none,0.086,0.475,0.785,0.130,0.145,0.184
+SYNCOPE,68,NaiveBayes,none,SMOTE,none,0.055,0.375,0.781,0.080,0.096,0.122
+SYNCOPE,68,IBk,none,SMOTE,none,0.095,0.575,0.795,0.148,0.163,0.217
+SYNCOPE,68,RandomForest,none,none,SensitiveThreshold,0.258,0.400,0.839,0.305,0.314,0.313
+SYNCOPE,68,NaiveBayes,none,none,SensitiveThreshold,0.051,0.275,0.790,0.071,0.087,0.099
+SYNCOPE,68,IBk,none,none,SensitiveThreshold,0.235,0.475,0.775,0.305,0.314,0.324
+SYNCOPE,69,RandomForest,none,none,none,0.950,0.463,0.913,0.620,0.623,0.661
+SYNCOPE,69,NaiveBayes,none,none,none,0.035,0.171,0.762,0.042,0.059,0.057
+SYNCOPE,69,IBk,none,none,none,0.833,0.488,0.911,0.612,0.615,0.635
+SYNCOPE,69,RandomForest,BestFirst (backward),none,none,1.000,0.146,0.780,0.253,0.255,0.381
+SYNCOPE,69,NaiveBayes,BestFirst (backward),none,none,0.028,0.073,0.754,0.026,0.041,0.029
+SYNCOPE,69,IBk,BestFirst (backward),none,none,1.000,0.146,0.781,0.253,0.255,0.381
+SYNCOPE,69,RandomForest,none,SMOTE,none,0.275,0.683,0.914,0.383,0.392,0.424
+SYNCOPE,69,NaiveBayes,none,SMOTE,none,0.044,0.293,0.736,0.060,0.077,0.091
+SYNCOPE,69,IBk,none,SMOTE,none,0.252,0.683,0.912,0.359,0.368,0.406
+SYNCOPE,69,RandomForest,none,none,SensitiveThreshold,0.429,0.585,0.916,0.489,0.495,0.495
+SYNCOPE,69,NaiveBayes,none,none,SensitiveThreshold,0.036,0.195,0.762,0.044,0.061,0.062
+SYNCOPE,69,IBk,none,none,SensitiveThreshold,0.393,0.585,0.911,0.464,0.471,0.473
+SYNCOPE,70,RandomForest,none,none,none,0.933,0.368,0.903,0.526,0.528,0.584
+SYNCOPE,70,NaiveBayes,none,none,none,0.037,0.184,0.794,0.046,0.061,0.063
+SYNCOPE,70,IBk,none,none,none,0.684,0.342,0.796,0.453,0.456,0.481
+SYNCOPE,70,RandomForest,BestFirst (backward),none,none,0.750,0.079,0.725,0.141,0.143,0.242
+SYNCOPE,70,NaiveBayes,BestFirst (backward),none,none,0.029,0.079,0.697,0.029,0.043,0.033
+SYNCOPE,70,IBk,BestFirst (backward),none,none,0.750,0.079,0.726,0.141,0.143,0.242
+SYNCOPE,70,RandomForest,none,SMOTE,none,0.115,0.711,0.855,0.184,0.198,0.271
+SYNCOPE,70,NaiveBayes,none,SMOTE,none,0.037,0.289,0.790,0.050,0.066,0.081
+SYNCOPE,70,IBk,none,SMOTE,none,0.105,0.711,0.823,0.170,0.184,0.259
+SYNCOPE,70,RandomForest,none,none,SensitiveThreshold,0.339,0.553,0.884,0.413,0.420,0.426
+SYNCOPE,70,NaiveBayes,none,none,SensitiveThreshold,0.045,0.263,0.794,0.062,0.078,0.089
+SYNCOPE,70,IBk,none,none,SensitiveThreshold,0.313,0.553,0.796,0.393,0.400,0.409
+SYNCOPE,71,RandomForest,none,none,none,0.826,0.413,0.924,0.547,0.551,0.581
+SYNCOPE,71,NaiveBayes,none,none,none,0.056,0.239,0.779,0.073,0.090,0.094
+SYNCOPE,71,IBk,none,none,none,0.679,0.413,0.850,0.509,0.514,0.525
+SYNCOPE,71,RandomForest,BestFirst (backward),none,none,0.714,0.109,0.761,0.186,0.189,0.276
+SYNCOPE,71,NaiveBayes,BestFirst (backward),none,none,0.058,0.130,0.745,0.065,0.080,0.071
+SYNCOPE,71,IBk,BestFirst (backward),none,none,0.714,0.109,0.762,0.186,0.189,0.276
+SYNCOPE,71,RandomForest,none,SMOTE,none,0.124,0.609,0.892,0.191,0.207,0.259
+SYNCOPE,71,NaiveBayes,none,SMOTE,none,0.061,0.413,0.787,0.088,0.107,0.135
+SYNCOPE,71,IBk,none,SMOTE,none,0.128,0.674,0.870,0.200,0.215,0.277
+SYNCOPE,71,RandomForest,none,none,SensitiveThreshold,0.299,0.565,0.914,0.382,0.391,0.402
+SYNCOPE,71,NaiveBayes,none,none,SensitiveThreshold,0.047,0.239,0.779,0.061,0.079,0.083
+SYNCOPE,71,IBk,none,none,SensitiveThreshold,0.289,0.609,0.850,0.382,0.392,0.410
+SYNCOPE,72,RandomForest,none,none,none,0.792,0.413,0.914,0.539,0.543,0.568
+SYNCOPE,72,NaiveBayes,none,none,none,0.062,0.283,0.824,0.084,0.101,0.111
+SYNCOPE,72,IBk,none,none,none,0.704,0.413,0.885,0.516,0.521,0.535
+SYNCOPE,72,RandomForest,BestFirst (backward),none,none,0.800,0.087,0.768,0.155,0.157,0.262
+SYNCOPE,72,NaiveBayes,BestFirst (backward),none,none,0.038,0.087,0.742,0.038,0.053,0.041
+SYNCOPE,72,IBk,BestFirst (backward),none,none,0.800,0.087,0.768,0.155,0.157,0.262
+SYNCOPE,72,RandomForest,none,SMOTE,none,0.145,0.696,0.905,0.225,0.240,0.302
+SYNCOPE,72,NaiveBayes,none,SMOTE,none,0.064,0.413,0.842,0.092,0.110,0.139
+SYNCOPE,72,IBk,none,SMOTE,none,0.132,0.674,0.872,0.205,0.221,0.282
+SYNCOPE,72,RandomForest,none,none,SensitiveThreshold,0.470,0.674,0.922,0.547,0.554,0.557
+SYNCOPE,72,NaiveBayes,none,none,SensitiveThreshold,0.060,0.304,0.824,0.082,0.100,0.113
+SYNCOPE,72,IBk,none,none,SensitiveThreshold,0.462,0.652,0.885,0.534,0.541,0.542
+SYNCOPE,73,RandomForest,none,none,none,0.813,0.302,0.881,0.437,0.441,0.493
+SYNCOPE,73,NaiveBayes,none,none,none,0.053,0.256,0.754,0.071,0.087,0.095
+SYNCOPE,73,IBk,none,none,none,0.667,0.326,0.839,0.433,0.438,0.462
+SYNCOPE,73,RandomForest,BestFirst (backward),none,none,1.000,0.093,0.719,0.169,0.170,0.304
+SYNCOPE,73,NaiveBayes,BestFirst (backward),none,none,0.049,0.140,0.715,0.058,0.073,0.066
+SYNCOPE,73,IBk,BestFirst (backward),none,none,1.000,0.093,0.719,0.169,0.170,0.304
+SYNCOPE,73,RandomForest,none,SMOTE,none,0.113,0.558,0.852,0.173,0.188,0.235
+SYNCOPE,73,NaiveBayes,none,SMOTE,none,0.038,0.279,0.748,0.048,0.066,0.077
+SYNCOPE,73,IBk,none,SMOTE,none,0.106,0.535,0.824,0.161,0.176,0.221
+SYNCOPE,73,RandomForest,none,none,SensitiveThreshold,0.319,0.512,0.886,0.385,0.393,0.396
+SYNCOPE,73,NaiveBayes,none,none,SensitiveThreshold,0.045,0.256,0.754,0.059,0.076,0.085
+SYNCOPE,73,IBk,none,none,SensitiveThreshold,0.324,0.558,0.839,0.402,0.410,0.417
+SYNCOPE,74,RandomForest,none,none,none,0.800,0.421,0.901,0.549,0.552,0.578
+SYNCOPE,74,NaiveBayes,none,none,none,0.032,0.158,0.734,0.037,0.053,0.051
+SYNCOPE,74,IBk,none,none,none,0.762,0.421,0.825,0.539,0.542,0.563
+SYNCOPE,74,RandomForest,BestFirst (backward),none,none,0.667,0.105,0.730,0.180,0.182,0.263
+SYNCOPE,74,NaiveBayes,BestFirst (backward),none,none,0.038,0.105,0.674,0.042,0.056,0.048
+SYNCOPE,74,IBk,BestFirst (backward),none,none,0.667,0.105,0.731,0.180,0.182,0.263
+SYNCOPE,74,RandomForest,none,SMOTE,none,0.107,0.632,0.842,0.169,0.183,0.245
+SYNCOPE,74,NaiveBayes,none,SMOTE,none,0.030,0.211,0.728,0.036,0.052,0.056
+SYNCOPE,74,IBk,none,SMOTE,none,0.106,0.658,0.822,0.170,0.183,0.249
+SYNCOPE,74,RandomForest,none,none,SensitiveThreshold,0.277,0.605,0.885,0.372,0.380,0.402
+SYNCOPE,74,NaiveBayes,none,none,SensitiveThreshold,0.033,0.184,0.734,0.041,0.056,0.057
+SYNCOPE,74,IBk,none,none,SensitiveThreshold,0.262,0.579,0.825,0.352,0.361,0.381
+SYNCOPE,75,RandomForest,none,none,none,0.667,0.267,0.853,0.378,0.381,0.419
+SYNCOPE,75,NaiveBayes,none,none,none,0.040,0.267,0.798,0.058,0.070,0.087
+SYNCOPE,75,IBk,none,none,none,0.526,0.333,0.826,0.405,0.408,0.415
+SYNCOPE,75,RandomForest,BestFirst (backward),none,none,0.750,0.100,0.720,0.175,0.176,0.272
+SYNCOPE,75,NaiveBayes,BestFirst (backward),none,none,0.048,0.167,0.723,0.063,0.074,0.076
+SYNCOPE,75,IBk,BestFirst (backward),none,none,1.000,0.100,0.721,0.181,0.182,0.315
+SYNCOPE,75,RandomForest,none,SMOTE,none,0.055,0.467,0.783,0.086,0.099,0.144
+SYNCOPE,75,NaiveBayes,none,SMOTE,none,0.041,0.400,0.807,0.062,0.075,0.110
+SYNCOPE,75,IBk,none,SMOTE,none,0.054,0.467,0.801,0.084,0.096,0.141
+SYNCOPE,75,RandomForest,none,none,SensitiveThreshold,0.220,0.600,0.856,0.314,0.321,0.355
+SYNCOPE,75,NaiveBayes,none,none,SensitiveThreshold,0.039,0.300,0.798,0.057,0.069,0.091
+SYNCOPE,75,IBk,none,none,SensitiveThreshold,0.221,0.633,0.826,0.320,0.328,0.367
+SYNCOPE,76,RandomForest,none,none,none,0.923,0.414,0.925,0.569,0.571,0.616
+SYNCOPE,76,NaiveBayes,none,none,none,0.033,0.207,0.798,0.045,0.057,0.066
+SYNCOPE,76,IBk,none,none,none,0.824,0.483,0.881,0.607,0.609,0.629
+SYNCOPE,76,RandomForest,BestFirst (backward),none,none,0.800,0.138,0.758,0.234,0.235,0.331
+SYNCOPE,76,NaiveBayes,BestFirst (backward),none,none,0.047,0.138,0.762,0.060,0.070,0.069
+SYNCOPE,76,IBk,BestFirst (backward),none,none,1.000,0.103,0.758,0.186,0.188,0.321
+SYNCOPE,76,RandomForest,none,SMOTE,none,0.085,0.690,0.907,0.140,0.151,0.229
+SYNCOPE,76,NaiveBayes,none,SMOTE,none,0.045,0.414,0.785,0.069,0.081,0.119
+SYNCOPE,76,IBk,none,SMOTE,none,0.085,0.724,0.876,0.141,0.152,0.235
+SYNCOPE,76,RandomForest,none,none,SensitiveThreshold,0.213,0.655,0.924,0.315,0.322,0.367
+SYNCOPE,76,NaiveBayes,none,none,SensitiveThreshold,0.029,0.207,0.798,0.038,0.050,0.059
+SYNCOPE,76,IBk,none,none,SensitiveThreshold,0.209,0.655,0.881,0.309,0.317,0.362
+SYNCOPE,77,RandomForest,none,none,none,0.857,0.240,0.810,0.372,0.375,0.451
+SYNCOPE,77,NaiveBayes,none,none,none,0.072,0.260,0.801,0.095,0.113,0.116
+SYNCOPE,77,IBk,none,none,none,0.591,0.260,0.752,0.356,0.361,0.387
+SYNCOPE,77,RandomForest,BestFirst (backward),none,none,0.700,0.140,0.744,0.230,0.233,0.310
+SYNCOPE,77,NaiveBayes,BestFirst (backward),none,none,0.090,0.220,0.812,0.112,0.128,0.124
+SYNCOPE,77,IBk,BestFirst (backward),none,none,0.778,0.140,0.690,0.234,0.237,0.327
+SYNCOPE,77,RandomForest,none,SMOTE,none,0.235,0.460,0.775,0.299,0.311,0.317
+SYNCOPE,77,NaiveBayes,none,SMOTE,none,0.060,0.360,0.811,0.083,0.103,0.121
+SYNCOPE,77,IBk,none,SMOTE,none,0.220,0.480,0.752,0.290,0.302,0.313
+SYNCOPE,77,RandomForest,none,none,SensitiveThreshold,0.275,0.440,0.800,0.328,0.338,0.338
+SYNCOPE,77,NaiveBayes,none,none,SensitiveThreshold,0.066,0.280,0.801,0.088,0.107,0.114
+SYNCOPE,77,IBk,none,none,SensitiveThreshold,0.256,0.440,0.752,0.313,0.324,0.325
+SYNCOPE,78,RandomForest,none,none,none,0.867,0.302,0.907,0.445,0.448,0.509
+SYNCOPE,78,NaiveBayes,none,none,none,0.067,0.279,0.725,0.092,0.108,0.118
+SYNCOPE,78,IBk,none,none,none,0.737,0.326,0.847,0.448,0.452,0.486
+SYNCOPE,78,RandomForest,BestFirst (backward),none,none,0.500,0.023,0.715,0.044,0.044,0.106
+SYNCOPE,78,NaiveBayes,BestFirst (backward),none,none,0.072,0.163,0.694,0.086,0.100,0.094
+SYNCOPE,78,IBk,BestFirst (backward),none,none,0.500,0.023,0.716,0.044,0.044,0.106
+SYNCOPE,78,RandomForest,none,SMOTE,none,0.121,0.558,0.862,0.185,0.199,0.244
+SYNCOPE,78,NaiveBayes,none,SMOTE,none,0.042,0.279,0.742,0.055,0.072,0.083
+SYNCOPE,78,IBk,none,SMOTE,none,0.113,0.558,0.829,0.173,0.188,0.235
+SYNCOPE,78,RandomForest,none,none,SensitiveThreshold,0.294,0.465,0.905,0.352,0.360,0.361
+SYNCOPE,78,NaiveBayes,none,none,SensitiveThreshold,0.057,0.279,0.725,0.079,0.095,0.106
+SYNCOPE,78,IBk,none,none,SensitiveThreshold,0.278,0.465,0.847,0.339,0.348,0.351
+SYNCOPE,79,RandomForest,none,none,none,0.769,0.476,0.900,0.585,0.588,0.602
+SYNCOPE,79,NaiveBayes,none,none,none,0.062,0.310,0.836,0.088,0.104,0.119
+SYNCOPE,79,IBk,none,none,none,0.767,0.548,0.836,0.636,0.639,0.645
+SYNCOPE,79,RandomForest,BestFirst (backward),none,none,0.667,0.095,0.759,0.164,0.167,0.250
+SYNCOPE,79,NaiveBayes,BestFirst (backward),none,none,0.075,0.190,0.743,0.094,0.107,0.104
+SYNCOPE,79,IBk,BestFirst (backward),none,none,0.800,0.095,0.737,0.168,0.170,0.274
+SYNCOPE,79,RandomForest,none,SMOTE,none,0.114,0.690,0.852,0.180,0.195,0.264
+SYNCOPE,79,NaiveBayes,none,SMOTE,none,0.063,0.452,0.827,0.094,0.111,0.147
+SYNCOPE,79,IBk,none,SMOTE,none,0.111,0.714,0.846,0.177,0.192,0.266
+SYNCOPE,79,RandomForest,none,none,SensitiveThreshold,0.294,0.595,0.882,0.385,0.394,0.410
+SYNCOPE,79,NaiveBayes,none,none,SensitiveThreshold,0.071,0.405,0.836,0.105,0.121,0.150
+SYNCOPE,79,IBk,none,none,SensitiveThreshold,0.304,0.667,0.836,0.409,0.418,0.442
+SYNCOPE,80,RandomForest,none,none,none,0.826,0.442,0.889,0.573,0.576,0.601
+SYNCOPE,80,NaiveBayes,none,none,none,0.059,0.279,0.720,0.082,0.098,0.109
+SYNCOPE,80,IBk,none,none,none,0.741,0.465,0.876,0.568,0.571,0.584
+SYNCOPE,80,RandomForest,BestFirst (backward),none,none,1.000,0.047,0.672,0.088,0.089,0.215
+SYNCOPE,80,NaiveBayes,BestFirst (backward),none,none,0.064,0.163,0.662,0.078,0.092,0.087
+SYNCOPE,80,IBk,BestFirst (backward),none,none,1.000,0.047,0.674,0.088,0.089,0.215
+SYNCOPE,80,RandomForest,none,SMOTE,none,0.111,0.605,0.872,0.172,0.187,0.242
+SYNCOPE,80,NaiveBayes,none,SMOTE,none,0.041,0.302,0.723,0.054,0.072,0.086
+SYNCOPE,80,IBk,none,SMOTE,none,0.108,0.628,0.870,0.168,0.184,0.243
+SYNCOPE,80,RandomForest,none,none,SensitiveThreshold,0.338,0.535,0.889,0.407,0.414,0.418
+SYNCOPE,80,NaiveBayes,none,none,SensitiveThreshold,0.052,0.279,0.720,0.070,0.087,0.098
+SYNCOPE,80,IBk,none,none,SensitiveThreshold,0.338,0.558,0.876,0.413,0.421,0.427
+SYNCOPE,81,RandomForest,none,none,none,0.846,0.244,0.869,0.376,0.379,0.452
+SYNCOPE,81,NaiveBayes,none,none,none,0.053,0.244,0.772,0.070,0.087,0.093
+SYNCOPE,81,IBk,none,none,none,0.706,0.267,0.787,0.383,0.387,0.430
+SYNCOPE,81,RandomForest,BestFirst (backward),none,none,0.750,0.067,0.702,0.121,0.122,0.222
+SYNCOPE,81,NaiveBayes,BestFirst (backward),none,none,0.063,0.178,0.771,0.078,0.093,0.089
+SYNCOPE,81,IBk,BestFirst (backward),none,none,0.750,0.067,0.665,0.121,0.122,0.222
+SYNCOPE,81,RandomForest,none,SMOTE,none,0.090,0.444,0.825,0.134,0.150,0.181
+SYNCOPE,81,NaiveBayes,none,SMOTE,none,0.059,0.378,0.794,0.085,0.102,0.126
+SYNCOPE,81,IBk,none,SMOTE,none,0.094,0.489,0.783,0.141,0.158,0.196
+SYNCOPE,81,RandomForest,none,none,SensitiveThreshold,0.240,0.400,0.866,0.290,0.300,0.300
+SYNCOPE,81,NaiveBayes,none,none,SensitiveThreshold,0.054,0.267,0.772,0.072,0.090,0.098
+SYNCOPE,81,IBk,none,none,SensitiveThreshold,0.241,0.422,0.787,0.296,0.306,0.309
+SYNCOPE,82,RandomForest,none,none,none,0.667,0.216,0.859,0.323,0.327,0.377
+SYNCOPE,82,NaiveBayes,none,none,none,0.031,0.162,0.758,0.037,0.052,0.052
+SYNCOPE,82,IBk,none,none,none,0.529,0.243,0.801,0.329,0.333,0.355
+SYNCOPE,82,RandomForest,BestFirst (backward),none,none,0.667,0.054,0.699,0.099,0.100,0.188
+SYNCOPE,82,NaiveBayes,BestFirst (backward),none,none,0.042,0.108,0.686,0.048,0.061,0.054
+SYNCOPE,82,IBk,BestFirst (backward),none,none,0.667,0.054,0.662,0.099,0.100,0.188
+SYNCOPE,82,RandomForest,none,SMOTE,none,0.085,0.514,0.804,0.132,0.146,0.192
+SYNCOPE,82,NaiveBayes,none,SMOTE,none,0.036,0.270,0.779,0.049,0.064,0.077
+SYNCOPE,82,IBk,none,SMOTE,none,0.085,0.541,0.798,0.133,0.147,0.197
+SYNCOPE,82,RandomForest,none,none,SensitiveThreshold,0.279,0.514,0.857,0.354,0.362,0.371
+SYNCOPE,82,NaiveBayes,none,none,SensitiveThreshold,0.032,0.189,0.758,0.039,0.054,0.056
+SYNCOPE,82,IBk,none,none,SensitiveThreshold,0.260,0.514,0.801,0.337,0.345,0.357
+SYNCOPE,83,RandomForest,none,none,none,0.813,0.371,0.835,0.507,0.510,0.547
+SYNCOPE,83,NaiveBayes,none,none,none,0.029,0.171,0.759,0.036,0.050,0.051
+SYNCOPE,83,IBk,none,none,none,0.722,0.371,0.764,0.488,0.491,0.515
+SYNCOPE,83,RandomForest,BestFirst (backward),none,none,0.667,0.057,0.698,0.104,0.105,0.194
+SYNCOPE,83,NaiveBayes,BestFirst (backward),none,none,0.017,0.057,0.634,0.013,0.026,0.016
+SYNCOPE,83,IBk,BestFirst (backward),none,none,1.000,0.057,0.699,0.107,0.108,0.238
+SYNCOPE,83,RandomForest,none,SMOTE,none,0.098,0.543,0.840,0.153,0.166,0.216
+SYNCOPE,83,NaiveBayes,none,SMOTE,none,0.029,0.257,0.742,0.036,0.052,0.062
+SYNCOPE,83,IBk,none,SMOTE,none,0.103,0.600,0.799,0.163,0.176,0.234
+SYNCOPE,83,RandomForest,none,none,SensitiveThreshold,0.239,0.486,0.870,0.313,0.321,0.333
+SYNCOPE,83,NaiveBayes,none,none,SensitiveThreshold,0.033,0.229,0.759,0.044,0.058,0.067
+SYNCOPE,83,IBk,none,none,SensitiveThreshold,0.227,0.486,0.765,0.301,0.309,0.323
+SYNCOPE,84,RandomForest,none,none,none,0.714,0.441,0.934,0.542,0.545,0.559
+SYNCOPE,84,NaiveBayes,none,none,none,0.034,0.206,0.830,0.045,0.059,0.065
+SYNCOPE,84,IBk,none,none,none,0.667,0.471,0.860,0.549,0.552,0.557
+SYNCOPE,84,RandomForest,BestFirst (backward),none,none,1.000,0.147,0.807,0.255,0.256,0.382
+SYNCOPE,84,NaiveBayes,BestFirst (backward),none,none,0.037,0.118,0.772,0.044,0.056,0.051
+SYNCOPE,84,IBk,BestFirst (backward),none,none,1.000,0.147,0.779,0.255,0.256,0.382
+SYNCOPE,84,RandomForest,none,SMOTE,none,0.094,0.647,0.912,0.151,0.164,0.232
+SYNCOPE,84,NaiveBayes,none,SMOTE,none,0.041,0.353,0.821,0.060,0.074,0.100
+SYNCOPE,84,IBk,none,SMOTE,none,0.094,0.676,0.865,0.152,0.165,0.238
+SYNCOPE,84,RandomForest,none,none,SensitiveThreshold,0.295,0.676,0.931,0.404,0.411,0.440
+SYNCOPE,84,NaiveBayes,none,none,SensitiveThreshold,0.035,0.235,0.830,0.047,0.061,0.071
+SYNCOPE,84,IBk,none,none,SensitiveThreshold,0.288,0.676,0.860,0.396,0.404,0.434
+SYNCOPE,85,RandomForest,none,none,none,0.720,0.474,0.888,0.568,0.571,0.581
+SYNCOPE,85,NaiveBayes,none,none,none,0.055,0.263,0.831,0.076,0.090,0.102
+SYNCOPE,85,IBk,none,none,none,0.643,0.474,0.850,0.542,0.545,0.548
+SYNCOPE,85,RandomForest,BestFirst (backward),none,none,1.000,0.079,0.808,0.145,0.146,0.280
+SYNCOPE,85,NaiveBayes,BestFirst (backward),none,none,0.063,0.158,0.822,0.078,0.090,0.086
+SYNCOPE,85,IBk,BestFirst (backward),none,none,1.000,0.079,0.783,0.145,0.146,0.280
+SYNCOPE,85,RandomForest,none,SMOTE,none,0.116,0.684,0.866,0.184,0.198,0.267
+SYNCOPE,85,NaiveBayes,none,SMOTE,none,0.064,0.474,0.828,0.097,0.112,0.154
+SYNCOPE,85,IBk,none,SMOTE,none,0.126,0.763,0.895,0.203,0.216,0.296
+SYNCOPE,85,RandomForest,none,none,SensitiveThreshold,0.319,0.605,0.872,0.411,0.418,0.433
+SYNCOPE,85,NaiveBayes,none,none,SensitiveThreshold,0.054,0.289,0.831,0.076,0.091,0.106
+SYNCOPE,85,IBk,none,none,SensitiveThreshold,0.311,0.605,0.850,0.403,0.411,0.426
+SYNCOPE,86,RandomForest,none,none,none,0.783,0.409,0.904,0.534,0.537,0.563
+SYNCOPE,86,NaiveBayes,none,none,none,0.065,0.318,0.819,0.091,0.107,0.123
+SYNCOPE,86,IBk,none,none,none,0.679,0.432,0.839,0.524,0.528,0.537
+SYNCOPE,86,RandomForest,BestFirst (backward),none,none,0.818,0.205,0.847,0.324,0.327,0.406
+SYNCOPE,86,NaiveBayes,BestFirst (backward),none,none,0.065,0.205,0.823,0.084,0.099,0.098
+SYNCOPE,86,IBk,BestFirst (backward),none,none,0.818,0.205,0.834,0.324,0.327,0.406
+SYNCOPE,86,RandomForest,none,SMOTE,none,0.113,0.614,0.861,0.175,0.190,0.246
+SYNCOPE,86,NaiveBayes,none,SMOTE,none,0.060,0.455,0.814,0.089,0.107,0.142
+SYNCOPE,86,IBk,none,SMOTE,none,0.107,0.636,0.814,0.168,0.184,0.244
+SYNCOPE,86,RandomForest,none,none,SensitiveThreshold,0.333,0.545,0.890,0.406,0.414,0.418
+SYNCOPE,86,NaiveBayes,none,none,SensitiveThreshold,0.060,0.341,0.819,0.086,0.103,0.122
+SYNCOPE,86,IBk,none,none,SensitiveThreshold,0.325,0.568,0.839,0.405,0.413,0.421
+SYNCOPE,87,RandomForest,none,none,none,0.706,0.286,0.865,0.403,0.407,0.446
+SYNCOPE,87,NaiveBayes,none,none,none,0.064,0.286,0.755,0.089,0.104,0.116
+SYNCOPE,87,IBk,none,none,none,0.727,0.381,0.839,0.496,0.500,0.523
+SYNCOPE,87,RandomForest,BestFirst (backward),none,none,0.667,0.048,0.735,0.088,0.089,0.176
+SYNCOPE,87,NaiveBayes,BestFirst (backward),none,none,0.057,0.119,0.769,0.064,0.078,0.069
+SYNCOPE,87,IBk,BestFirst (backward),none,none,0.667,0.048,0.735,0.088,0.089,0.176
+SYNCOPE,87,RandomForest,none,SMOTE,none,0.194,0.571,0.853,0.278,0.289,0.321
+SYNCOPE,87,NaiveBayes,none,SMOTE,none,0.048,0.310,0.751,0.066,0.083,0.099
+SYNCOPE,87,IBk,none,SMOTE,none,0.189,0.595,0.836,0.276,0.287,0.324
+SYNCOPE,87,RandomForest,none,none,SensitiveThreshold,0.217,0.476,0.868,0.288,0.299,0.311
+SYNCOPE,87,NaiveBayes,none,none,SensitiveThreshold,0.060,0.310,0.755,0.085,0.101,0.117
+SYNCOPE,87,IBk,none,none,SensitiveThreshold,0.235,0.548,0.839,0.319,0.329,0.349
+SYNCOPE,88,RandomForest,none,none,none,0.889,0.327,0.884,0.474,0.478,0.536
+SYNCOPE,88,NaiveBayes,none,none,none,0.046,0.184,0.785,0.056,0.074,0.070
+SYNCOPE,88,IBk,none,none,none,0.696,0.327,0.792,0.440,0.444,0.472
+SYNCOPE,88,RandomForest,BestFirst (backward),none,none,0.571,0.082,0.712,0.140,0.143,0.213
+SYNCOPE,88,NaiveBayes,BestFirst (backward),none,none,0.035,0.082,0.712,0.033,0.049,0.036
+SYNCOPE,88,IBk,BestFirst (backward),none,none,0.571,0.082,0.713,0.140,0.143,0.213
+SYNCOPE,88,RandomForest,none,SMOTE,none,0.121,0.551,0.829,0.182,0.199,0.240
+SYNCOPE,88,NaiveBayes,none,SMOTE,none,0.043,0.265,0.792,0.055,0.075,0.081
+SYNCOPE,88,IBk,none,SMOTE,none,0.125,0.592,0.814,0.190,0.206,0.254
+SYNCOPE,88,RandomForest,none,none,SensitiveThreshold,0.338,0.510,0.865,0.398,0.407,0.406
+SYNCOPE,88,NaiveBayes,none,none,SensitiveThreshold,0.049,0.224,0.785,0.062,0.081,0.082
+SYNCOPE,88,IBk,none,none,SensitiveThreshold,0.338,0.531,0.792,0.404,0.413,0.414
+SYNCOPE,89,RandomForest,none,none,none,0.938,0.395,0.925,0.553,0.556,0.606
+SYNCOPE,89,NaiveBayes,none,none,none,0.074,0.342,0.817,0.108,0.122,0.143
+SYNCOPE,89,IBk,none,none,none,0.636,0.368,0.825,0.463,0.467,0.481
+SYNCOPE,89,RandomForest,BestFirst (backward),none,none,1.000,0.105,0.711,0.189,0.190,0.323
+SYNCOPE,89,NaiveBayes,BestFirst (backward),none,none,0.093,0.263,0.733,0.125,0.137,0.143
+SYNCOPE,89,IBk,BestFirst (backward),none,none,1.000,0.105,0.713,0.189,0.190,0.323
+SYNCOPE,89,RandomForest,none,SMOTE,none,0.111,0.684,0.865,0.177,0.190,0.260
+SYNCOPE,89,NaiveBayes,none,SMOTE,none,0.060,0.447,0.830,0.091,0.106,0.144
+SYNCOPE,89,IBk,none,SMOTE,none,0.096,0.632,0.832,0.153,0.167,0.231
+SYNCOPE,89,RandomForest,none,none,SensitiveThreshold,0.324,0.605,0.877,0.415,0.422,0.436
+SYNCOPE,89,NaiveBayes,none,none,SensitiveThreshold,0.075,0.395,0.817,0.111,0.126,0.154
+SYNCOPE,89,IBk,none,none,SensitiveThreshold,0.286,0.579,0.825,0.375,0.383,0.399
+SYNCOPE,90,RandomForest,none,none,none,0.952,0.392,0.873,0.552,0.556,0.608
+SYNCOPE,90,NaiveBayes,none,none,none,0.047,0.196,0.756,0.057,0.076,0.073
+SYNCOPE,90,IBk,none,none,none,0.826,0.373,0.809,0.510,0.514,0.551
+SYNCOPE,90,RandomForest,BestFirst (backward),none,none,0.833,0.098,0.731,0.173,0.175,0.283
+SYNCOPE,90,NaiveBayes,BestFirst (backward),none,none,0.057,0.118,0.673,0.060,0.076,0.064
+SYNCOPE,90,IBk,BestFirst (backward),none,none,0.833,0.098,0.731,0.173,0.175,0.283
+SYNCOPE,90,RandomForest,none,SMOTE,none,0.122,0.588,0.799,0.185,0.202,0.249
+SYNCOPE,90,NaiveBayes,none,SMOTE,none,0.057,0.353,0.779,0.078,0.098,0.115
+SYNCOPE,90,IBk,none,SMOTE,none,0.119,0.608,0.811,0.181,0.199,0.250
+SYNCOPE,90,RandomForest,none,none,SensitiveThreshold,0.326,0.608,0.846,0.415,0.425,0.436
+SYNCOPE,90,NaiveBayes,none,none,SensitiveThreshold,0.055,0.275,0.756,0.072,0.092,0.098
+SYNCOPE,90,IBk,none,none,SensitiveThreshold,0.337,0.588,0.809,0.419,0.429,0.436
+SYNCOPE,91,RandomForest,none,none,none,0.750,0.281,0.858,0.406,0.409,0.457
+SYNCOPE,91,NaiveBayes,none,none,none,0.012,0.063,0.785,0.007,0.020,0.010
+SYNCOPE,91,IBk,none,none,none,0.563,0.281,0.818,0.372,0.375,0.394
+SYNCOPE,91,RandomForest,BestFirst (backward),none,none,0.333,0.031,0.765,0.056,0.057,0.100
+SYNCOPE,91,NaiveBayes,BestFirst (backward),none,none,0.000,0.000,0.763,-0.011,0.000,-0.013
+SYNCOPE,91,IBk,BestFirst (backward),none,none,0.333,0.031,0.765,0.056,0.057,0.100
+SYNCOPE,91,RandomForest,none,SMOTE,none,0.147,0.469,0.854,0.214,0.224,0.252
+SYNCOPE,91,NaiveBayes,none,SMOTE,none,0.020,0.156,0.779,0.022,0.036,0.035
+SYNCOPE,91,IBk,none,SMOTE,none,0.137,0.500,0.828,0.205,0.215,0.251
+SYNCOPE,91,RandomForest,none,none,SensitiveThreshold,0.261,0.563,0.858,0.349,0.356,0.376
+SYNCOPE,91,NaiveBayes,none,none,SensitiveThreshold,0.016,0.094,0.785,0.013,0.027,0.019
+SYNCOPE,91,IBk,none,none,SensitiveThreshold,0.243,0.563,0.818,0.332,0.340,0.363
+SYNCOPE,92,RandomForest,none,none,none,0.684,0.325,0.817,0.437,0.441,0.468
+SYNCOPE,92,NaiveBayes,none,none,none,0.067,0.300,0.789,0.095,0.110,0.124
+SYNCOPE,92,IBk,none,none,none,0.636,0.350,0.796,0.448,0.452,0.468
+SYNCOPE,92,RandomForest,BestFirst (backward),none,none,0.500,0.025,0.762,0.047,0.048,0.110
+SYNCOPE,92,NaiveBayes,BestFirst (backward),none,none,0.087,0.225,0.761,0.113,0.126,0.126
+SYNCOPE,92,IBk,BestFirst (backward),none,none,0.500,0.025,0.763,0.047,0.048,0.110
+SYNCOPE,92,RandomForest,none,SMOTE,none,0.116,0.625,0.782,0.182,0.196,0.255
+SYNCOPE,92,NaiveBayes,none,SMOTE,none,0.048,0.350,0.801,0.069,0.085,0.108
+SYNCOPE,92,IBk,none,SMOTE,none,0.105,0.600,0.793,0.165,0.179,0.235
+SYNCOPE,92,RandomForest,none,none,SensitiveThreshold,0.304,0.600,0.834,0.395,0.403,0.419
+SYNCOPE,92,NaiveBayes,none,none,SensitiveThreshold,0.055,0.300,0.789,0.078,0.093,0.109
+SYNCOPE,92,IBk,none,none,SensitiveThreshold,0.275,0.550,0.796,0.358,0.367,0.380
+SYNCOPE,93,RandomForest,none,none,none,0.938,0.326,0.887,0.481,0.484,0.550
+SYNCOPE,93,NaiveBayes,none,none,none,0.070,0.304,0.802,0.097,0.114,0.126
+SYNCOPE,93,IBk,none,none,none,0.818,0.391,0.814,0.526,0.529,0.563
+SYNCOPE,93,RandomForest,BestFirst (backward),none,none,0.667,0.043,0.698,0.080,0.082,0.168
+SYNCOPE,93,NaiveBayes,BestFirst (backward),none,none,0.058,0.130,0.705,0.066,0.081,0.071
+SYNCOPE,93,IBk,BestFirst (backward),none,none,0.667,0.043,0.678,0.080,0.082,0.168
+SYNCOPE,93,RandomForest,none,SMOTE,none,0.129,0.630,0.852,0.200,0.215,0.269
+SYNCOPE,93,NaiveBayes,none,SMOTE,none,0.059,0.370,0.793,0.083,0.101,0.124
+SYNCOPE,93,IBk,none,SMOTE,none,0.127,0.652,0.830,0.197,0.212,0.271
+SYNCOPE,93,RandomForest,none,none,SensitiveThreshold,0.342,0.565,0.887,0.418,0.426,0.432
+SYNCOPE,93,NaiveBayes,none,none,SensitiveThreshold,0.066,0.326,0.802,0.092,0.109,0.125
+SYNCOPE,93,IBk,none,none,SensitiveThreshold,0.342,0.587,0.814,0.424,0.432,0.440
+SYNCOPE,94,RandomForest,none,none,none,0.591,0.382,0.863,0.461,0.464,0.472
+SYNCOPE,94,NaiveBayes,none,none,none,0.043,0.265,0.833,0.061,0.075,0.089
+SYNCOPE,94,IBk,none,none,none,0.560,0.412,0.803,0.471,0.475,0.476
+SYNCOPE,94,RandomForest,BestFirst (backward),none,none,0.600,0.088,0.667,0.152,0.154,0.228
+SYNCOPE,94,NaiveBayes,BestFirst (backward),none,none,0.035,0.118,0.747,0.041,0.054,0.050
+SYNCOPE,94,IBk,BestFirst (backward),none,none,0.750,0.088,0.668,0.156,0.158,0.256
+SYNCOPE,94,RandomForest,none,SMOTE,none,0.077,0.559,0.896,0.122,0.135,0.191
+SYNCOPE,94,NaiveBayes,none,SMOTE,none,0.052,0.471,0.819,0.079,0.093,0.136
+SYNCOPE,94,IBk,none,SMOTE,none,0.081,0.618,0.807,0.130,0.143,0.208
+SYNCOPE,94,RandomForest,none,none,SensitiveThreshold,0.236,0.618,0.902,0.333,0.341,0.374
+SYNCOPE,94,NaiveBayes,none,none,SensitiveThreshold,0.041,0.294,0.833,0.058,0.072,0.090
+SYNCOPE,94,IBk,none,none,SensitiveThreshold,0.224,0.559,0.803,0.311,0.319,0.345
+SYNCOPE,95,RandomForest,none,none,none,0.727,0.333,0.901,0.453,0.457,0.489
+SYNCOPE,95,NaiveBayes,none,none,none,0.052,0.208,0.764,0.066,0.084,0.083
+SYNCOPE,95,IBk,none,none,none,0.667,0.375,0.858,0.475,0.480,0.496
+SYNCOPE,95,RandomForest,BestFirst (backward),none,none,1.000,0.125,0.763,0.220,0.222,0.352
+SYNCOPE,95,NaiveBayes,BestFirst (backward),none,none,0.069,0.125,0.726,0.075,0.089,0.078
+SYNCOPE,95,IBk,BestFirst (backward),none,none,1.000,0.125,0.763,0.220,0.222,0.352
+SYNCOPE,95,RandomForest,none,SMOTE,none,0.140,0.708,0.891,0.219,0.234,0.299
+SYNCOPE,95,NaiveBayes,none,SMOTE,none,0.049,0.292,0.786,0.065,0.084,0.094
+SYNCOPE,95,IBk,none,SMOTE,none,0.144,0.750,0.877,0.226,0.242,0.313
+SYNCOPE,95,RandomForest,none,none,SensitiveThreshold,0.328,0.458,0.889,0.374,0.383,0.379
+SYNCOPE,95,NaiveBayes,none,none,SensitiveThreshold,0.046,0.208,0.764,0.057,0.076,0.075
+SYNCOPE,95,IBk,none,none,SensitiveThreshold,0.338,0.521,0.858,0.401,0.410,0.411
+SYNCOPE,96,RandomForest,none,none,none,0.833,0.385,0.899,0.523,0.526,0.564
+SYNCOPE,96,NaiveBayes,none,none,none,0.060,0.282,0.816,0.084,0.099,0.112
+SYNCOPE,96,IBk,none,none,none,0.727,0.410,0.860,0.521,0.525,0.543
+SYNCOPE,96,RandomForest,BestFirst (backward),none,none,1.000,0.103,0.753,0.185,0.186,0.319
+SYNCOPE,96,NaiveBayes,BestFirst (backward),none,none,0.057,0.154,0.751,0.069,0.083,0.079
+SYNCOPE,96,IBk,BestFirst (backward),none,none,1.000,0.103,0.754,0.185,0.186,0.319
+SYNCOPE,96,RandomForest,none,SMOTE,none,0.112,0.692,0.858,0.179,0.193,0.264
+SYNCOPE,96,NaiveBayes,none,SMOTE,none,0.057,0.410,0.830,0.085,0.101,0.133
+SYNCOPE,96,IBk,none,SMOTE,none,0.105,0.667,0.846,0.167,0.181,0.249
+SYNCOPE,96,RandomForest,none,none,SensitiveThreshold,0.323,0.538,0.888,0.396,0.404,0.410
+SYNCOPE,96,NaiveBayes,none,none,SensitiveThreshold,0.056,0.308,0.816,0.079,0.094,0.111
+SYNCOPE,96,IBk,none,none,SensitiveThreshold,0.282,0.564,0.860,0.368,0.376,0.391
+SYNCOPE,97,RandomForest,none,none,none,1.000,0.405,0.859,0.575,0.577,0.635
+SYNCOPE,97,NaiveBayes,none,none,none,0.050,0.270,0.751,0.070,0.084,0.098
+SYNCOPE,97,IBk,none,none,none,0.737,0.378,0.806,0.497,0.500,0.525
+SYNCOPE,97,RandomForest,BestFirst (backward),none,none,0.600,0.162,0.769,0.252,0.255,0.309
+SYNCOPE,97,NaiveBayes,BestFirst (backward),none,none,0.057,0.162,0.744,0.072,0.085,0.082
+SYNCOPE,97,IBk,BestFirst (backward),none,none,0.714,0.135,0.743,0.225,0.227,0.308
+SYNCOPE,97,RandomForest,none,SMOTE,none,0.111,0.622,0.858,0.176,0.189,0.249
+SYNCOPE,97,NaiveBayes,none,SMOTE,none,0.047,0.405,0.762,0.068,0.084,0.115
+SYNCOPE,97,IBk,none,SMOTE,none,0.100,0.595,0.802,0.159,0.172,0.229
+SYNCOPE,97,RandomForest,none,none,SensitiveThreshold,0.288,0.459,0.859,0.347,0.354,0.356
+SYNCOPE,97,NaiveBayes,none,none,SensitiveThreshold,0.043,0.270,0.751,0.060,0.075,0.088
+SYNCOPE,97,IBk,none,none,SensitiveThreshold,0.270,0.459,0.806,0.332,0.340,0.344
+SYNCOPE,98,RandomForest,none,none,none,0.700,0.304,0.852,0.420,0.424,0.458
+SYNCOPE,98,NaiveBayes,none,none,none,0.060,0.261,0.769,0.081,0.098,0.105
+SYNCOPE,98,IBk,none,none,none,0.652,0.326,0.818,0.430,0.435,0.457
+SYNCOPE,98,RandomForest,BestFirst (backward),none,none,0.833,0.109,0.745,0.190,0.192,0.299
+SYNCOPE,98,NaiveBayes,BestFirst (backward),none,none,0.054,0.130,0.732,0.061,0.076,0.067
+SYNCOPE,98,IBk,BestFirst (backward),none,none,0.833,0.109,0.746,0.190,0.192,0.299
+SYNCOPE,98,RandomForest,none,SMOTE,none,0.096,0.457,0.820,0.143,0.159,0.191
+SYNCOPE,98,NaiveBayes,none,SMOTE,none,0.049,0.304,0.744,0.066,0.084,0.097
+SYNCOPE,98,IBk,none,SMOTE,none,0.103,0.522,0.815,0.156,0.173,0.214
+SYNCOPE,98,RandomForest,none,none,SensitiveThreshold,0.304,0.457,0.844,0.356,0.365,0.364
+SYNCOPE,98,NaiveBayes,none,none,SensitiveThreshold,0.059,0.283,0.769,0.081,0.098,0.108
+SYNCOPE,98,IBk,none,none,SensitiveThreshold,0.311,0.500,0.818,0.374,0.383,0.385
+SYNCOPE,99,RandomForest,none,none,none,0.727,0.250,0.895,0.370,0.372,0.424
+SYNCOPE,99,NaiveBayes,none,none,none,0.054,0.375,0.783,0.081,0.094,0.125
+SYNCOPE,99,IBk,none,none,none,0.563,0.281,0.799,0.372,0.375,0.394
+SYNCOPE,99,RandomForest,BestFirst (backward),none,none,0.333,0.031,0.779,0.056,0.057,0.100
+SYNCOPE,99,NaiveBayes,BestFirst (backward),none,none,0.067,0.250,0.752,0.094,0.105,0.116
+SYNCOPE,99,IBk,BestFirst (backward),none,none,0.500,0.031,0.721,0.058,0.059,0.124
+SYNCOPE,99,RandomForest,none,SMOTE,none,0.082,0.563,0.835,0.131,0.143,0.200
+SYNCOPE,99,NaiveBayes,none,SMOTE,none,0.045,0.469,0.792,0.069,0.083,0.126
+SYNCOPE,99,IBk,none,SMOTE,none,0.085,0.625,0.823,0.137,0.149,0.216
+SYNCOPE,99,RandomForest,none,none,SensitiveThreshold,0.205,0.500,0.894,0.283,0.291,0.312
+SYNCOPE,99,NaiveBayes,none,none,SensitiveThreshold,0.052,0.406,0.783,0.080,0.093,0.128
+SYNCOPE,99,IBk,none,none,SensitiveThreshold,0.211,0.500,0.799,0.288,0.296,0.316
