@@ -25,7 +25,6 @@ public class NestingDepthVisitor extends VoidVisitorAdapter<Void> {
         currentDepth--;
     }
 
-    // Override per i costrutti che aumentano il livello di nidificazione
     @Override public void visit(IfStmt n, Void arg) { enterNode(); super.visit(n, arg); exitNode(); }
     @Override public void visit(ForStmt n, Void arg) { enterNode(); super.visit(n, arg); exitNode(); }
     @Override public void visit(ForEachStmt n, Void arg) { enterNode(); super.visit(n, arg); exitNode(); }

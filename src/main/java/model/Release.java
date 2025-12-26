@@ -8,14 +8,14 @@ import java.util.List;
 
 public class Release {
     private int id;
-    //version name
+    // Version name
     private String name;
-    //version date
+    // Version date
     private LocalDate date;
-    //list of all commits related to that version
+    // List of all commits related to that version
     private List<RevCommit> commitList;
 
-    //list of all classes related to that version
+    // List of all classes related to that version
     private List <JavaMethod> methods;
 
     public Release(String name, LocalDate date) {

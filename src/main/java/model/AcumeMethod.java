@@ -1,4 +1,3 @@
-// In Model/AcumeMethod.java
 package model;
 
 public class AcumeMethod {
@@ -14,7 +13,6 @@ public class AcumeMethod {
         this.actualValue = actualValue;
     }
 
-    // Getters che restituiscono già le stringhe per il CSV, come ha fatto la collega
     public String getId() {
         return String.valueOf(id);
     }
@@ -28,7 +26,6 @@ public class AcumeMethod {
     }
 
     public String getActualValue() {
-        // ACUME si aspetta 'YES' e 'NO' in maiuscolo
         return actualValue.toUpperCase();
     }
 }

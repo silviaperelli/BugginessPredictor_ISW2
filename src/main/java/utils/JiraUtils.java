@@ -42,10 +42,10 @@ public class JiraUtils {
 
     public static Release getReleaseAfterOrEqualDate(LocalDate specificDate, List<Release> releasesList) {
 
-        //sorting the releases by their date
+        // Sorting the releases by their date
         releasesList.sort(Comparator.comparing(Release::getDate));
 
-        //the first release which has a date after or equal to the one given is returned
+        // The first release which has a date after or equal to the one given is returned
         for (Release release : releasesList) {
             if (!release.getDate().isBefore(specificDate)) {
                 return release;
@@ -57,11 +57,11 @@ public class JiraUtils {
     public static List<Release> returnAffectedVersions(JSONArray affectedVersionsArray, List<Release> releasesList) {
         List<Release> existingAffectedVersions = new ArrayList<>();
 
-        //iterating through the names of the affected versions
+        // Iterating through the names of the affected versions
         for (int i = 0; i < affectedVersionsArray.length(); i++) {
             String affectedVersionName = affectedVersionsArray.getJSONObject(i).get("name").toString();
 
-            //iterating through the releases to find the corresponding one
+            // Iterating through the releases to find the corresponding one
             for (Release release : releasesList) {
                 if (Objects.equals(affectedVersionName, release.getName())) {
                     existingAffectedVersions.add(release);
@@ -79,9 +79,9 @@ public class JiraUtils {
 
         for(Ticket ticket: ticketsList){
             if(ticket.getAv().isEmpty()){
-                //estimate and populate IV when is missing
+                // Estimate and populate IV when is missing
                 proportion.fixTicketWithProportion(ticket, releasesList);
-                //populate releases in AV
+                // Populate releases in AV
                 completeAV(ticket, releasesList);
             }else{
                 proportion.addProportion(ticket);
@@ -100,7 +100,7 @@ public class JiraUtils {
 
         for(Release release : releasesList){
             if(release.getId() > iv && release.getId() < fv ){
-                // releases between IV and FV must be add to affected versions, IV has already been added
+                // Releases between IV and FV must be add to affected versions, IV has already been added
                 ticket.addAV(release);
             }
         }

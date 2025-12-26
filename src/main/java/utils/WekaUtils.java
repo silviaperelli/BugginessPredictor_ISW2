@@ -24,7 +24,7 @@ public final class WekaUtils {
      * This method defines the structure of the dataset (attributes) and populates it.
      *
      * @param methods The list of JavaMethod instances to convert.
-     * @param relationName A name for the dataset (e.g., "BOOKKEEPER-Training").
+     * @param relationName A name for the dataset.
      * @return An Instances object ready for use with Weka classifiers.
      */
 
@@ -62,7 +62,7 @@ public final class WekaUtils {
             // Crea un array di double per contenere i valori di una riga
             double[] values = new double[data.numAttributes()];
 
-            // Popola l'array. L'ordine DEVE corrispondere a quello degli attributi sopra.
+            // Popola l'array
             values[0] = method.getLoc();
             values[1] = method.getNumParameters();
             values[2] = method.getNumBranches();
@@ -92,7 +92,6 @@ public final class WekaUtils {
         loader.setSource(new File(csvPath));
         Instances data = loader.getDataSet();
 
-        // È fondamentale impostare l'attributo della classe (l'ultimo)
         if (data.classIndex() == -1) {
             data.setClassIndex(data.numAttributes() - 1);
         }
