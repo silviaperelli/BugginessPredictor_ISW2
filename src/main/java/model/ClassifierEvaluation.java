@@ -3,36 +3,62 @@ package model;
 import java.util.Locale;
 
 public class ClassifierEvaluation {
-    private final String project;
-    private final int iteration;
-    private final String classifierName;
-    private final String featureSelection;
-    private final String sampling;
-    private final String costSensitive;
-    private final double precision;
-    private final double recall;
-    private final double auc;
-    private final double kappa;
-    private final double f1Score;
-    private final double mcc;
+    private String project;
+    private int iteration;
+    private String classifierName;
+    private String featureSelection;
+    private String sampling;
+    private String costSensitive;
+
+    // Metriche
+    private double precision;
+    private double recall;
+    private double auc;
+    private double kappa;
+    private double f1Score;
+    private double mcc;
 
     public static final String CSV_HEADER = "Project,Iteration,Classifier,FeatureSelection,Sampling,CostSensitive,Precision,Recall,AUC,Kappa,F1-Score,MCC";
 
-    public ClassifierEvaluation(String project, int iteration, String classifierName, String featureSelection, String sampling, String costSensitive, double precision, double recall, double auc, double kappa, double f1Score, double mcc) {
+    public ClassifierEvaluation(String project, int iteration, String classifierName,
+                                String featureSelection, String sampling, String costSensitive,
+                                EvaluationMetrics metrics) {
         this.project = project;
         this.iteration = iteration;
         this.classifierName = classifierName;
         this.featureSelection = featureSelection;
         this.sampling = sampling;
         this.costSensitive = costSensitive;
-        this.precision = precision;
-        this.recall = recall;
-        this.auc = auc;
-        this.kappa = kappa;
-        this.f1Score = f1Score;
-        this.mcc = mcc;
+
+        // Estraiamo i valori dall'oggetto metrics per popolare i campi interni
+        this.precision = metrics.precision;
+        this.recall = metrics.recall;
+        this.auc = metrics.auc;
+        this.kappa = metrics.kappa;
+        this.f1Score = metrics.f1Score;
+        this.mcc = metrics.mcc;
     }
 
+
+    // Classe di supporto per raggruppare i double
+    public static class EvaluationMetrics {
+        double precision;
+        double recall;
+        double auc;
+        double kappa;
+        double f1Score;
+        double mcc;
+
+        public EvaluationMetrics(double precision, double recall, double auc,
+                                 double kappa, double f1Score, double mcc) {
+            this.precision = precision;
+            this.recall = recall;
+            this.auc = auc;
+            this.kappa = kappa;
+            this.f1Score = f1Score;
+            this.mcc = mcc;
+        }
+    }
 
     public static String getCsvHeader() {
         return CSV_HEADER;

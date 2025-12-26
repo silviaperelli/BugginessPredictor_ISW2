@@ -224,12 +224,20 @@ public class WekaClassification {
             eval.evaluateModel(classifier, ctx.testingSet);
 
             if (ctx.positiveClassIndex != -1) {
-                // Qui i dati vengono presi dal contesto e salvati nella lista originale
+                // Crea l'oggetto con le 6 metriche
+                ClassifierEvaluation.EvaluationMetrics metrics = new ClassifierEvaluation.EvaluationMetrics(
+                        eval.precision(ctx.positiveClassIndex),
+                        eval.recall(ctx.positiveClassIndex),
+                        eval.areaUnderROC(ctx.positiveClassIndex),
+                        eval.kappa(),
+                        eval.fMeasure(ctx.positiveClassIndex),
+                        eval.matthewsCorrelationCoefficient(ctx.positiveClassIndex)
+                );
+
+                // Passa l'oggetto metrics al costruttore (totale 7 parametri)
                 resultsList.add(new ClassifierEvaluation(projectName, ctx.iterationId, wekaConfig.getName(),
                         wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(),
-                        eval.precision(ctx.positiveClassIndex), eval.recall(ctx.positiveClassIndex),
-                        eval.areaUnderROC(ctx.positiveClassIndex), eval.kappa(), eval.fMeasure(ctx.positiveClassIndex),
-                        eval.matthewsCorrelationCoefficient(ctx.positiveClassIndex)));
+                        metrics));
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e, () -> "Could not evaluate classifier " + wekaConfig.getName());
