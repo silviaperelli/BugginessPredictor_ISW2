@@ -454,7 +454,7 @@ public class GitDataExtractor {
                 processDiffForBuggyness(diff, newFileContentsInFix, oldFileContentsInFix, injectedVersion, fixedVersion, allProjectMethods);
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Errore durante l'analisi del commit di fix {0} {1}", new Object[]{fixCommit.getName(), e});
+            LOGGER.log(Level.SEVERE, "Errore durante l'analisi del commit di fix " + fixCommit.getName(), e);
         }
     }
 
@@ -490,51 +490,59 @@ public class GitDataExtractor {
      */
     private void labelBuggyMethods(String fixedMethodFQN, Release injectedVersion, Release fixedVersion, List<JavaMethod> allProjectMethods) {
         for (JavaMethod projectMethod : allProjectMethods) {
-            if (projectMethod.getFullyQualifiedName().equals(fixedMethodFQN)) {
-                if (projectMethod.getRelease().getId() >= injectedVersion.getId() && projectMethod.getRelease().getId() < fixedVersion.getId()) {
-                    projectMethod.setBuggy(true);
-                }
+            if (projectMethod.getFullyQualifiedName().equals(fixedMethodFQN) &&
+                    projectMethod.getRelease().getId() >= injectedVersion.getId() &&
+                    projectMethod.getRelease().getId() < fixedVersion.getId()) {
+                projectMethod.setBuggy(true);
             }
         }
     }
 
     // --- METODI DI UTILITÀ PRIVATI ---
-
     private int calculateLOC(MethodDeclaration md) {
-        if (md.getBody().isPresent()) {
-            String[] lines = md.getBody().get().toString().split("\r\n|\r|\n");
-            boolean inMultiLineComment = false;
-            int locCount = 0;
-
-            for (String line : lines) {
-                String trimmedLine = line.trim();
-
-                if (trimmedLine.startsWith("/*")) {
-                    inMultiLineComment = true;
-                    if (trimmedLine.endsWith("*/") && trimmedLine.length() > 2) {
-                        inMultiLineComment = false;
-                    }
-                    continue;
-                }
-
-                if (trimmedLine.endsWith("*/")) {
-                    inMultiLineComment = false;
-                    continue;
-                }
-
-                if (inMultiLineComment) {
-                    continue;
-                }
-
-                if (!trimmedLine.isEmpty() &&
-                        !trimmedLine.startsWith("//") &&
-                        !(trimmedLine.equals("{") || trimmedLine.equals("}"))) {
-                    locCount++;
-                }
-            }
-            return locCount;
+        if (!md.getBody().isPresent()) {
+            return 0;
         }
-        return 0;
+
+        String[] lines = md.getBody().get().toString().split("\r\n|\r|\n");
+        boolean inMultiLineComment = false;
+        int locCount = 0;
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+
+            if (trimmedLine.startsWith("/*")) {
+                inMultiLineComment = true;
+                if (trimmedLine.endsWith("*/") && trimmedLine.length() > 2) {
+                    inMultiLineComment = false;
+                }
+                continue;
+            }
+
+            if (trimmedLine.endsWith("*/")) {
+                inMultiLineComment = false;
+                continue;
+            }
+
+            if (inMultiLineComment) {
+                continue;
+            }
+
+            if (isValidCodeLine(trimmedLine)) {
+                locCount++;
+            }
+        }
+        return locCount;
+    }
+
+    /**
+     * Verifica esattamente le tue condizioni originali:
+     * Non vuota, non commento //, non solo { o }.
+     */
+    private boolean isValidCodeLine(String trimmedLine) {
+        return !trimmedLine.isEmpty() &&
+                !trimmedLine.startsWith("//") &&
+                !(trimmedLine.equals("{") || trimmedLine.equals("}"));
     }
 
 
