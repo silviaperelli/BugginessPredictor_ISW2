@@ -350,44 +350,46 @@ public class GitDataExtractor {
      * Aggiorna le metriche di un metodo basate su un singolo commit.
      * NOTA: La logica di calcolo del churn è stata allineata a quella del secondo codice.
      */
-    // --- MODIFICA 1: LOGICA DI `updateMethodMetricsForCommit` ALLINEATA ---
     private void updateMethodMetricsForCommit(List<JavaMethod> methodsToUpdate, RevCommit commit, MethodDeclaration currentMdAst, MethodDeclaration oldMdAst, String newBodyHash) {
         Release releaseOfCommit = GitUtils.getReleaseOfCommit(commit, this.fullReleaseList);
         if (releaseOfCommit == null) return;
 
         for (JavaMethod projectMethod : methodsToUpdate) {
-            if (projectMethod.getRelease().getId() >= releaseOfCommit.getId()) {
-                projectMethod.addCommit(commit);
-                projectMethod.incrementNumRevisions();
-                projectMethod.setBodyHash(newBodyHash);
+            // Se la condizione non è soddisfatta, passiamo al prossimo metodo
+            if (projectMethod.getRelease().getId() < releaseOfCommit.getId()) {
+                continue;
+            }
 
-                int currentCommitStmtAdded = 0;
-                int currentCommitStmtDeleted = 0;
+            projectMethod.addCommit(commit);
+            projectMethod.incrementNumRevisions();
+            projectMethod.setBodyHash(newBodyHash);
 
-                // Logica di calcolo churn allineata a quella del secondo codice
-                if (oldMdAst != null) { // MODIFICA
-                    int locOld = calculateLOC(oldMdAst);
-                    int locNew = calculateLOC(currentMdAst);
-                    if (locNew > locOld) {
-                        currentCommitStmtAdded = locNew - locOld;
-                        projectMethod.addStmtAdded(currentCommitStmtAdded); // Aggiunta qui
-                    } else if (locOld > locNew) {
-                        currentCommitStmtDeleted = locOld - locNew;
-                        projectMethod.addStmtDeleted(currentCommitStmtDeleted); // Aggiunta qui
-                    }
-                } else { // AGGIUNTA
-                    currentCommitStmtAdded = calculateLOC(currentMdAst);
-                    projectMethod.addStmtAdded(currentCommitStmtAdded); // Aggiunta qui
+            int currentCommitStmtAdded = 0;
+            int currentCommitStmtDeleted = 0;
+
+            // Logica di calcolo churn allineata a quella del secondo codice
+            if (oldMdAst != null) {
+                int locOld = calculateLOC(oldMdAst);
+                int locNew = calculateLOC(currentMdAst);
+
+                if (locNew > locOld) {
+                    currentCommitStmtAdded = locNew - locOld;
+                    projectMethod.addStmtAdded(currentCommitStmtAdded);
+                } else if (locOld > locNew) {
+                    currentCommitStmtDeleted = locOld - locNew;
+                    projectMethod.addStmtDeleted(currentCommitStmtDeleted);
                 }
+            } else {
+                currentCommitStmtAdded = calculateLOC(currentMdAst);
+                projectMethod.addStmtAdded(currentCommitStmtAdded);
+            }
 
-                int currentCommitChurn = currentCommitStmtAdded + currentCommitStmtDeleted;
-                if (currentCommitChurn > projectMethod.getMaxChurn()) {
-                    projectMethod.setMaxChurn(currentCommitChurn);
-                }
+            int currentCommitChurn = currentCommitStmtAdded + currentCommitStmtDeleted;
+            if (currentCommitChurn > projectMethod.getMaxChurn()) {
+                projectMethod.setMaxChurn(currentCommitChurn);
             }
         }
     }
-
 
     /**
      * Itera su tutti i metodi e imposta il flag 'hasFixHistory' se sono stati modificati da un commit
@@ -416,7 +418,7 @@ public class GitDataExtractor {
     }
 
     /**
-     * Itera su tutti i ticket di bug e etichetta i metodi appropriati come "buggy".
+     * Itera su tutti i ticket di bug ed etichetta i metodi appropriati come "buggy"
      */
     public void setMethodBuggyness(List<JavaMethod> allProjectMethods) {
         if (this.ticketList == null) {
@@ -429,44 +431,56 @@ public class GitDataExtractor {
             if (injectedVersion == null) continue;
 
             for (RevCommit fixCommit : ticket.getCommitList()) {
-                Release fixedVersion = GitUtils.getReleaseOfCommit(fixCommit, this.fullReleaseList);
-                if (fixedVersion == null) continue;
+                // Estrazione 1: Gestione del singolo commit di fix
+                processSingleFixCommit(fixCommit, injectedVersion, allProjectMethods);
+            }
+        }
+    }
 
-                try {
-                    if (fixCommit.getParentCount() == 0) continue;
-                    RevCommit parentOfFix = fixCommit.getParent(0);
-                    List<DiffEntry> diffs = getDiffEntries(parentOfFix, fixCommit);
+    private void processSingleFixCommit(RevCommit fixCommit, Release injectedVersion, List<JavaMethod> allProjectMethods) {
+        Release fixedVersion = GitUtils.getReleaseOfCommit(fixCommit, this.fullReleaseList);
+        if (fixedVersion == null) return;
 
-                    Map<String, String> newFileContentsInFix = getFileContents(diffs, false);
-                    Map<String, String> oldFileContentsInFix = getFileContents(diffs, true);
+        try {
+            if (fixCommit.getParentCount() == 0) return;
+            RevCommit parentOfFix = fixCommit.getParent(0);
+            List<DiffEntry> diffs = getDiffEntries(parentOfFix, fixCommit);
 
-                    for (DiffEntry diff : diffs) {
-                        String filePath = diff.getNewPath();
-                        if (!filePath.endsWith(javaExtension) || filePath.contains(directoryTest)) continue;
+            Map<String, String> newFileContentsInFix = getFileContents(diffs, false);
+            Map<String, String> oldFileContentsInFix = getFileContents(diffs, true);
 
-                        String newContent = newFileContentsInFix.getOrDefault(filePath, "");
-                        Map<String, MethodDeclaration> newMethodsInFix = parseMethods(newContent);
+            for (DiffEntry diff : diffs) {
+                // Estrazione 2: Analisi dei file modificati (diff)
+                processDiffForBuggyness(diff, newFileContentsInFix, oldFileContentsInFix, injectedVersion, fixedVersion, allProjectMethods);
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Errore durante l'analisi del commit di fix {0} {1}", new Object[]{fixCommit.getName(), e});
+        }
+    }
 
-                        String oldContent = oldFileContentsInFix.getOrDefault(diff.getOldPath(), "");
-                        Map<String, MethodDeclaration> oldMethodsInFix = parseMethods(oldContent);
+    private void processDiffForBuggyness(DiffEntry diff, Map<String, String> newFileContents, Map<String, String> oldFileContents,
+                                         Release injectedVersion, Release fixedVersion, List<JavaMethod> allProjectMethods) {
+        String filePath = diff.getNewPath();
+        if (!filePath.endsWith(javaExtension) || filePath.contains(directoryTest)) return;
 
-                        for (Map.Entry<String, MethodDeclaration> newMethodEntry : newMethodsInFix.entrySet()) {
-                            String signature = newMethodEntry.getKey();
-                            MethodDeclaration newMd = newMethodEntry.getValue();
-                            MethodDeclaration oldMd = oldMethodsInFix.get(signature);
+        String newContent = newFileContents.getOrDefault(filePath, "");
+        Map<String, MethodDeclaration> newMethodsInFix = parseMethods(newContent);
 
-                            String newHash = calculateBodyHash(newMd);
-                            String oldHash = calculateBodyHash(oldMd);
+        String oldContent = oldFileContents.getOrDefault(diff.getOldPath(), "");
+        Map<String, MethodDeclaration> oldMethodsInFix = parseMethods(oldContent);
 
-                            if (oldMd == null || !newHash.equals(oldHash)) { // Metodo nuovo o cambiato
-                                String fqn = filePath + "/" + signature;
-                                labelBuggyMethods(fqn, injectedVersion, fixedVersion, allProjectMethods);
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Errore durante l'analisi del commit di fix {0} {1}" + new Object[]{fixCommit.getName(), e});
-                }
+        for (Map.Entry<String, MethodDeclaration> newMethodEntry : newMethodsInFix.entrySet()) {
+            String signature = newMethodEntry.getKey();
+            MethodDeclaration newMd = newMethodEntry.getValue();
+            MethodDeclaration oldMd = oldMethodsInFix.get(signature);
+
+            String newHash = calculateBodyHash(newMd);
+            String oldHash = calculateBodyHash(oldMd);
+
+            // Se il metodo è nuovo o il corpo è cambiato rispetto alla versione precedente
+            if (oldMd == null || !newHash.equals(oldHash)) {
+                String fqn = filePath + "/" + signature;
+                labelBuggyMethods(fqn, injectedVersion, fixedVersion, allProjectMethods);
             }
         }
     }
