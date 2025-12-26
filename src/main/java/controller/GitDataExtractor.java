@@ -607,41 +607,67 @@ public class GitDataExtractor {
 
     private int calculateCodeSmells(MethodDeclaration md, int cyclomaticComplexity, int loc, int nestingDepth, int numParameters) {
         if (!md.getBody().isPresent()) return 0;
+
         int smellCount = 0;
         BlockStmt body = md.getBody().get();
 
+        // 1. Controlli metriche statiche
         if (cyclomaticComplexity > 7) smellCount++;
         if (loc > 30) smellCount++;
         if (nestingDepth > 4) smellCount++;
         if (numParameters > 5) smellCount++;
 
+        // 2. Controlli strutturali (Switch, Catch, InstanceOf)
+        smellCount += countStructuralSmells(body);
+
+        // 3. Controllo annotazione Override
+        if (isMissingOverride(md)) smellCount++;
+
+        // 4. Controllo Magic Numbers
+        if (hasMagicNumberSmell(body)) smellCount++;
+
+        return smellCount;
+    }
+
+    private int countStructuralSmells(BlockStmt body) {
+        int count = 0;
         for (SwitchStmt switchStmt : body.findAll(SwitchStmt.class)) {
             if (switchStmt.getEntries().stream().noneMatch(entry -> entry.getLabels().isEmpty())) {
-                smellCount++;
+                count++;
             }
         }
         for (CatchClause catchClause : body.findAll(CatchClause.class)) {
             if (catchClause.getBody().getStatements().isEmpty()) {
-                smellCount++;
+                count++;
             }
         }
         if (body.findAll(InstanceOfExpr.class).size() > 2) {
-            smellCount++;
+            count++;
         }
-        String methodName = md.getNameAsString();
-        if ((methodName.equals("equals") || methodName.equals("hashCode") || methodName.equals("toString")) &&
-                md.getAnnotations().stream().noneMatch(a -> a.getNameAsString().equals("Override"))) {
-            smellCount++;
-        }
+        return count;
+    }
 
+    private boolean isMissingOverride(MethodDeclaration md) {
+        String methodName = md.getNameAsString();
+        List<String> standardMethods = Arrays.asList("equals", "hashCode", "toString");
+
+        return standardMethods.contains(methodName) &&
+                md.getAnnotations().stream().noneMatch(a -> a.getNameAsString().equals("Override"));
+    }
+
+    private boolean hasMagicNumberSmell(BlockStmt body) {
         long magicNumberCount = body.findAll(IntegerLiteralExpr.class).stream()
-                .filter(n -> { try { int val = n.asInt(); return val != 0 && val != 1 && val != -1; } catch (Exception e) { return true; } })
+                .filter(n -> {
+                    try {
+                        int val = n.asInt();
+                        return val != 0 && val != 1 && val != -1;
+                    } catch (Exception e) {
+                        return true;
+                    }
+                })
                 .filter(n -> n.getParentNode().map(p -> !(p instanceof VariableDeclarator)).orElse(true))
                 .count();
-        if (magicNumberCount > 1) {
-            smellCount++;
-        }
-        return smellCount;
+        return magicNumberCount > 1;
     }
 
     private void filterAndRenumberReleases() {
