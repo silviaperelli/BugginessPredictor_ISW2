@@ -34,16 +34,15 @@ public class MetricsAnalyzerFromFile {
         String originalMethodName;
         String refactoredMethodName;
 
-        // La logica di selezione ora è più semplice
         if ("BOOKKEEPER".equals(projectName)) {
             if ("NSmell".equals(feature)) {
                 originalMethodName = "readEntry";
                 refactoredMethodName = "readEntry2";
-            } else { // Assumiamo LOC
+            } else {
                 originalMethodName = "main";
                 refactoredMethodName = "main2";
             }
-        } else { // Assumiamo SYNCOPE
+        } else {
             originalMethodName = "getTaskTO";
             refactoredMethodName = "getTaskTO2";
         }
@@ -53,13 +52,13 @@ public class MetricsAnalyzerFromFile {
         String outputFile = String.format("%s/feature_comparison_%s_%s.csv", dir, feature, projectName.toLowerCase());
 
         if (!Files.exists(Paths.get(inputFile))) {
-            LOGGER.log(Level.SEVERE,"\nERRORE: File di input non trovato: {0}", inputFile);
+            LOGGER.log(Level.SEVERE,"\nERROR: Input file not found: {0}", inputFile);
             return;
         }
 
         Files.createDirectories(Paths.get(dir));
-        Console.info("Analizzando il file: " + inputFile);
-        Console.info("Salvando il report in: " + outputFile + "\n");
+        Console.info("Analyzing file: " + inputFile);
+        Console.info("Saving report to: " + outputFile + "\n");
 
         List<String> allLines = Files.readAllLines(Paths.get(inputFile));
         String importsSection = allLines.stream()
@@ -74,21 +73,20 @@ public class MetricsAnalyzerFromFile {
         try {
             cu = StaticJavaParser.parse(fullCodeToParse);
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE,"ERRORE GRAVE DI PARSING: Controlla che il file {0} contenga codice Java valido.", inputFile);
+            LOGGER.log(Level.SEVERE,"PARSING ERROR: Check if file {0} contains valid Java code", inputFile);
             e.printStackTrace();
             return;
         }
 
-        // --- INIZIO MODIFICA 1: Ricerca metodi più precisa ---
-        // Prima troviamo la classe wrapper che abbiamo creato
+        // Troviamo la classe wrapper che abbiamo creato
         Optional<ClassOrInterfaceDeclaration> wrapperClassOpt = cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString().equals("DummyWrapperClass"));
         if (!wrapperClassOpt.isPresent()) {
-            LOGGER.log(Level.SEVERE,"ERRORE: Impossibile trovare la classe wrapper 'DummyWrapperClass'.");
+            LOGGER.log(Level.SEVERE,"ERROR: Impossible to find wrapper class 'DummyWrapperClass'");
             return;
         }
         ClassOrInterfaceDeclaration wrapperClass = wrapperClassOpt.get();
 
-        // Ora cerchiamo i metodi solo all'interno della classe wrapper
+        // Cerchiamo i metodi solo all'interno della classe wrapper
         Optional<MethodDeclaration> originalMethodOpt = wrapperClass.getMethodsByName(originalMethodName).stream().findFirst();
         Optional<MethodDeclaration> refactoredEntryPointOpt = wrapperClass.getMethodsByName(refactoredMethodName).stream().findFirst();
 
@@ -96,10 +94,9 @@ public class MetricsAnalyzerFromFile {
         List<MethodDeclaration> allRefactoredMethods = wrapperClass.getMethods().stream()
                 .filter(md -> !md.getNameAsString().equals(originalMethodName))
                 .collect(Collectors.toList());
-        // --- FINE MODIFICA 1 ---
 
         if (!originalMethodOpt.isPresent() || !refactoredEntryPointOpt.isPresent()) {
-            LOGGER.log(Level.SEVERE,"ERRORE: Impossibile trovare i metodi {0} e/o {1} nel file.", new Object[]{originalMethodName, refactoredMethodName});
+            LOGGER.log(Level.SEVERE,"ERROR: Impossible to find methods {0} and/or  {1} in file.", new Object[]{originalMethodName, refactoredMethodName});
             return;
         }
 
@@ -113,11 +110,11 @@ public class MetricsAnalyzerFromFile {
             printRefactoredMetrics(refactoredEntryPointOpt.get(), allRefactoredMethods, writer);
 
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,"ERRORE: Impossibile scrivere il file CSV.");
+            LOGGER.log(Level.SEVERE,"ERROR: Impossible to write CSV file");
             e.printStackTrace();
         }
 
-        Console.info("Analisi completata. Report CSV generato con successo.");
+        Console.info("Analysis completed. CSV report generated successfully");
     }
 
     private static void printMetrics(MethodDeclaration md, String version, PrintWriter writer) {

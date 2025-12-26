@@ -61,7 +61,7 @@ public class WhatIfAnalysis {
         if (nSmellsIndex == -1) throw new IllegalStateException("Feature 'NSmells' not found.");
         datasetB.forEach(instance -> instance.setValue(nSmellsIndex, 0));
 
-        // --- 2. NUOVA SEZIONE: Salvataggio dei dataset B, B+, C su file ---
+        // --- 2. Salvataggio dei dataset B, B+, C su file ---
         String outputDir = String.format("whatIf/%s/", this.project.toLowerCase());
         new File(outputDir).mkdirs(); // Crea la directory se non esiste
 
@@ -82,7 +82,6 @@ public class WhatIfAnalysis {
         saver.setFile(new File(outputDir + "C.csv"));
         saver.writeBatch();
         Console.info("Intermediate datasets B, B+, C saved successfully.");
-        // --- FINE NUOVA SEZIONE ---
 
         // --- Addestrare BClassifier su A (BClassifierA) ---
         Console.info("Training BClassifier on the full dataset A...");
@@ -99,7 +98,7 @@ public class WhatIfAnalysis {
         int actualA = countActualBugs(this.datasetA);
         int actualBPlus = countActualBugs(datasetBPlus);
         int actualC = countActualBugs(datasetC);
-        // Nota: B e B+ hanno gli stessi metodi, quindi gli Actual sono identici.
+        // B e B+ hanno gli stessi metodi, quindi gli Actual sono identici.
         int actualB = actualBPlus;
 
         // Calcola i valori "Estimated"
@@ -108,7 +107,7 @@ public class WhatIfAnalysis {
         int estimatedC = countBuggyPredictions(bClassifierA, datasetC);
         int estimatedB = countBuggyPredictions(bClassifierA, datasetB);
 
-        // --- Passo 13: Salva i risultati in un file CSV ---
+        // --- Salva i risultati in un file CSV ---
         String outputFile = outputDir + "whatIf_results_" + project.toLowerCase() + ".csv";
         printWhatIfResultsToCsv(outputFile,
                 actualA, estimatedA,

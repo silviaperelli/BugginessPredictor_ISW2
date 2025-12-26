@@ -48,7 +48,6 @@ public class ClassifierBuilder {
         // 4. Classificatori con Cost-Sensitive Learning
         addCostSensitiveClassifiers(classifiers);
 
-
         return classifiers;
     }
 
@@ -86,8 +85,6 @@ public class ClassifierBuilder {
             classifiers.add(new WekaClassifier(csc, getClassifierName(base), "none", "none", "SensitiveThreshold"));
         }
     }
-
-    // ... IL RESTO DELLA CLASSE RIMANE IDENTICO ...
 
     private static List<Classifier> getBaseClassifiers() {
         List<Classifier> baseClassifiers = new ArrayList<>();
@@ -145,6 +142,4 @@ public class ClassifierBuilder {
         matrix.setCell(1, 0, 10.0); // FN
         return matrix;
     }
-
-
 }

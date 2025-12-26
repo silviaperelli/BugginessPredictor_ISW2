@@ -169,7 +169,6 @@ public class WekaClassification {
         }
     }
 
-    // --- MOTORE DI CLASSIFICAZIONE UNIFICATO ---
     private void performSingleClassification(String dirPath, String validationType, int run, int foldOrIteration, Map<String, List<AcumeMethod>> aggregatedPredictions) {
         try {
             if (!new File(dirPath + "training.arff").exists()) return;
@@ -244,7 +243,6 @@ public class WekaClassification {
         }
     }
 
-    // --- METODI HELPER (INVARIATI) ---
     private List<AcumeMethod> getAcumePredictions(Classifier classifier, Instances dataSet) throws Exception {
         List<AcumeMethod> predictions = new ArrayList<>();
         int positiveClassIndex = dataSet.classAttribute().indexOfValue("yes");

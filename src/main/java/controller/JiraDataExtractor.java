@@ -28,9 +28,9 @@ public class JiraDataExtractor {
         JSONArray versions = json.getJSONArray("versions");
 
         for (int i=0; i < versions.length(); i++) {
-            //obtaining single json object
+            // Obtaining single json object
             JSONObject releaseJsonObject = versions.getJSONObject(i);
-            //creating Release model
+            // Creating Release model
             if (releaseJsonObject.has("releaseDate") && releaseJsonObject.has("name")) {
                 String releaseDate = releaseJsonObject.get("releaseDate").toString();
                 String releaseName = releaseJsonObject.get("name").toString();
@@ -38,7 +38,7 @@ public class JiraDataExtractor {
             }
         }
 
-        //sorting the versions based on the release date
+        // Sorting the versions based on the release date
         releaseList.sort(Comparator.comparing(Release::getDate));
         int j = 0;
         for (Release release : releaseList) {
@@ -65,7 +65,7 @@ public class JiraDataExtractor {
             JSONArray issues = json.getJSONArray("issues");
             total = json.getInt("total");
             for (; i < total && i < j; i++) {
-                //Iterate through each bug to retrieve ID, creation date, resolution date and affected versions
+                // Iterate through each bug to retrieve ID, creation date, resolution date and affected versions
                 String key = issues.getJSONObject(i%1000).get("key").toString();
                 JSONObject fields = issues.getJSONObject(i%1000).getJSONObject("fields");
                 String creationDateString = fields.get("created").toString();
@@ -74,19 +74,19 @@ public class JiraDataExtractor {
                 LocalDate resolutionDate = LocalDate.parse(resolutionDateString.substring(0,10));
                 JSONArray affectedVersionsArray = fields.getJSONArray("versions");
 
-                //to obtain the opening version and the fixed version I use the creation date and the release date
+                // To obtain the opening version and the fixed version I use the creation date and the release date
                 Release openingVersion = JiraUtils.getReleaseAfterOrEqualDate(creationDate, releasesList);
                 Release fixedVersion =  JiraUtils.getReleaseAfterOrEqualDate(resolutionDate, releasesList);
 
-                //obtaining the affected releases
+                // Obtaining the affected releases
                 List<Release> affectedVersionsList = JiraUtils.returnAffectedVersions(affectedVersionsArray, releasesList);
 
-                //checking if the ticket is not valid
+                // Checking if the ticket is not valid
                 if(!affectedVersionsList.isEmpty() && openingVersion!=null && fixedVersion!=null && (!affectedVersionsList.get(0).getDate().isBefore(openingVersion.getDate()) || openingVersion.getDate().isAfter(fixedVersion.getDate()))){
                     continue;
                 }
 
-                //the opening version must be different from the first release
+                // The opening version must be different from the first release
                 if(openingVersion != null && fixedVersion != null && openingVersion.getId()!=releasesList.get(0).getId()){
                     ticketsList.add(new Ticket(key, creationDate, resolutionDate, openingVersion, fixedVersion, affectedVersionsList));
                 }

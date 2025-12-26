@@ -67,7 +67,7 @@ public class GitDataExtractor {
         try {
             this.git = Git.open(repoDir);
         } catch (IOException e) {
-            throw new IOException("Impossible to open the repository Git in " + repoDir.getAbsolutePath(), e);
+            throw new IOException("Unable to open Git repository at " + repoDir.getAbsolutePath(), e);
         }
 
         this.repository = git.getRepository();
@@ -79,7 +79,6 @@ public class GitDataExtractor {
         this.nestingVisitor = new NestingDepthVisitor();
     }
 
-    // --- GETTERS E SETTERS ---
     public List<Ticket> getTicketList() { return ticketList; }
     public List<Release> getReleaseList() { return releaseList; }
     public List<Release> getFullReleaseList() { return fullReleaseList; }
@@ -108,7 +107,7 @@ public class GitDataExtractor {
      */
     public List<RevCommit> getAllCommitsAndAssignToReleases() throws GitAPIException, IOException {
         if (this.ticketList == null) {
-            LOGGER.warning("Ticket list non inizializzata.");
+            LOGGER.warning("Ticket list not initialized");
             return Collections.emptyList();
         }
         if (!commitList.isEmpty()) {
@@ -144,7 +143,7 @@ public class GitDataExtractor {
     public List<RevCommit> filterCommitsOfIssues() {
         List<RevCommit> filteredCommits = new ArrayList<>();
         if (commitList.isEmpty()) {
-            LOGGER.warning("Lista commit vuota. Chiamare prima getAllCommitsAndAssignToReleases().");
+            LOGGER.warning("Empty commit list");
             return filteredCommits;
         }
 
@@ -176,7 +175,7 @@ public class GitDataExtractor {
      */
     public List<JavaMethod> getMethodsFromReleases() throws IOException {
         List<JavaMethod> allMethods = new ArrayList<>();
-        Map<String, JavaMethod> methodCache = new HashMap<>(); // Cache per FQN@ReleaseID -> JavaMethod
+        Map<String, JavaMethod> methodCache = new HashMap<>();
 
         for (Release release : this.releaseList) {
             List<RevCommit> releaseCommits = release.getCommitList();
@@ -244,7 +243,7 @@ public class GitDataExtractor {
                 }
             });
         } catch (ParseProblemException | StackOverflowError e) {
-            LOGGER.log(Level.SEVERE, "Errore di parsing per il file: {0}",filePath);
+            LOGGER.log(Level.SEVERE, "Parsing error for file: {0}",filePath);
         }
     }
 
@@ -263,7 +262,7 @@ public class GitDataExtractor {
             processCommitForMethodMetrics(commit, methodMap);
         }
 
-        // Calcola NAuth e AvgChurn dopo aver processato tutti i commit.
+        // Calcola NAuth e AvgChurn dopo aver processato tutti i commit
         calculateFinalMethodMetrics(allMethods);
     }
 
@@ -277,7 +276,7 @@ public class GitDataExtractor {
         try {
             diffs = getDiffEntries(parent, commit);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Impossibile calcolare diff per commit {0} {1}", new Object[]{commit.getName(), e});
+            LOGGER.log(Level.SEVERE, "Unable to calculate difference for commit {0} {1}", new Object[]{commit.getName(), e});
             return;
         }
 
@@ -419,7 +418,7 @@ public class GitDataExtractor {
      */
     public void setMethodBuggyness(List<JavaMethod> allProjectMethods) {
         if (this.ticketList == null) {
-            LOGGER.warning("Ticket list non inizializzata per setMethodBuggyness.");
+            LOGGER.warning("Ticket list not initialized");
             return;
         }
 
@@ -428,7 +427,7 @@ public class GitDataExtractor {
             if (injectedVersion == null) continue;
 
             for (RevCommit fixCommit : ticket.getCommitList()) {
-                // Estrazione 1: Gestione del singolo commit di fix
+                // Gestione del singolo commit di fix
                 processSingleFixCommit(fixCommit, injectedVersion, allProjectMethods);
             }
         }
@@ -447,11 +446,11 @@ public class GitDataExtractor {
             Map<String, String> oldFileContentsInFix = getFileContents(diffs, true);
 
             for (DiffEntry diff : diffs) {
-                // Estrazione 2: Analisi dei file modificati (diff)
+                // Analisi dei file modificati
                 processDiffForBuggyness(diff, newFileContentsInFix, oldFileContentsInFix, injectedVersion, fixedVersion, allProjectMethods);
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, e, () -> "Errore durante l'analisi del commit di fix " + fixCommit.getName());
+            LOGGER.log(Level.SEVERE, e, () -> "Error parsing fix commit " + fixCommit.getName());
         }
     }
 
@@ -495,7 +494,6 @@ public class GitDataExtractor {
         }
     }
 
-    // --- METODI DI UTILITÀ PRIVATI ---
     private String calculateBodyHash(MethodDeclaration md) {
         if (md == null) return "NULL_METHOD_HASH";
         String normalizedBody = normalizeMethodBody(md);

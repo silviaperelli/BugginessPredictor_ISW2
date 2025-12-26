@@ -15,8 +15,8 @@ import java.util.logging.Logger;
 
 public class StarterBugginessPredictor {
 
-    static String choiceString = "Inserisci la tua scelta (1 o 2): ";
-    static String notValid = "Scelta non valida. Riprova.";
+    static String choiceString = "Enter your choice (1 or 2): ";
+    static String notValid = "Invalid choice. Please try again.";
 
     private static final Logger LOGGER = Logger.getLogger(StarterBugginessPredictor.class.getName());
 
@@ -32,7 +32,7 @@ public class StarterBugginessPredictor {
 
         // Chiusura finale
         scanner.close();
-        PrintUtils.Console.info("\nApplicazione terminata.");
+        PrintUtils.Console.info("\nApplication terminated.");
     }
 
     /**
@@ -43,7 +43,7 @@ public class StarterBugginessPredictor {
      */
     private static String selectProject(Scanner scanner) {
         PrintUtils.Console.info("=====================================");
-        PrintUtils.Console.info("  SELEZIONA IL PROGETTO DA ANALIZZARE  ");
+        PrintUtils.Console.info("    SELECT PROJECT TO ANALYZE        ");
         PrintUtils.Console.info("=====================================");
         PrintUtils.Console.info("1. BOOKKEEPER");
         PrintUtils.Console.info("2. SYNCOPE");
@@ -78,20 +78,20 @@ public class StarterBugginessPredictor {
      */
     private static void handleProjectActions(String projectName, Scanner scanner) {
         while (true) {
-            PrintUtils.Console.info("\n--- PROGETTO: " + projectName.toUpperCase() + " ---");
-            PrintUtils.Console.info("Seleziona l'azione da eseguire:");
-            PrintUtils.Console.info("1. Fase 1 (Creazione Dataset) + Fase 2 (Classificazione Weka)");
-            PrintUtils.Console.info("2. Calcolo Correlazione Feature");
-            PrintUtils.Console.info("3. Analisi Metriche del Refactoring (da file)");
-            PrintUtils.Console.info("4. Analisi What-If");
+            PrintUtils.Console.info("\n--- PROJECT: " + projectName.toUpperCase() + " ---");
+            PrintUtils.Console.info("Select the action to perform:");
+            PrintUtils.Console.info("1. Phase 1 (Dataset Creation) + Phase 2 (Weka Classification)");
+            PrintUtils.Console.info("2. Feature Correlation Calculation");
+            PrintUtils.Console.info("3. Refactoring Metrics Analysis (from file)");
+            PrintUtils.Console.info("4. What-If Analysis");
             PrintUtils.Console.info("-------------------------------------");
             PrintUtils.Console.info("0. Exit");
-            PrintUtils.Console.info("Inserisci la tua scelta: ");
+            PrintUtils.Console.info("Enter your choice: ");
 
             while (!scanner.hasNextInt()) {
-                PrintUtils.Console.info("Input non valido. Per favore, inserisci un numero.");
+                PrintUtils.Console.info("Invalid input. Please enter a number.");
                 scanner.next();
-                PrintUtils.Console.info("Inserisci la tua scelta: ");
+                PrintUtils.Console.info("Enter your choice: ");
             }
             int action = scanner.nextInt();
 
@@ -102,16 +102,16 @@ public class StarterBugginessPredictor {
             try {
                 switch (action) {
                     case 1:
-                        PrintUtils.Console.info("\n>>> Avvio Fase 1 e 2...");
+                        PrintUtils.Console.info("\n>>> Starting Phase 1 and 2...");
                         runCompleteAnalysis(projectName);
                         break;
                     case 2:
-                        PrintUtils.Console.info("\n>>> Avvio calcolo della correlazione...");
+                        PrintUtils.Console.info("\n>>> Starting correlation calculation...");
                         CorrelationCalculator.calculateAndSave(projectName);
-                        PrintUtils.Console.info(">>> Calcolo della correlazione completato.");
+                        PrintUtils.Console.info(">>> Correlation calculation completed.");
                         break;
-                    case 3: // <-- LOGICA MODIFICATA QUI
-                        PrintUtils.Console.info("\n>>> Avvio analisi metriche del refactoring...");
+                    case 3:
+                        PrintUtils.Console.info("\n>>> Starting refactoring metrics analysis...");
 
                         String featureType;
                         if ("BOOKKEEPER".equals(projectName)) {
@@ -119,7 +119,7 @@ public class StarterBugginessPredictor {
                             featureType = selectFeatureTypeForBookkeeper(scanner);
                         } else {
                             // Per Syncope, imposta direttamente NSmell
-                            PrintUtils.Console.info("Analisi per SYNCOPE impostata su refactoring NSmell.");
+                            PrintUtils.Console.info("Analysis for SYNCOPE set to NSmell refactoring.");
                             featureType = "NSmell";
                         }
 
@@ -127,7 +127,7 @@ public class StarterBugginessPredictor {
                         analyzer.execute();
                         break;
                     case 4:
-                        PrintUtils.Console.info("\n>>> Avvio analisi What-If...");
+                        PrintUtils.Console.info("\n>>> Starting What-If analysis...");
                         WhatIfAnalysis analysis = new WhatIfAnalysis(projectName);
                         analysis.execute();
                         break;
@@ -135,17 +135,16 @@ public class StarterBugginessPredictor {
                         PrintUtils.Console.info(notValid);
                 }
             } catch (Exception e) {
-                PrintUtils.Console.info("\n!!! SI È VERIFICATO UN ERRORE: " + e.getMessage());
+                PrintUtils.Console.info("\n!!! AN ERROR OCCURRED: " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
 
-    // NUOVO METODO HELPER AGGIUNTO AL MAIN
     private static String selectFeatureTypeForBookkeeper(Scanner scanner) {
-        PrintUtils.Console.info("\nSeleziona il tipo di refactoring da analizzare per BOOKKEEPER:");
-        PrintUtils.Console.info("1. Basato su LOC (Lines of Code)");
-        PrintUtils.Console.info("2. Basato su NSmell (Number of Code Smells)");
+        PrintUtils.Console.info("\nSelect the refactoring type to analyze for BOOKKEEPER:");
+        PrintUtils.Console.info("1. Based on LOC (Lines of Code)");
+        PrintUtils.Console.info("2. Based on NSmell (Number of Code Smells)");
         PrintUtils.Console.info(choiceString);
 
         while (true) {
@@ -165,7 +164,6 @@ public class StarterBugginessPredictor {
 
     /**
      * Esegue l'intera pipeline di analisi: estrazione dati, creazione dataset e classificazione.
-     * (Questo metodo rimane invariato)
      * @param projectName Il nome del progetto.
      */
     public static void runCompleteAnalysis(String projectName) throws IOException, GitAPIException {
@@ -197,7 +195,6 @@ public class StarterBugginessPredictor {
         PrintUtils.Console.info("Labeling method bugginess...");
         gitExtractor.setMethodBuggyness(allMethods);
 
-        // --- INIZIO NUOVA PARTE: Stampe di Report Intermedi ---
         PrintUtils.Console.info("\n--- Generating Intermediate Report Files ---");
         try {
             // Stampa la lista di tutte le release analizzate con i loro dettagli
