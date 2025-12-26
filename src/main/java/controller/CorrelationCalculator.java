@@ -13,24 +13,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Classe di utilità per calcolare la correlazione tra le feature del dataset e la bugginess.
+ * Utilizza la correlazione di Spearman per misurare la relazione monotona tra le variabili
+ */
 public class CorrelationCalculator {
 
-    // Rendi la classe non istanziabile se contiene solo metodi statici
     private CorrelationCalculator() {}
 
     /**
-     * Calcola la correlazione di Spearman tra ogni feature e la bugginess,
-     * e salva i risultati in un file CSV.
-     *
-     * @param projectName Il nome del progetto da analizzare.
-     * @throws IOException Se si verifica un errore di lettura o scrittura.
+     * Metodo principale che orchestra il processo di calcolo della correlazione.
+     * Legge il dataset, calcola la correlazione per ogni feature e salva i risultati
      */
     public static void calculateAndSave(String projectName) throws IOException {
         String inputFilePath = String.format("csvFiles/%s/Dataset.csv", projectName.toLowerCase());
         String outputDir = "correlationFiles";
         String outputFileName = String.format("%s_correlation.csv", projectName.toLowerCase());
 
-        // Parsing CSV
         try (Reader reader = new FileReader(Paths.get(inputFilePath).toFile());
              CSVParser csvParser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader)) {
 
@@ -38,30 +37,31 @@ public class CorrelationCalculator {
             Map<String, List<Double>> featureValues = new HashMap<>();
             List<Double> labelValues = new ArrayList<>();
 
-            // Identifica le colonne numeriche
+            // Identifica le colonne numeriche (le feature) da analizzare
             for (String header : csvParser.getHeaderMap().keySet()) {
-                // Esclude le colonne non numeriche
+                // Esclude le colonne non numeriche come nomi e ID
                 if (!header.equals("MethodFullyQualifiedName") && !header.equals("IsBuggy") && !header.equals("ReleaseID")) {
                     numericColumns.add(header);
                     featureValues.put(header, new ArrayList<>());
                 }
             }
 
-            // Estrai i dati dal CSV
+            // Estrai i dati dal CSV, convertendoli in formato numerico
             for (CSVRecord csvRecord : csvParser) {
                 for (String feature : numericColumns) {
                     try {
                         featureValues.get(feature).add(Double.parseDouble(csvRecord.get(feature)));
                     } catch (NumberFormatException e) {
-                        // Aggiunge un valore nullo o di default se il parsing fallisce
+                        // Se un valore non è un numero valido, si aggiunge un valore nullo e non si blocca l'analisi
                         featureValues.get(feature).add(0.0);
                     }
                 }
+                // Converte l'etichetta 'yes'/'no' in 1.0/0.0 per il calcolo statistico
                 String label = csvRecord.get("IsBuggy").trim().toLowerCase();
                 labelValues.add(label.equals("yes") ? 1.0 : 0.0);
             }
 
-            // Calcolo correlazioni
+            // Calcola la correlazione di Spearman per ogni feature
             SpearmansCorrelation correlation = new SpearmansCorrelation();
             List<String[]> correlationResults = new ArrayList<>();
 
@@ -73,30 +73,29 @@ public class CorrelationCalculator {
                 correlationResults.add(new String[]{feature, String.format(Locale.US, "%.4f", corr)});
             }
 
-            // Ordina i risultati per valore di correlazione assoluto, in ordine decrescente
+            // Ordina i risultati in base al valore assoluto della correlazione, dal più alto al più basso
             correlationResults.sort((o1, o2) -> {
                 double corr1 = Math.abs(Double.parseDouble(o1[1]));
                 double corr2 = Math.abs(Double.parseDouble(o2[1]));
                 return Double.compare(corr2, corr1);
             });
 
-            // Scrittura su CSV di output
+            // Salva i risultati ordinati in un nuovo file CSV
             saveResultsToCsv(outputDir, outputFileName, correlationResults);
 
         }
     }
 
-    /**
-     * Metodo helper per salvare i risultati della correlazione in un file CSV.
-     */
+    // Metodo helper per scrivere i risultati della correlazione in un file CSV
     private static void saveResultsToCsv(String outputDir, String outputFileName, List<String[]> results) throws IOException {
         Path outputPath = Paths.get(outputDir);
-        Files.createDirectories(outputPath); // crea cartella se non esiste
+        Files.createDirectories(outputPath); // Crea cartella di output se non esiste
 
         try (
                 BufferedWriter writer = Files.newBufferedWriter(outputPath.resolve(outputFileName));
                 CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("Feature", "SpearmanCorrelation"))
         ) {
+            // Scrive ogni riga (Feature, Correlazione) nel file
             for (String[] row : results) {
                 csvPrinter.printRecord(row[0], row[1]);
             }
