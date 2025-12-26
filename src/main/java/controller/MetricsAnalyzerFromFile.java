@@ -18,6 +18,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Analizza un file Java contenente una versione originale e una soggetta a refactoring di un metodo,
+ * calcola le metriche di qualità per entrambe e le confronta in un report CSV.
+ */
 public class MetricsAnalyzerFromFile {
 
     private final String projectName;
@@ -30,10 +34,14 @@ public class MetricsAnalyzerFromFile {
         this.feature = feature;
     }
 
+    /**
+     * Metodo principale che orchestra l'analisi del file di refactoring
+     */
     public void execute() throws IOException {
         String originalMethodName;
         String refactoredMethodName;
 
+        // Determina i nomi dei metodi da cercare in base al progetto e alla feature
         if ("BOOKKEEPER".equals(projectName)) {
             if ("NSmell".equals(feature)) {
                 originalMethodName = "readEntry";
@@ -42,11 +50,12 @@ public class MetricsAnalyzerFromFile {
                 originalMethodName = "main";
                 refactoredMethodName = "main2";
             }
-        } else {
+        } else { // Assumiamo SYNCOPE
             originalMethodName = "getTaskTO";
             refactoredMethodName = "getTaskTO2";
         }
 
+        // Definisce i percorsi dei file di input e output
         String dir = "refactoringReport";
         String inputFile = String.format("%s/Refactoring_%s_%s.java", dir, feature, projectName.toLowerCase());
         String outputFile = String.format("%s/feature_comparison_%s_%s.csv", dir, feature, projectName.toLowerCase());
@@ -60,6 +69,7 @@ public class MetricsAnalyzerFromFile {
         Console.info("Analyzing file: " + inputFile);
         Console.info("Saving report to: " + outputFile + "\n");
 
+        // Legge il file e lo prepara per il parsing "avvolgendolo" in una classe fittizia
         List<String> allLines = Files.readAllLines(Paths.get(inputFile));
         String importsSection = allLines.stream()
                 .filter(line -> line.trim().startsWith("import"))
@@ -78,7 +88,7 @@ public class MetricsAnalyzerFromFile {
             return;
         }
 
-        // Troviamo la classe wrapper che abbiamo creato
+        // Cerca la classe wrapper e i metodi di interesse al suo interno
         Optional<ClassOrInterfaceDeclaration> wrapperClassOpt = cu.findFirst(ClassOrInterfaceDeclaration.class, c -> c.getNameAsString().equals("DummyWrapperClass"));
         if (!wrapperClassOpt.isPresent()) {
             LOGGER.log(Level.SEVERE,"ERROR: Impossible to find wrapper class 'DummyWrapperClass'");
@@ -86,11 +96,9 @@ public class MetricsAnalyzerFromFile {
         }
         ClassOrInterfaceDeclaration wrapperClass = wrapperClassOpt.get();
 
-        // Cerchiamo i metodi solo all'interno della classe wrapper
         Optional<MethodDeclaration> originalMethodOpt = wrapperClass.getMethodsByName(originalMethodName).stream().findFirst();
         Optional<MethodDeclaration> refactoredEntryPointOpt = wrapperClass.getMethodsByName(refactoredMethodName).stream().findFirst();
 
-        // Prendiamo tutti i metodi della classe wrapper, escluso quello originale
         List<MethodDeclaration> allRefactoredMethods = wrapperClass.getMethods().stream()
                 .filter(md -> !md.getNameAsString().equals(originalMethodName))
                 .collect(Collectors.toList());
@@ -100,13 +108,15 @@ public class MetricsAnalyzerFromFile {
             return;
         }
 
+        // Scrive i risultati nel file CSV
         try (FileWriter fileWriter = new FileWriter(outputFile);
              PrintWriter writer = new PrintWriter(fileWriter)) {
 
             writer.println("MethodName,Version,LOC,NumParameters,NumBranches,NestingDepth,NumCodeSmells,NumLocalVariables");
 
+            // Stampa le metriche per il metodo originale
             printMetrics(originalMethodOpt.get(), "Original", writer);
-
+            // Stampa le metriche per il metodo soggetto a refactoring
             printRefactoredMetrics(refactoredEntryPointOpt.get(), allRefactoredMethods, writer);
 
         } catch (IOException e) {
@@ -117,6 +127,9 @@ public class MetricsAnalyzerFromFile {
         Console.info("Analysis completed. CSV report generated successfully");
     }
 
+    /**
+     * Calcola tutte le metriche per un singolo metodo e le stampa come una riga in un file CSV
+     */
     private static void printMetrics(MethodDeclaration md, String version, PrintWriter writer) {
         int loc = MetricsCalculator.calculateLOC(md);
         int numParams = md.getParameters().size();
@@ -130,6 +143,10 @@ public class MetricsAnalyzerFromFile {
                 md.getNameAsString(), version, loc, numParams, numBranches, nestingDepth, numSmells, numVars);
     }
 
+    /**
+     * Calcola e stampa le metriche per il metodo soggetto a refactoring.
+     * Stampa sia il dettaglio per ogni metodo "helper" sia un riepilogo aggregato
+     */
     private static void printRefactoredMetrics(MethodDeclaration mainRefactored, List<MethodDeclaration> allRefactored, PrintWriter writer) {
         int totalLoc = 0;
         int totalBranches = 0;
@@ -140,17 +157,19 @@ public class MetricsAnalyzerFromFile {
         writer.println();
         writer.println("// --- Dettaglio Metodi Refattorizzati ---");
 
+        // Itera su tutti i metodi (entry-point + helper)
         for (MethodDeclaration md : allRefactored) {
             String versionTag = md.getNameAsString().equals(mainRefactored.getNameAsString()) ? "Refactored_EntryPoint" : "Refactored_Helper";
-            printMetrics(md, versionTag, writer);
+            printMetrics(md, versionTag, writer); // Stampa la riga di dettaglio
 
+            // Calcola le metriche aggregate
             int currentLoc = MetricsCalculator.calculateLOC(md);
             int currentBranches = MetricsCalculator.calculateNumBranches(md);
             int currentNesting = MetricsCalculator.calculateNestingDepth(md);
             int currentParams = md.getParameters().size();
             totalLoc += currentLoc;
             totalBranches += currentBranches;
-            if (currentNesting > maxNesting) maxNesting = currentNesting;
+            if (currentNesting > maxNesting) maxNesting = currentNesting; // Prende il nesting massimo
             totalSmells += MetricsCalculator.calculateCodeSmells(md, currentBranches + 1, currentLoc, currentNesting, currentParams);
             totalVars += MetricsCalculator.calculateNumLocalVariables(md);
         }
@@ -160,6 +179,7 @@ public class MetricsAnalyzerFromFile {
         writer.println();
         writer.println("// --- Riepilogo Aggregato per Confronto (Feature 1 vs Feature 2) ---");
 
+        // Stampa la riga con le metriche aggregate
         writer.printf("%s (refactored system),%s,%d,%d,%d,%d,%d,%d%n",
                 mainRefactored.getNameAsString(), "Refactored_Aggregate", totalLoc, mainParams, totalBranches, maxNesting, totalSmells, totalVars);
     }

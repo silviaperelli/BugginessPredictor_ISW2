@@ -12,6 +12,9 @@ import java.util.List;
 
 import static java.lang.Math.max;
 
+/**
+ * Implementa la tecnica Proportion per la stima della Injected Version (IV) dei ticket.
+ */
 public class Proportion {
 
     private List<Float> proportionList;
@@ -20,6 +23,7 @@ public class Proportion {
     static final int MIN_PROPORTIONS_FOR_MOVING_WINDOW = 10;
     static final int MOVING_WINDOW_SIZE = 5;
 
+    // Progetti di riferimento usati per la stima a freddo (Cold Start)
     private enum Projects {
         AVRO,
         SYNCOPE,
@@ -32,70 +36,84 @@ public class Proportion {
         this.totalProportion = 0;
     }
 
-    // Method use to estimate IV
+
+    /**
+     * Metodo principale per stimare e assegnare la Injected Version (IV) a un ticket.
+     * Decide se utilizzare Cold Start o Increment
+     */
     public void fixTicketWithProportion(Ticket ticket, List<Release> releasesList) throws IOException {
         int estimatedIV;
         float proportion;
 
-        // Calculate proportion
-        // If we have less than 5 ticket of which we know the proportion, use cold start
+        // Calcola Proportion
+        // Se abbiamo meno di 5 valori storici, usa la stima basata su altri progetti (Cold Start)
         if(proportionList.size() < MIN_PROPORTIONS_FOR_INCREMENT){
             proportion = coldStart(ticket.getResolutionDate());
-        }else{ //otherwise use increment
+        }else{ // Altrimenti, usa la media dei valori storici del progetto corrente (Increment)
             proportion = increment();
         }
 
-        // Calculate IV
+        // Usa la proporzione P per calcolare la IV
         estimatedIV = obtainIV(proportion, ticket);
 
-        // Set the estimated IV of the ticket
+        // Assegna la release corrispondente all'ID stimato come IV del ticket
         for(Release release : releasesList){
             if(estimatedIV == release.getId()){
                 ticket.setIv(release);
-                ticket.addAV(release);
+                ticket.addAV(release); // La IV è anche la prima delle Affected Version
             }
         }
     }
 
-    // Method to calculate proportion on ticket with IV set and add P value to a list
+    /**
+     * Calcola la proporzione P per un ticket con IV già nota.
+     * Il valore calcolato viene aggiunto alla lista storica per le stime future
+     */
     public void addProportion(Ticket ticket) {
         int denominator;
         float proportion;
-        int ov = ticket.getOv().getId();
-        int fv = ticket.getFv().getId();
+        int ov = ticket.getOv().getId(); // Opening Version
+        int fv = ticket.getFv().getId(); // Fixed Version
 
-        // Calculate proportion
-        if(ov == fv){ // to avoid denominator equal to 0
+        // Calcola P secondo la formula: P = (FV - IV) / (FV - OV)
+        // Gestisce il caso in cui OV e FV coincidano per evitare divisione per zero
+        if(ov == fv){
             denominator = 1;
         }else{
             denominator = fv-ov;
         }
         proportion = (float)(fv - ticket.getIv().getId())/denominator;
 
-        // Add proportion to the list
+        // Aggiunge il valore P calcolato alla lista
         this.proportionList.add(proportion);
         this.totalProportion += proportion;
 
     }
 
-    // Use method increment by computing p as the average among the defects fixed in previous versions
+    /**
+     * Implementa la strategia "Increment": calcola P come la media di tutti i valori
+     * di proporzione raccolti finora per il progetto corrente
+     */
     private float increment() {
         return this.totalProportion / this.proportionList.size();
     }
 
+    /**
+     * Implementa la strategia "Cold Start": stima P quando non ci sono abbastanza dati storici.
+     * Calcola la P media per altri progetti di riferimento e restituisce la mediana di questi valori
+     */
     private float coldStart(LocalDate resolutionDate) throws IOException {
 
         List<Float> proportionListTemp = new ArrayList<>();
 
+        // Itera sui progetti di riferimento definiti nell'enum
         for(Projects project: Projects.values()){
-            // Extract releases and tickets
+            // Per ogni progetto, estrae le release e i ticket risolti prima della data specificata
             JiraDataExtractor jiraExtractor = new JiraDataExtractor(project.toString().toUpperCase());
             List<Release> releaseList = jiraExtractor.getReleases();
             List<Ticket> allTickets = jiraExtractor.getFinalTickets(releaseList, false);
-
-            // Need to obtain all tickets that have AV set
             List<Ticket> consistentTickets = JiraUtils.returnConsistentTickets(allTickets, resolutionDate);
-            // If the consistent tickets are more than 5, add ticket to proportion and to a temporary list
+            // Se il progetto ha abbastanza dati consistenti (almeno 5), calcola la sua P media
             if(consistentTickets.size() >= 5){
 
                 Proportion proportion = new Proportion();
@@ -106,17 +124,20 @@ public class Proportion {
             }
         }
 
-        // Use cold start method, by computing the median among other projects
+        // Restituisce la mediana delle P medie calcolate dagli altri progetti
         return MathUtils.median(proportionListTemp);
     }
 
+    /**
+     * Applica la formula inversa per calcolare l'ID della Injected Version (IV) stimata,
+     * a partire dalla proporzione P e dalle release OV e FV.
+     */
     private int obtainIV(float proportion, Ticket ticket){
         int ov = ticket.getOv().getId();
         int fv = ticket.getFv().getId();
         int estimatedIV;
 
         if(ov!=fv){
-            // Calculate IV, ID release must start from 0
             estimatedIV = max(1, (int)(fv - proportion*(fv - ov)));
         }else{
             estimatedIV = max(1, (int)(fv - proportion));

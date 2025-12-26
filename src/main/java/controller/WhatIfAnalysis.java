@@ -1,4 +1,4 @@
-package controller; // Assicurati che il package sia corretto
+package controller;
 
 import utils.WekaUtils;
 import utils.PrintUtils.Console;
@@ -15,25 +15,34 @@ import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Implementa l'analisi "What-If" per stimare l'impatto della rimozione dei code smell sulla predizione dei bug
+ */
 public class WhatIfAnalysis {
     private static final Logger LOGGER = Logger.getLogger(WhatIfAnalysis.class.getName());
     private final String project;
     private final String projectLower;
-    private final Instances datasetA;
+    private final Instances datasetA; // Il dataset completo del progetto
 
+    /**
+     * Costruttore che carica e prepara il dataset principale (A) per l'analisi
+     */
     public WhatIfAnalysis(String projectName) throws Exception {
         Logger.getLogger("").setLevel(Level.SEVERE);
 
         String datasetCsvPath = String.format("csvFiles/%s/Dataset.csv", projectName.toLowerCase());
         Console.info("Loading full dataset from CSV: " + datasetCsvPath);
 
+        // Carica i dati grezzi dal CSV
         Instances rawData = WekaUtils.loadInstancesFromCsv(datasetCsvPath);
 
+        // Rimuove la colonna con il nome del metodo
         Remove removeFilter = new Remove();
-        removeFilter.setAttributeIndices("1"); // Rimuove la prima colonna (FullyQualifiedName)
+        removeFilter.setAttributeIndices("1");
         removeFilter.setInputFormat(rawData);
         Instances fulldataset = Filter.useFilter(rawData, removeFilter);
 
+        // Imposta l'ultima colonna ('IsBuggy') come classe da predire
         if (fulldataset.classIndex() == -1) {
             fulldataset.setClassIndex(fulldataset.numAttributes() - 1);
         }
@@ -43,25 +52,28 @@ public class WhatIfAnalysis {
         this.datasetA = new Instances(fulldataset);
     }
 
+    /**
+     * Metodo principale che orchestra l'intera analisi What-If
+     */
     public void execute() throws Exception {
         Console.info("--- Starting What-If Analysis ---");
 
-        // --- Creare i dataset B+, C, e B ---
+        // Crea i sotto-dataset B+, C e B
         Console.info("Creating sub-datasets based on NSmells...");
 
-        // --- B+: Porzione di A con NSmells > 0
+        // B+: Porzione di A con NSmells > 0
         Instances datasetBPlus = filterBySmell(this.datasetA, 0, "greater");
 
-        // --- C: Porzione di A con NSmells = 0
+        // C: Porzione di A con NSmells = 0
         Instances datasetC = filterBySmell(this.datasetA, 0, "equals");
 
-        // --- B: Una copia di B+ ma con NSmells manipolato a 0
+        // B: Una copia di B+ ma con NSmells manipolato a 0
         Instances datasetB = new Instances(datasetBPlus);
         int nSmellsIndex = datasetB.attribute("NumCodeSmells").index();
         if (nSmellsIndex == -1) throw new IllegalStateException("Feature 'NSmells' not found.");
         datasetB.forEach(instance -> instance.setValue(nSmellsIndex, 0));
 
-        // --- 2. Salvataggio dei dataset B, B+, C su file ---
+        // Salvataggio dei dataset B, B+, C su file
         String outputDir = String.format("whatIf/%s/", this.project.toLowerCase());
         new File(outputDir).mkdirs(); // Crea la directory se non esiste
 
@@ -83,31 +95,26 @@ public class WhatIfAnalysis {
         saver.writeBatch();
         Console.info("Intermediate datasets B, B+, C saved successfully.");
 
-        // --- Addestrare BClassifier su A (BClassifierA) ---
+        // Addestra BClassifier su A
         Console.info("Training BClassifier on the full dataset A...");
-
         Classifier bClassifierA = new RandomForest();
-
-        // Addestra il classificatore che è stato scelto
         bClassifierA.buildClassifier(this.datasetA);
 
-        // --- Predire e contare Actual/Estimated su A, B, B+, C ---
+        // Esegue le predizioni su tutti i dataset e conta i bug reali (Actual) e predetti (Estimated)
         Console.info("Counting actual and estimated bugs on all datasets...");
 
-        // Calcola i valori "Actual"
         int actualA = countActualBugs(this.datasetA);
         int actualBPlus = countActualBugs(datasetBPlus);
         int actualC = countActualBugs(datasetC);
-        // B e B+ hanno gli stessi metodi, quindi gli Actual sono identici.
+        // B e B+ hanno gli stessi metodi, quindi i bug reali sono gli stessi
         int actualB = actualBPlus;
 
-        // Calcola i valori "Estimated"
         int estimatedA = countBuggyPredictions(bClassifierA, this.datasetA);
         int estimatedBPlus = countBuggyPredictions(bClassifierA, datasetBPlus);
         int estimatedC = countBuggyPredictions(bClassifierA, datasetC);
         int estimatedB = countBuggyPredictions(bClassifierA, datasetB);
 
-        // --- Salva i risultati in un file CSV ---
+        // Salva i risultati in un file CSV
         String outputFile = outputDir + "whatIf_results_" + project.toLowerCase() + ".csv";
         printWhatIfResultsToCsv(outputFile,
                 actualA, estimatedA,
@@ -115,6 +122,7 @@ public class WhatIfAnalysis {
                 actualB, estimatedB,
                 actualC, estimatedC);
 
+        // Analizza e stampa i risultati finali
         analyzeFinalResults(actualA, estimatedBPlus, estimatedB);
     }
 
@@ -154,7 +162,7 @@ public class WhatIfAnalysis {
     }
 
 
-    // Conta le istanze predette come "buggy" in un dataset.
+    // Conta le istanze predette come "buggy" in un dataset
     private int countBuggyPredictions(Classifier classifier, Instances data) throws Exception {
         if (data.isEmpty()) return 0;
         int buggyCount = 0;
@@ -167,7 +175,7 @@ public class WhatIfAnalysis {
         return buggyCount;
     }
 
-    // Conta le istanze che sono effettivamente "buggy" in un dataset.
+    // Conta le istanze che sono effettivamente "buggy" in un dataset
     private int countActualBugs(Instances data) {
         if (data.isEmpty()) return 0;
         int actualBuggyCount = 0;
@@ -180,6 +188,7 @@ public class WhatIfAnalysis {
         return actualBuggyCount;
     }
 
+    // Scrive i risultati numerici dell'analisi What-If in un file CSV formattato
     public static void printWhatIfResultsToCsv(String filePath, int... params) throws IOException {
         File file = new File(filePath);
         file.getParentFile().mkdirs();
@@ -191,6 +200,10 @@ public class WhatIfAnalysis {
             writer.printf("C,Estimated,%d%n", params[7]);    }
     }
 
+    /**
+     * Analizza i risultati chiave e stampa a console una sintesi leggibile.
+     * Calcola il numero di "bug prevenibili" e la loro incidenza percentuale
+     */
     private void analyzeFinalResults(int totalActualDefects, int predictedDefectsWithSmells, int predictedDefectsWithoutSmells) {
         Console.info("\n--- Final Analysis ---");
         Console.info("Predicted defects on smelly methods (B+): " + predictedDefectsWithSmells);

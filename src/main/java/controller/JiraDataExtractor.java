@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Classe responsabile dell'estrazione dei dati da Jira.
+ * Si connette all'API di Jira per recuperare le informazioni sulle release e sui ticket di bug
+ */
 public class JiraDataExtractor {
 
     private final String projName;
@@ -21,6 +25,12 @@ public class JiraDataExtractor {
         this.projName = projName.toUpperCase();
     }
 
+
+    /**
+     * Recupera tutte le release di un progetto da Jira.
+     * Filtra solo le release che hanno una data di rilascio specificata, le ordina cronologicamente
+     * e assegna loro un ID numerico progressivo.
+     */
     public List<Release> getReleases() throws IOException {
         List<Release> releaseList = new ArrayList<>();
         String url = "https://issues.apache.org/jira/rest/api/latest/project/" + this.projName;
@@ -28,9 +38,8 @@ public class JiraDataExtractor {
         JSONArray versions = json.getJSONArray("versions");
 
         for (int i=0; i < versions.length(); i++) {
-            // Obtaining single json object
             JSONObject releaseJsonObject = versions.getJSONObject(i);
-            // Creating Release model
+            // Considera solo le versioni che hanno sia un nome che una data di rilascio
             if (releaseJsonObject.has("releaseDate") && releaseJsonObject.has("name")) {
                 String releaseDate = releaseJsonObject.get("releaseDate").toString();
                 String releaseName = releaseJsonObject.get("name").toString();
@@ -38,7 +47,7 @@ public class JiraDataExtractor {
             }
         }
 
-        // Sorting the versions based on the release date
+        // Ordina le release per data e assegna un ID sequenziale
         releaseList.sort(Comparator.comparing(Release::getDate));
         int j = 0;
         for (Release release : releaseList) {
@@ -48,12 +57,16 @@ public class JiraDataExtractor {
     }
 
 
+    /**
+     * Recupera tutti i ticket di tipo "Bug" che sono stati risolti e chiusi
+     */
     public List<Ticket> getTickets(List<Release> releasesList) throws IOException {
 
         int j;
         int i = 0;
         int total;
         List<Ticket> ticketsList = new ArrayList<>();
+        // Ciclo per gestire la paginazione dell'API di Jira
         do {
             j = i + 1000;
             String url = "https://issues.apache.org/jira/rest/api/2/search?jql=project=%22"
@@ -64,8 +77,10 @@ public class JiraDataExtractor {
             JSONObject json = JiraUtils.readJsonFromUrl(url);
             JSONArray issues = json.getJSONArray("issues");
             total = json.getInt("total");
+
+            // Itera sui ticket scaricati
             for (; i < total && i < j; i++) {
-                // Iterate through each bug to retrieve ID, creation date, resolution date and affected versions
+                // Analizza il JSON di un singolo ticket e ne estrae i dati
                 String key = issues.getJSONObject(i%1000).get("key").toString();
                 JSONObject fields = issues.getJSONObject(i%1000).getJSONObject("fields");
                 String creationDateString = fields.get("created").toString();
@@ -74,19 +89,19 @@ public class JiraDataExtractor {
                 LocalDate resolutionDate = LocalDate.parse(resolutionDateString.substring(0,10));
                 JSONArray affectedVersionsArray = fields.getJSONArray("versions");
 
-                // To obtain the opening version and the fixed version I use the creation date and the release date
+                // Calcola Opening Version (OV) e Fixed Version (FV) basandosi sulle date
                 Release openingVersion = JiraUtils.getReleaseAfterOrEqualDate(creationDate, releasesList);
                 Release fixedVersion =  JiraUtils.getReleaseAfterOrEqualDate(resolutionDate, releasesList);
 
-                // Obtaining the affected releases
+                // Ottiene la lista di Affected Versions
                 List<Release> affectedVersionsList = JiraUtils.returnAffectedVersions(affectedVersionsArray, releasesList);
 
-                // Checking if the ticket is not valid
+                // Scarta i ticket dove le Affected Version (AV) sono incoerenti con la Opening Version (OV), o dove la OV è successiva alla FV
                 if(!affectedVersionsList.isEmpty() && openingVersion!=null && fixedVersion!=null && (!affectedVersionsList.get(0).getDate().isBefore(openingVersion.getDate()) || openingVersion.getDate().isAfter(fixedVersion.getDate()))){
                     continue;
                 }
 
-                // The opening version must be different from the first release
+                // Scarta i ticket la cui OV coincide con la prima release del progetto
                 if(openingVersion != null && fixedVersion != null && openingVersion.getId()!=releasesList.get(0).getId()){
                     ticketsList.add(new Ticket(key, creationDate, resolutionDate, openingVersion, fixedVersion, affectedVersionsList));
                 }
@@ -97,6 +112,9 @@ public class JiraDataExtractor {
         return ticketsList;
     }
 
+    /**
+     * Metodo che orchestra l'estrazione e l'arricchimento dei ticket con IV e AV calcolate
+     */
     public List<Ticket> getFinalTickets(List<Release> releasesList, boolean fix) throws IOException, JSONException {
         List<Ticket> ticketsList = getTickets(releasesList);
 

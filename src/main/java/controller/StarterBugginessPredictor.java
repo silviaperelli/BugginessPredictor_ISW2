@@ -13,6 +13,11 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Classe principale (Main) dell'applicazione.
+ * Fornisce un'interfaccia a riga di comando (CLI) per lanciare le diverse
+ * analisi di bug prediction sul progetto selezionato
+ */
 public class StarterBugginessPredictor {
 
     static String choiceString = "Enter your choice (1 or 2): ";
@@ -20,14 +25,17 @@ public class StarterBugginessPredictor {
 
     private static final Logger LOGGER = Logger.getLogger(StarterBugginessPredictor.class.getName());
 
+    /**
+     * Punto di ingresso dell'applicazione.
+     */
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
 
-        // 1. PRIMO PASSO: Scelta obbligatoria del progetto
+        // Scelta obbligatoria del progetto
         String selectedProject = selectProject(scanner);
 
-        // 2. SECONDO PASSO: Menù delle azioni per il progetto scelto
+        // Menù delle azioni per il progetto scelto
         handleProjectActions(selectedProject, scanner);
 
         // Chiusura finale
@@ -36,10 +44,7 @@ public class StarterBugginessPredictor {
     }
 
     /**
-     * Mostra il menù iniziale per la selezione OBBLIGATORIA del progetto.
-     * Il programma non prosegue finché non viene fatta una scelta valida.
-     * @param scanner L'oggetto Scanner per leggere l'input dell'utente.
-     * @return Il nome del progetto scelto ("BOOKKEEPER" o "SYNCOPE").
+     * Mostra il menù iniziale per la selezione del progetto e gestisce l'input dell'utente
      */
     private static String selectProject(Scanner scanner) {
         PrintUtils.Console.info("=====================================");
@@ -73,8 +78,7 @@ public class StarterBugginessPredictor {
 
     /**
      * Mostra il sottomenù con le azioni disponibili e l'opzione per uscire.
-     * @param projectName Il nome del progetto su cui operare.
-     * @param scanner L'oggetto Scanner per leggere l'input dell'utente.
+     * Orchestra le chiamate ai controller appropriati in base alla scelta dell'utente
      */
     private static void handleProjectActions(String projectName, Scanner scanner) {
         while (true) {
@@ -88,6 +92,7 @@ public class StarterBugginessPredictor {
             PrintUtils.Console.info("0. Exit");
             PrintUtils.Console.info("Enter your choice: ");
 
+            // Gestione input non valido
             while (!scanner.hasNextInt()) {
                 PrintUtils.Console.info("Invalid input. Please enter a number.");
                 scanner.next();
@@ -96,7 +101,7 @@ public class StarterBugginessPredictor {
             int action = scanner.nextInt();
 
             if (action == 0) {
-                return;
+                return; // Uscita dal programma
             }
 
             try {
@@ -115,7 +120,7 @@ public class StarterBugginessPredictor {
 
                         String featureType;
                         if ("BOOKKEEPER".equals(projectName)) {
-                            // Chiedi il tipo solo per Bookkeeper
+                            // Chiede il tipo solo per Bookkeeper
                             featureType = selectFeatureTypeForBookkeeper(scanner);
                         } else {
                             // Per Syncope, imposta direttamente NSmell
@@ -141,6 +146,9 @@ public class StarterBugginessPredictor {
         }
     }
 
+    /**
+     * Sottomenù specifico per il progetto BOOKKEEPER per la scelta del tipo di refactoring da analizzare
+     */
     private static String selectFeatureTypeForBookkeeper(Scanner scanner) {
         PrintUtils.Console.info("\nSelect the refactoring type to analyze for BOOKKEEPER:");
         PrintUtils.Console.info("1. Based on LOC (Lines of Code)");
@@ -163,38 +171,50 @@ public class StarterBugginessPredictor {
     }
 
     /**
-     * Esegue l'intera pipeline di analisi: estrazione dati, creazione dataset e classificazione.
-     * @param projectName Il nome del progetto.
+     * Esegue l'intera pipeline di analisi: estrazione dati, creazione dataset e classificazione
      */
     public static void runCompleteAnalysis(String projectName) throws IOException, GitAPIException {
         PrintUtils.Console.info("\n==================================================");
         PrintUtils.Console.info("STARTING FULL ANALYSIS FOR PROJECT: " + projectName.toUpperCase());
         PrintUtils.Console.info("==================================================");
 
-        // --- FASE 1: DATASET CREATION ---
+        // Creazione del dataset
         PrintUtils.Console.info("\n--- Phase 1: Dataset Creation ---");
 
+        // Estrazione dati da JIRA
+        // Crea un'istanza dell'estrattore per Jira
         JiraDataExtractor jiraExtractor = new JiraDataExtractor(projectName);
+        // Recupera la lista completa di tutte le release del progetto, ordinate per data
         List<Release> fullReleaseList = jiraExtractor.getReleases();
         PrintUtils.Console.info(projectName + ": " + fullReleaseList.size() + " releases extracted.");
 
+        // Recupera i ticket di tipo buggy e stima la IV tramite Proportion
         List<Ticket> ticketList = jiraExtractor.getFinalTickets(fullReleaseList, true);
         PrintUtils.Console.info(projectName + ": " + ticketList.size() + " tickets extracted.");
 
+        // Estrazione e analisi dati da GIT
+        // Crea l'estrattore per Git
         GitDataExtractor gitExtractor = new GitDataExtractor(projectName, fullReleaseList, ticketList);
+        // Recupera l'intera cronologia dei commit e li associa alle release corrette in base alla data
         List<RevCommit> allCommits = gitExtractor.getAllCommitsAndAssignToReleases();
         PrintUtils.Console.info(projectName + ": Commits assigned to releases.");
 
+        // Filtra i commit per mantenere solo quelli che sono legati a un ticket di bug
         gitExtractor.filterCommitsOfIssues();
-        ticketList = gitExtractor.getTicketList();
+        ticketList = gitExtractor.getTicketList(); // Aggiorna la lista per rimuovere ticket senza fix
         PrintUtils.Console.info(projectName + ": Commits filtered by ticket IDs.");
 
+        // Analizza il codice sorgente di ogni release per estrarre tutti i metodi e calcolare le loro metriche
         List<JavaMethod> allMethods = gitExtractor.getMethodsFromReleases();
         PrintUtils.Console.info(projectName + ": " + allMethods.size() + " method entries extracted.");
 
+        // Etichettatura (Labeling) dei dati
+        // Esegue l'etichettatura finale, contrassegnando come 'buggy' le versioni dei metodi
+        // che rientrano nell'intervallo di release [IV, FV) di un ticket di bug
         PrintUtils.Console.info("Labeling method bugginess...");
         gitExtractor.setMethodBuggyness(allMethods);
 
+        // Generazione di report intermedi
         PrintUtils.Console.info("\n--- Generating Intermediate Report Files ---");
         try {
             // Stampa la lista di tutte le release analizzate con i loro dettagli
@@ -209,7 +229,7 @@ public class StarterBugginessPredictor {
             PrintUtils.printCommits(projectName, allCommits, "AllCommits.csv");
             PrintUtils.Console.info(projectName + ": Report 'AllCommits.csv' created.");
 
-            // Stampa una vista semplificata dei metodi (opzionale, ma può essere utile)
+            // Stampa una vista semplificata dei metodi
             PrintUtils.printMethods(projectName, allMethods, "AllMethods.csv");
             PrintUtils.Console.info(projectName + ": Report 'AllMethods.csv' created.");
 
@@ -217,14 +237,17 @@ public class StarterBugginessPredictor {
             LOGGER.log(Level.SEVERE,"Error while generating intermediate report files: {0}", e.getMessage());
         }
 
+        // Creazione del Dataset finale per Weka
         PrintUtils.Console.info("\nCreating the final dataset for Weka...");
         PrintUtils.printMethodsDataset(projectName, allMethods);
         PrintUtils.Console.info(projectName + ": Dataset CSV created successfully.");
         PrintUtils.Console.info("--- Phase 1 Complete ---");
 
-        // --- FASE 2: WEKA CLASSIFICATION ---
+        // Classificazione Weka
         PrintUtils.Console.info("\n--- Phase 2: Weka Classification ---");
+        // Crea un'istanza della classe che gestisce la classificazione
         WekaClassification wekaAnalysis = new WekaClassification(projectName, allMethods);
+        // Lancia l'esecuzione, che si occuperà di addestrare i modelli, eseguire la validazione e salvare i risultati delle performance
         wekaAnalysis.execute();
         PrintUtils.Console.info("--- Phase 2 Complete ---");
 
