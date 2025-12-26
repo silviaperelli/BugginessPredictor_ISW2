@@ -191,7 +191,8 @@ public class WekaClassification {
             int iterationId = "cv".equals(validationType) ? (run - 1) * 10 + foldOrIteration : foldOrIteration;
 
             for (WekaClassifier wekaConfig : classifiersToTest) {
-                evaluateAndRecordClassifier(wekaConfig, trainingSet, testingSet, positiveClassIndex, validationType, foldOrIteration, iterationId, resultsList, aggregatedPredictions);
+                EvalContext ctx = new EvalContext(trainingSet, testingSet, positiveClassIndex, foldOrIteration, iterationId);
+                evaluateAndRecordClassifier(wekaConfig, ctx, validationType, resultsList, aggregatedPredictions);
             }
 
         } catch (Exception e) {
@@ -202,33 +203,33 @@ public class WekaClassification {
     /**
      * Metodo estratto per gestire la valutazione del singolo classificatore (Risolve java:S1141)
      */
-    private void evaluateAndRecordClassifier(WekaClassifier wekaConfig, Instances trainingSet, Instances testingSet,
-                                             int positiveClassIndex, String validationType, int foldOrIteration,
-                                             int iterationId, List<ClassifierEvaluation> resultsList,
+    private void evaluateAndRecordClassifier(WekaClassifier wekaConfig, EvalContext ctx, String validationType,
+                                             List<ClassifierEvaluation> resultsList,
                                              Map<String, List<AcumeMethod>> aggregatedPredictions) {
         try {
             Classifier classifier = wekaConfig.getClassifier();
-            classifier.buildClassifier(trainingSet);
+            classifier.buildClassifier(ctx.trainingSet);
 
-            List<AcumeMethod> predictions = getAcumePredictions(classifier, testingSet);
+            List<AcumeMethod> predictions = getAcumePredictions(classifier, ctx.testingSet);
             String configName = buildClassifierConfigName(wekaConfig);
 
             if ("cv".equals(validationType) && aggregatedPredictions != null) {
                 aggregatedPredictions.computeIfAbsent(configName, k -> new ArrayList<>()).addAll(predictions);
             } else {
-                String fileName = String.format("%s_iter%d", configName, foldOrIteration);
+                String fileName = String.format("%s_iter%d", configName, ctx.foldOrIteration);
                 PrintUtils.createAcumeFile(projectName, validationType, predictions, fileName);
             }
 
-            Evaluation eval = new Evaluation(trainingSet);
-            eval.evaluateModel(classifier, testingSet);
+            Evaluation eval = new Evaluation(ctx.trainingSet);
+            eval.evaluateModel(classifier, ctx.testingSet);
 
-            if (positiveClassIndex != -1) {
-                resultsList.add(new ClassifierEvaluation(projectName, iterationId, wekaConfig.getName(),
+            if (ctx.positiveClassIndex != -1) {
+                // Qui i dati vengono presi dal contesto e salvati nella lista originale
+                resultsList.add(new ClassifierEvaluation(projectName, ctx.iterationId, wekaConfig.getName(),
                         wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(),
-                        eval.precision(positiveClassIndex), eval.recall(positiveClassIndex),
-                        eval.areaUnderROC(positiveClassIndex), eval.kappa(), eval.fMeasure(positiveClassIndex),
-                        eval.matthewsCorrelationCoefficient(positiveClassIndex)));
+                        eval.precision(ctx.positiveClassIndex), eval.recall(ctx.positiveClassIndex),
+                        eval.areaUnderROC(ctx.positiveClassIndex), eval.kappa(), eval.fMeasure(ctx.positiveClassIndex),
+                        eval.matthewsCorrelationCoefficient(ctx.positiveClassIndex)));
             }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e, () -> "Could not evaluate classifier " + wekaConfig.getName());
@@ -274,6 +275,22 @@ public class WekaClassification {
         if (!this.temporalEvaluationResults.isEmpty()) {
             Console.info("Saving temporal validation evaluation results...");
             PrintUtils.printEvaluationResults(projectName, this.temporalEvaluationResults, "_temporal");
+        }
+    }
+
+    private static class EvalContext {
+        Instances trainingSet;
+        Instances testingSet;
+        int positiveClassIndex;
+        int foldOrIteration;
+        int iterationId;
+
+        EvalContext(Instances training, Instances testing, int posIndex, int fold, int iter) {
+            this.trainingSet = training;
+            this.testingSet = testing;
+            this.positiveClassIndex = posIndex;
+            this.foldOrIteration = fold;
+            this.iterationId = iter;
         }
     }
 }

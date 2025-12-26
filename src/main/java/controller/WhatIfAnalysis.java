@@ -87,16 +87,6 @@ public class WhatIfAnalysis {
         // --- Addestrare BClassifier su A (BClassifierA) ---
         Console.info("Training BClassifier on the full dataset A...");
 
-        /*
-        Classifier bClassifierA;
-        // Seleziona dinamicamente il classificatore in base al nome del progetto
-        if ("SYNCOPE".equals(this.project)) {
-            bClassifierA = new RandomForest();
-        } else {
-            bClassifierA = new RandomForest();
-        }
-        */
-
         Classifier bClassifierA = new RandomForest();
 
         // Addestra il classificatore che è stato scelto
