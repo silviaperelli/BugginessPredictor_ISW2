@@ -5,9 +5,6 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.*;
-import com.github.javaparser.ast.stmt.*;
 import model.JavaMethod;
 import model.Release;
 import model.Ticket;
@@ -24,6 +21,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import utils.GitUtils;
+import utils.MetricsCalculator;
 import utils.NestingDepthVisitor;
 
 import java.io.ByteArrayOutputStream;
@@ -227,20 +225,19 @@ public class GitDataExtractor {
                 if (!methodCache.containsKey(cacheKey)) {
                     JavaMethod javaMethod = new JavaMethod(fqn, release);
 
-                    int loc = calculateLOC(md);
+                    int loc = MetricsCalculator.calculateLOC(md);
                     int numParams = md.getParameters().size();
-                    int numBranches = calculateNumBranches(md);
+                    int numBranches = MetricsCalculator.calculateNumBranches(md);
                     int cyclomaticComplexity = numBranches + 1;
-                    int nestingDepth = calculateNestingDepth(md);
-                    int numLocalVars = calculateNumLocalVariables(md);
+                    int nestingDepth = MetricsCalculator.calculateNestingDepth(md);
+                    int numLocalVars = MetricsCalculator.calculateNumLocalVariables(md);
+                    int codeSmells = MetricsCalculator.calculateCodeSmells(md, cyclomaticComplexity, loc, nestingDepth, numParams);
 
                     javaMethod.setLoc(loc);
                     javaMethod.setNumParameters(numParams);
                     javaMethod.setNumBranches(numBranches);
                     javaMethod.setNestingDepth(nestingDepth);
                     javaMethod.setNumLocalVariables(numLocalVars);
-
-                    int codeSmells = calculateCodeSmells(md, cyclomaticComplexity, loc, nestingDepth, numParams);
                     javaMethod.setNumCodeSmells(codeSmells);
 
                     methodCache.put(cacheKey, javaMethod);
@@ -369,8 +366,8 @@ public class GitDataExtractor {
 
             // Logica di calcolo churn allineata a quella del secondo codice
             if (oldMdAst != null) {
-                int locOld = calculateLOC(oldMdAst);
-                int locNew = calculateLOC(currentMdAst);
+                int locOld = MetricsCalculator.calculateLOC(oldMdAst);
+                int locNew = MetricsCalculator.calculateLOC(currentMdAst);
 
                 if (locNew > locOld) {
                     currentCommitStmtAdded = locNew - locOld;
@@ -380,7 +377,7 @@ public class GitDataExtractor {
                     projectMethod.addStmtDeleted(currentCommitStmtDeleted);
                 }
             } else {
-                currentCommitStmtAdded = calculateLOC(currentMdAst);
+                currentCommitStmtAdded = MetricsCalculator.calculateLOC(currentMdAst);
                 projectMethod.addStmtAdded(currentCommitStmtAdded);
             }
 
@@ -499,78 +496,6 @@ public class GitDataExtractor {
     }
 
     // --- METODI DI UTILITÀ PRIVATI ---
-    private int calculateLOC(MethodDeclaration md) {
-        if (!md.getBody().isPresent()) {
-            return 0;
-        }
-
-        String[] lines = md.getBody().get().toString().split("\r\n|\r|\n");
-        boolean inMultiLineComment = false;
-        int locCount = 0;
-
-        for (String line : lines) {
-            String trimmedLine = line.trim();
-
-            if (inMultiLineComment) {
-                // Se eravamo in un commento, verifichiamo se finisce
-                if (trimmedLine.endsWith("*/")) {
-                    inMultiLineComment = false;
-                }
-                // Essendo una riga di commento (o la chiusura), non facciamo nulla e passiamo avanti
-            } else if (trimmedLine.startsWith("/*")) {
-                // Se inizia un commento, verifichiamo se è su una riga sola
-                inMultiLineComment = true;
-                if (trimmedLine.endsWith("*/") && trimmedLine.length() > 2) {
-                    inMultiLineComment = false;
-                }
-                // Riga di inizio commento: non la contiamo
-            } else if (isValidCodeLine(trimmedLine)) {
-                // Se non siamo in un commento e la riga contiene codice valido, contiamo
-                locCount++;
-            }
-        }
-        return locCount;
-    }
-
-    /**
-     * Verifica esattamente le tue condizioni originali:
-     * Non vuota, non commento //, non solo { o }.
-     */
-    private boolean isValidCodeLine(String trimmedLine) {
-        return !trimmedLine.isEmpty() &&
-                !trimmedLine.startsWith("//") &&
-                !(trimmedLine.equals("{") || trimmedLine.equals("}"));
-    }
-
-
-    private int calculateNumBranches(MethodDeclaration md) {
-        if (!md.getBody().isPresent()) return 0;
-        int branches = 0;
-        branches += md.findAll(IfStmt.class).size();
-        branches += md.findAll(ConditionalExpr.class).size();
-        branches += md.findAll(ForStmt.class).size();
-        branches += md.findAll(ForEachStmt.class).size();
-        branches += md.findAll(WhileStmt.class).size();
-        branches += md.findAll(DoStmt.class).size();
-        for (SwitchStmt switchStmt : md.findAll(SwitchStmt.class)) {
-            branches += switchStmt.getEntries().size();
-        }
-        branches += md.findAll(CatchClause.class).size();
-        return branches;
-    }
-
-    private int calculateNestingDepth(MethodDeclaration md) {
-        if (!md.getBody().isPresent()) return 0;
-        this.nestingVisitor.reset();
-        md.getBody().get().accept(this.nestingVisitor, null);
-        return this.nestingVisitor.getMaxDepth();
-    }
-
-    private int calculateNumLocalVariables(MethodDeclaration md) {
-        if (!md.getBody().isPresent()) return 0;
-        return md.getBody().get().findAll(VariableDeclarator.class).size();
-    }
-
     private String calculateBodyHash(MethodDeclaration md) {
         if (md == null) return "NULL_METHOD_HASH";
         String normalizedBody = normalizeMethodBody(md);
@@ -583,7 +508,6 @@ public class GitDataExtractor {
             throw new IllegalStateException("SHA-256 Hashing error", e);
         }
     }
-
 
     private String normalizeMethodBody(MethodDeclaration md) {
         if (!md.getBody().isPresent()) return "";
@@ -603,71 +527,6 @@ public class GitDataExtractor {
             hexString.append(hex);
         }
         return hexString.toString();
-    }
-
-    private int calculateCodeSmells(MethodDeclaration md, int cyclomaticComplexity, int loc, int nestingDepth, int numParameters) {
-        if (!md.getBody().isPresent()) return 0;
-
-        int smellCount = 0;
-        BlockStmt body = md.getBody().get();
-
-        // 1. Controlli metriche statiche
-        if (cyclomaticComplexity > 7) smellCount++;
-        if (loc > 30) smellCount++;
-        if (nestingDepth > 4) smellCount++;
-        if (numParameters > 5) smellCount++;
-
-        // 2. Controlli strutturali (Switch, Catch, InstanceOf)
-        smellCount += countStructuralSmells(body);
-
-        // 3. Controllo annotazione Override
-        if (isMissingOverride(md)) smellCount++;
-
-        // 4. Controllo Magic Numbers
-        if (hasMagicNumberSmell(body)) smellCount++;
-
-        return smellCount;
-    }
-
-    private int countStructuralSmells(BlockStmt body) {
-        int count = 0;
-        for (SwitchStmt switchStmt : body.findAll(SwitchStmt.class)) {
-            if (switchStmt.getEntries().stream().noneMatch(entry -> entry.getLabels().isEmpty())) {
-                count++;
-            }
-        }
-        for (CatchClause catchClause : body.findAll(CatchClause.class)) {
-            if (catchClause.getBody().getStatements().isEmpty()) {
-                count++;
-            }
-        }
-        if (body.findAll(InstanceOfExpr.class).size() > 2) {
-            count++;
-        }
-        return count;
-    }
-
-    private boolean isMissingOverride(MethodDeclaration md) {
-        String methodName = md.getNameAsString();
-        List<String> standardMethods = Arrays.asList("equals", "hashCode", "toString");
-
-        return standardMethods.contains(methodName) &&
-                md.getAnnotations().stream().noneMatch(a -> a.getNameAsString().equals("Override"));
-    }
-
-    private boolean hasMagicNumberSmell(BlockStmt body) {
-        long magicNumberCount = body.findAll(IntegerLiteralExpr.class).stream()
-                .filter(n -> {
-                    try {
-                        int val = n.asInt();
-                        return val != 0 && val != 1 && val != -1;
-                    } catch (Exception e) {
-                        return true;
-                    }
-                })
-                .filter(n -> n.getParentNode().map(p -> !(p instanceof VariableDeclarator)).orElse(true))
-                .count();
-        return magicNumberCount > 1;
     }
 
     private void filterAndRenumberReleases() {

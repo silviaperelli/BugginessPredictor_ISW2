@@ -4,12 +4,7 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.ConditionalExpr;
-import com.github.javaparser.ast.expr.InstanceOfExpr;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
-import com.github.javaparser.ast.stmt.*;
-import utils.NestingDepthVisitor;
+import utils.MetricsCalculator;
 import utils.PrintUtils.Console;
 
 import java.io.FileWriter;
@@ -126,13 +121,13 @@ public class MetricsAnalyzerFromFile {
     }
 
     private static void printMetrics(MethodDeclaration md, String version, PrintWriter writer) {
-        int loc = calculateLOC(md);
+        int loc = MetricsCalculator.calculateLOC(md);
         int numParams = md.getParameters().size();
-        int numBranches = calculateNumBranches(md);
+        int numBranches = MetricsCalculator.calculateNumBranches(md);
         int cyclomaticComplexity = numBranches + 1;
-        int nestingDepth = calculateNestingDepth(md);
-        int numSmells = calculateCodeSmells(md, cyclomaticComplexity, loc, nestingDepth, numParams);
-        int numVars = calculateNumLocalVariables(md);
+        int nestingDepth = MetricsCalculator.calculateNestingDepth(md);
+        int numSmells = MetricsCalculator.calculateCodeSmells(md, cyclomaticComplexity, loc, nestingDepth, numParams);
+        int numVars = MetricsCalculator.calculateNumLocalVariables(md);
 
         writer.printf("%s,%s,%d,%d,%d,%d,%d,%d%n",
                 md.getNameAsString(), version, loc, numParams, numBranches, nestingDepth, numSmells, numVars);
@@ -150,15 +145,17 @@ public class MetricsAnalyzerFromFile {
 
         for (MethodDeclaration md : allRefactored) {
             String versionTag = md.getNameAsString().equals(mainRefactored.getNameAsString()) ? "Refactored_EntryPoint" : "Refactored_Helper";
-            printMetrics(md, versionTag, writer); // Riutilizziamo il metodo di stampa
+            printMetrics(md, versionTag, writer);
 
-            totalLoc += calculateLOC(md);
-            totalBranches += calculateNumBranches(md);
-            int nestingDepth = calculateNestingDepth(md);
-            if (nestingDepth > maxNesting) maxNesting = nestingDepth;
-            int cyclomaticComplexity = calculateNumBranches(md) + 1;
-            totalSmells += calculateCodeSmells(md, cyclomaticComplexity, calculateLOC(md), nestingDepth, md.getParameters().size());
-            totalVars += calculateNumLocalVariables(md);
+            int currentLoc = MetricsCalculator.calculateLOC(md);
+            int currentBranches = MetricsCalculator.calculateNumBranches(md);
+            int currentNesting = MetricsCalculator.calculateNestingDepth(md);
+            int currentParams = md.getParameters().size();
+            totalLoc += currentLoc;
+            totalBranches += currentBranches;
+            if (currentNesting > maxNesting) maxNesting = currentNesting;
+            totalSmells += MetricsCalculator.calculateCodeSmells(md, currentBranches + 1, currentLoc, currentNesting, currentParams);
+            totalVars += MetricsCalculator.calculateNumLocalVariables(md);
         }
 
         int mainParams = mainRefactored.getParameters().size();
@@ -168,140 +165,5 @@ public class MetricsAnalyzerFromFile {
 
         writer.printf("%s (refactored system),%s,%d,%d,%d,%d,%d,%d%n",
                 mainRefactored.getNameAsString(), "Refactored_Aggregate", totalLoc, mainParams, totalBranches, maxNesting, totalSmells, totalVars);
-    }
-
-    private static int calculateLOC(MethodDeclaration md) {
-        if (!md.getBody().isPresent()) {
-            return 0;
-        }
-
-        String[] lines = md.getBody().get().toString().split("\r\n|\r|\n");
-        boolean inMultiLineComment = false;
-        int locCount = 0;
-
-        for (String line : lines) {
-            String trimmedLine = line.trim();
-
-            if (inMultiLineComment) {
-                if (trimmedLine.endsWith("*/")) {
-                    inMultiLineComment = false;
-                }
-            } else if (trimmedLine.startsWith("/*")) {
-                inMultiLineComment = true;
-                if (trimmedLine.endsWith("*/") && trimmedLine.length() > 2) {
-                    inMultiLineComment = false;
-                }
-            } else if (isEffectiveCode(trimmedLine)) {
-                locCount++;
-            }
-        }
-        return locCount;
-    }
-
-    /**
-     * Verifica se la riga contiene codice effettivo (non vuota, non commento //, non solo graffe).
-     * Estratto per ridurre la complessità del metodo principale.
-     */
-    private static boolean isEffectiveCode(String trimmedLine) {
-        return !trimmedLine.isEmpty() &&
-                !trimmedLine.startsWith("//") &&
-                !(trimmedLine.equals("{") || trimmedLine.equals("}"));
-    }
-
-
-    private static int calculateNumBranches(MethodDeclaration md) {
-        if (!md.getBody().isPresent()) return 0;
-        int branches = 0;
-        branches += md.findAll(IfStmt.class).size();
-        branches += md.findAll(ConditionalExpr.class).size();
-        branches += md.findAll(ForStmt.class).size();
-        branches += md.findAll(ForEachStmt.class).size();
-        branches += md.findAll(WhileStmt.class).size();
-        branches += md.findAll(DoStmt.class).size();
-        for (SwitchStmt switchStmt : md.findAll(SwitchStmt.class)) {
-            branches += switchStmt.getEntries().size();
-        }
-        branches += md.findAll(CatchClause.class).size();
-        return branches;
-    }
-
-    private static int calculateNestingDepth(MethodDeclaration md) {
-        NestingDepthVisitor nestingVisitor = new NestingDepthVisitor();
-        if (!md.getBody().isPresent()) return 0;
-        nestingVisitor.reset();
-        md.getBody().get().accept(nestingVisitor, null);
-        return nestingVisitor.getMaxDepth();
-    }
-
-    private static int calculateNumLocalVariables(MethodDeclaration md) {
-        if (!md.getBody().isPresent()) return 0;
-        return md.getBody().get().findAll(VariableDeclarator.class).size();
-    }
-
-    private static int calculateCodeSmells(MethodDeclaration md, int cyclomaticComplexity, int loc, int nestingDepth, int numParameters) {
-        if (!md.getBody().isPresent()) return 0;
-
-        int smellCount = 0;
-        BlockStmt body = md.getBody().get();
-
-        // 1. Metriche statiche (semplici if)
-        if (cyclomaticComplexity > 7) smellCount++;
-        if (loc > 30) smellCount++;
-        if (nestingDepth > 4) smellCount++;
-        if (numParameters > 5) smellCount++;
-
-        // 2. Smells strutturali (Switch, Catch, InstanceOf)
-        smellCount += countStructuralSmells(body);
-
-        // 3. Controllo Override
-        if (isMissingOverride(md)) {
-            smellCount++;
-        }
-
-        // 4. Controllo Magic Numbers
-        if (hasMagicNumberSmell(body)) {
-            smellCount++;
-        }
-
-        return smellCount;
-    }
-
-    private static int countStructuralSmells(BlockStmt body) {
-        int count = 0;
-        for (SwitchStmt switchStmt : body.findAll(SwitchStmt.class)) {
-            if (switchStmt.getEntries().stream().noneMatch(entry -> entry.getLabels().isEmpty())) {
-                count++;
-            }
-        }
-        for (CatchClause catchClause : body.findAll(CatchClause.class)) {
-            if (catchClause.getBody().getStatements().isEmpty()) {
-                count++;
-            }
-        }
-        if (body.findAll(InstanceOfExpr.class).size() > 2) {
-            count++;
-        }
-        return count;
-    }
-
-    private static boolean isMissingOverride(MethodDeclaration md) {
-        String methodName = md.getNameAsString();
-        return (methodName.equals("equals") || methodName.equals("hashCode") || methodName.equals("toString")) &&
-                md.getAnnotations().stream().noneMatch(a -> a.getNameAsString().equals("Override"));
-    }
-
-    private static boolean hasMagicNumberSmell(BlockStmt body) {
-        long magicNumberCount = body.findAll(IntegerLiteralExpr.class).stream()
-                .filter(n -> {
-                    try {
-                        int val = n.asInt();
-                        return val != 0 && val != 1 && val != -1;
-                    } catch (Exception e) {
-                        return true;
-                    }
-                })
-                .filter(n -> n.getParentNode().map(p -> !(p instanceof VariableDeclarator)).orElse(true))
-                .count();
-        return magicNumberCount > 1;
     }
 }
