@@ -173,47 +173,65 @@ public class WekaClassification {
     private void performSingleClassification(String dirPath, String validationType, int run, int foldOrIteration, Map<String, List<AcumeMethod>> aggregatedPredictions) {
         try {
             if (!new File(dirPath + "training.arff").exists()) return;
+
             DataSource trainingSource = new DataSource(dirPath + "training.arff");
             Instances trainingSet = trainingSource.getDataSet();
             trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
+
             DataSource testingSource = new DataSource(dirPath + "testing.arff");
             Instances testingSet = testingSource.getDataSet();
             testingSet.setClassIndex(testingSet.numAttributes() - 1);
+
             if (testingSet.isEmpty()) return;
 
             List<WekaClassifier> classifiersToTest = ClassifierBuilder.buildClassifiers(trainingSet);
             int positiveClassIndex = trainingSet.classAttribute().indexOfValue("yes");
+
             List<ClassifierEvaluation> resultsList = "cv".equals(validationType) ? this.cvEvaluationResults : this.temporalEvaluationResults;
             int iterationId = "cv".equals(validationType) ? (run - 1) * 10 + foldOrIteration : foldOrIteration;
 
             for (WekaClassifier wekaConfig : classifiersToTest) {
-                try {
-                    Classifier classifier = wekaConfig.getClassifier();
-                    classifier.buildClassifier(trainingSet);
+                evaluateAndRecordClassifier(wekaConfig, trainingSet, testingSet, positiveClassIndex, validationType, foldOrIteration, iterationId, resultsList, aggregatedPredictions);
+            }
 
-                    List<AcumeMethod> predictions = getAcumePredictions(classifier, testingSet);
-                    String configName = buildClassifierConfigName(wekaConfig);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, () -> "Failed classification for " + dirPath);
+        }
+    }
 
-                    if ("cv".equals(validationType) && aggregatedPredictions != null) {
-                        // Se è CV, aggrega le previsioni
-                        aggregatedPredictions.computeIfAbsent(configName, k -> new ArrayList<>()).addAll(predictions);
-                    } else {
-                        // Se è temporale, scrivi subito il file ACUME
-                        String fileName = String.format("%s_iter%d", configName, foldOrIteration);
-                        PrintUtils.createAcumeFile(projectName, validationType, predictions, fileName);
-                    }
+    /**
+     * Metodo estratto per gestire la valutazione del singolo classificatore (Risolve java:S1141)
+     */
+    private void evaluateAndRecordClassifier(WekaClassifier wekaConfig, Instances trainingSet, Instances testingSet,
+                                             int positiveClassIndex, String validationType, int foldOrIteration,
+                                             int iterationId, List<ClassifierEvaluation> resultsList,
+                                             Map<String, List<AcumeMethod>> aggregatedPredictions) {
+        try {
+            Classifier classifier = wekaConfig.getClassifier();
+            classifier.buildClassifier(trainingSet);
 
-                    Evaluation eval = new Evaluation(trainingSet);
-                    eval.evaluateModel(classifier, testingSet);
-                    if (positiveClassIndex != -1) {
-                        resultsList.add(new ClassifierEvaluation(projectName, iterationId, wekaConfig.getName(), wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(), eval.precision(positiveClassIndex), eval.recall(positiveClassIndex), eval.areaUnderROC(positiveClassIndex), eval.kappa(), eval.fMeasure(positiveClassIndex), eval.matthewsCorrelationCoefficient(positiveClassIndex)));
-                    }
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Could not evaluate classifier {0}", wekaConfig.getName());
-                }
+            List<AcumeMethod> predictions = getAcumePredictions(classifier, testingSet);
+            String configName = buildClassifierConfigName(wekaConfig);
+
+            if ("cv".equals(validationType) && aggregatedPredictions != null) {
+                aggregatedPredictions.computeIfAbsent(configName, k -> new ArrayList<>()).addAll(predictions);
+            } else {
+                String fileName = String.format("%s_iter%d", configName, foldOrIteration);
+                PrintUtils.createAcumeFile(projectName, validationType, predictions, fileName);
+            }
+
+            Evaluation eval = new Evaluation(trainingSet);
+            eval.evaluateModel(classifier, testingSet);
+
+            if (positiveClassIndex != -1) {
+                resultsList.add(new ClassifierEvaluation(projectName, iterationId, wekaConfig.getName(),
+                        wekaConfig.getFeatureSelection(), wekaConfig.getSampling(), wekaConfig.getCostSensitive(),
+                        eval.precision(positiveClassIndex), eval.recall(positiveClassIndex),
+                        eval.areaUnderROC(positiveClassIndex), eval.kappa(), eval.fMeasure(positiveClassIndex),
+                        eval.matthewsCorrelationCoefficient(positiveClassIndex)));
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed classification for {0}", dirPath);
+            LOGGER.log(Level.SEVERE, e, () -> "Could not evaluate classifier " + wekaConfig.getName());
         }
     }
 
