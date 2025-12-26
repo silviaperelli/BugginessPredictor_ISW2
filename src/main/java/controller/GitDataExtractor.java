@@ -454,7 +454,7 @@ public class GitDataExtractor {
                 processDiffForBuggyness(diff, newFileContentsInFix, oldFileContentsInFix, injectedVersion, fixedVersion, allProjectMethods);
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Errore durante l'analisi del commit di fix " + fixCommit.getName(), e);
+            LOGGER.log(Level.SEVERE, e, () -> "Errore durante l'analisi del commit di fix " + fixCommit.getName());
         }
     }
 
@@ -511,24 +511,21 @@ public class GitDataExtractor {
         for (String line : lines) {
             String trimmedLine = line.trim();
 
-            if (trimmedLine.startsWith("/*")) {
+            if (inMultiLineComment) {
+                // Se eravamo in un commento, verifichiamo se finisce
+                if (trimmedLine.endsWith("*/")) {
+                    inMultiLineComment = false;
+                }
+                // Essendo una riga di commento (o la chiusura), non facciamo nulla e passiamo avanti
+            } else if (trimmedLine.startsWith("/*")) {
+                // Se inizia un commento, verifichiamo se è su una riga sola
                 inMultiLineComment = true;
                 if (trimmedLine.endsWith("*/") && trimmedLine.length() > 2) {
                     inMultiLineComment = false;
                 }
-                continue;
-            }
-
-            if (trimmedLine.endsWith("*/")) {
-                inMultiLineComment = false;
-                continue;
-            }
-
-            if (inMultiLineComment) {
-                continue;
-            }
-
-            if (isValidCodeLine(trimmedLine)) {
+                // Riga di inizio commento: non la contiamo
+            } else if (isValidCodeLine(trimmedLine)) {
+                // Se non siamo in un commento e la riga contiene codice valido, contiamo
                 locCount++;
             }
         }
@@ -587,10 +584,11 @@ public class GitDataExtractor {
         }
     }
 
+
     private String normalizeMethodBody(MethodDeclaration md) {
         if (!md.getBody().isPresent()) return "";
         String body = md.getBody().get().toString();
-        body = body.replaceAll("//.*|/\\*(?s:.*?)\\*/", ""); // Rimuovi commenti
+        body = body.replaceAll("//.*|/\\*(?s).*?\\*/", "");
         body = body.replaceAll("\\s+", " "); // Sostituisci spazi multipli con uno singolo
         return body.trim();
     }
@@ -631,11 +629,11 @@ public class GitDataExtractor {
             smellCount++;
         }
         String methodName = md.getNameAsString();
-        if (methodName.equals("equals") || methodName.equals("hashCode") || methodName.equals("toString")) {
-            if (md.getAnnotations().stream().noneMatch(a -> a.getNameAsString().equals("Override"))) {
-                smellCount++;
-            }
+        if ((methodName.equals("equals") || methodName.equals("hashCode") || methodName.equals("toString")) &&
+                md.getAnnotations().stream().noneMatch(a -> a.getNameAsString().equals("Override"))) {
+            smellCount++;
         }
+
         long magicNumberCount = body.findAll(IntegerLiteralExpr.class).stream()
                 .filter(n -> { try { int val = n.asInt(); return val != 0 && val != 1 && val != -1; } catch (Exception e) { return true; } })
                 .filter(n -> n.getParentNode().map(p -> !(p instanceof VariableDeclarator)).orElse(true))
