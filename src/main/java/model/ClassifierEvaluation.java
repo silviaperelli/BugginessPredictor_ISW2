@@ -2,15 +2,19 @@ package model;
 
 import java.util.Locale;
 
+/**
+ * Classe modello che rappresenta i risultati della valutazione di un classificatore in una specifica iterazione di un esperimento
+ */
 public class ClassifierEvaluation {
+
     private String project;
     private int iteration;
-    private String classifierName;
-    private String featureSelection;
-    private String sampling;
-    private String costSensitive;
+    private String classifierName; // Nome del classificatore di base
+    private String featureSelection; // Tecnica di selezione delle feature usata (es. "BestFirst")
+    private String sampling; // Tecnica di bilanciamento usata (es. "SMOTE")
+    private String costSensitive; // Tecnica di gestione del costo degli errori usata
 
-    // Metriche
+    // Metriche di performance
     private double precision;
     private double recall;
     private double auc;
@@ -40,7 +44,7 @@ public class ClassifierEvaluation {
     }
 
 
-    // Classe di supporto per raggruppare i double
+    // Classe interna statica per raggruppare le metriche di valutazione
     public static class EvaluationMetrics {
         double precision;
         double recall;

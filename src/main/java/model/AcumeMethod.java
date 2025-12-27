@@ -1,10 +1,13 @@
 package model;
 
+/**
+ * Classe modello che rappresenta un metodo nel formato richiesto dallo strumento ACUME
+ */
 public class AcumeMethod {
     private final int id;
     private final int size; // LOC del metodo
-    private final double predictedProbability;
-    private final String actualValue; // "yes" o "no"
+    private final double predictedProbability; // Probabilità che il metodo sia buggy
+    private final String actualValue; // valore reale, "yes" o "no"
 
     public AcumeMethod(int id, int size, double predictedProbability, String actualValue) {
         this.id = id;
