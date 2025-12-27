@@ -6,6 +6,8 @@ import java.util.List;
 public class MathUtils {
 
     private MathUtils() {}
+
+    // Calcola la mediana di una lista di numeri float
     public static float median(List<Float> array){
         float median;
 

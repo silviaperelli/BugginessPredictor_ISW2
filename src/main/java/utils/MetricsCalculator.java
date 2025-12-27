@@ -9,12 +9,17 @@ import com.github.javaparser.ast.stmt.*;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Classe di utilità che centralizza tutti i calcoli delle metriche del codice sorgente
+ */
 public class MetricsCalculator {
 
-    private MetricsCalculator() {
-        // Utility class
-    }
+    private MetricsCalculator() {}
 
+    /**
+     * Calcola le Linee di Codice (LOC) effettive di un metodo.
+     * Vengono escluse le righe vuote e i commenti
+     */
     public static int calculateLOC(MethodDeclaration md) {
         if (!md.getBody().isPresent()) return 0;
         String[] lines = md.getBody().get().toString().split("\r\n|\r|\n");
@@ -34,12 +39,18 @@ public class MetricsCalculator {
         return locCount;
     }
 
+    /**
+     * Metodo helper per `calculateLOC`. Verifica se una riga di codice è effettiva
+     */
     public static boolean isValidCodeLine(String trimmedLine) {
         return !trimmedLine.isEmpty() &&
                 !trimmedLine.startsWith("//") &&
                 !(trimmedLine.equals("{") || trimmedLine.equals("}"));
     }
 
+    /**
+     * Calcola il numero di decision points in un metodo
+     */
     public static int calculateNumBranches(MethodDeclaration md) {
         if (!md.getBody().isPresent()) return 0;
         int branches = 0;
@@ -56,6 +67,9 @@ public class MetricsCalculator {
         return branches;
     }
 
+    /**
+     * Calcola la massima profondità di annidamento dei blocchi di controllo
+     */
     public static int calculateNestingDepth(MethodDeclaration md) {
         if (!md.getBody().isPresent()) return 0;
         NestingDepthVisitor nestingVisitor = new NestingDepthVisitor();
@@ -64,11 +78,17 @@ public class MetricsCalculator {
         return nestingVisitor.getMaxDepth();
     }
 
+    /**
+     * Calcola il numero totale di variabili locali dichiarate all'interno di un metodo
+     */
     public static int calculateNumLocalVariables(MethodDeclaration md) {
         if (!md.getBody().isPresent()) return 0;
         return md.getBody().get().findAll(VariableDeclarator.class).size();
     }
 
+    /**
+     * Calcola un punteggio aggregato di Code Smells basato su diverse euristiche
+     */
     public static int calculateCodeSmells(MethodDeclaration md, int cyclomaticComplexity, int loc, int nestingDepth, int numParameters) {
         if (!md.getBody().isPresent()) return 0;
         int smellCount = 0;
@@ -83,6 +103,10 @@ public class MetricsCalculator {
         return smellCount;
     }
 
+    /**
+     * Metodo helper per `calculateCodeSmells`. Conta gli smell strutturali come switch senza default,
+     * catch vuoti e uso eccessivo di `instanceof`
+     */
     private static int countStructuralSmells(BlockStmt body) {
         int count = 0;
         for (SwitchStmt switchStmt : body.findAll(SwitchStmt.class)) {
@@ -95,6 +119,10 @@ public class MetricsCalculator {
         return count;
     }
 
+    /**
+     * Metodo helper per `calculateCodeSmells`. Verifica se ai metodi standard
+     * (`equals`, `hashCode`, `toString`) manca l'annotazione `@Override`
+     */
     private static boolean isMissingOverride(MethodDeclaration md) {
         String methodName = md.getNameAsString();
         List<String> standardMethods = Arrays.asList("equals", "hashCode", "toString");
@@ -102,6 +130,9 @@ public class MetricsCalculator {
                 md.getAnnotations().stream().noneMatch(a -> a.getNameAsString().equals("Override"));
     }
 
+    /**
+     * Metodo helper per `calculateCodeSmells`. Identifica la presenza di "Magic Numbers"
+     */
     private static boolean hasMagicNumberSmell(BlockStmt body) {
         long magicNumberCount = body.findAll(IntegerLiteralExpr.class).stream()
                 .filter(n -> {

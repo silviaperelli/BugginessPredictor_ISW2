@@ -15,6 +15,9 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Classe di utilità che centralizza tutte le operazioni di output, sia su console che su file CSV.
+ */
 public class PrintUtils {
 
     private PrintUtils(){}
@@ -28,6 +31,10 @@ public class PrintUtils {
     public static final String ERROR = "Error in writeOnReportFiles when trying to create directory";
     private static final String CSV_FILES_DIR = "csvFiles/";
 
+    /**
+     * Classe interna statica per gestire l'output sulla console.
+     * Funge da wrapper per System.out, permettendo di centralizzare la logica di stampa
+     */
     public static class Console {
         private Console(){}
 
@@ -37,6 +44,9 @@ public class PrintUtils {
         }
     }
 
+    /**
+     * Stampa una lista di commit in un file CSV
+     */
     public static void printCommits(String project, List<RevCommit> commitList, String name) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
@@ -57,6 +67,9 @@ public class PrintUtils {
         }
     }
 
+    /**
+     * Stampa una lista di ticket in un file CSV
+     */
     public static void printTickets(String project, List<Ticket> ticketList) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
@@ -72,13 +85,13 @@ public class PrintUtils {
 
             for (Ticket ticket : ticketOrderedByCreation) {
 
-                // 1. Raccogli i nomi delle release
+                // Raccoglie i nomi delle release
                 List<String> releaseNames = new ArrayList<>();
                 for(Release release : ticket.getAv()) {
                     releaseNames.add(release.getName());
                 }
 
-                // 2. Unisci i nomi in una singola stringa usando un separatore
+                // Unisce i nomi in una singola stringa usando un separatore
                 String affectedVersionsString = String.join(";", releaseNames);
 
                 fileWriter.append(ticket.getTicketID()).append(",")
@@ -96,6 +109,9 @@ public class PrintUtils {
         }
     }
 
+    /**
+     * Stampa una lista di release in un file CSV
+     */
     public static void printReleases(String project, List<Release> releaseList, String name) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
@@ -116,6 +132,9 @@ public class PrintUtils {
         }
     }
 
+    /**
+     * Stampa una vista semplificata di una lista di metodi in un file CSV
+     */
     public static void printMethods(String project, List<JavaMethod> methods, String name) throws IOException {
         project = project.toLowerCase();
         File file = new File(MAINDIR + project);
@@ -138,6 +157,10 @@ public class PrintUtils {
         }
     }
 
+    /**
+     * Genera il dataset finale in formato CSV, pronto per essere utilizzato da Weka.
+     * Stampa anche un riepilogo statistico del dataset sulla console
+     */
     public static void printMethodsDataset(String projectName, List<JavaMethod> methods) throws IOException {
         String projectDirName = projectName.toLowerCase();
         File projectCsvDir = new File(CSV_FILES_DIR + projectDirName);
@@ -151,10 +174,12 @@ public class PrintUtils {
 
         int totalInstances = 0;
         int buggyInstances = 0;
-        // Usiamo un HashSet per contare le release uniche
+
+        // Usa un HashSet per contare le release uniche
         java.util.Set<Integer> uniqueReleaseIDs = new java.util.HashSet<>();
 
         try (FileWriter fileWriter = new FileWriter(datasetFile)) {
+            // Scrive l'header del CSV con tutte le feature
             fileWriter.append("MethodFullyQualifiedName").append(SEPARATOR)
                     .append("ReleaseID").append(SEPARATOR)
                     .append("LOC").append(SEPARATOR)
@@ -173,7 +198,7 @@ public class PrintUtils {
                     .append("IsBuggy")
                     .append(DELIMITER);
 
-            // Scrivi i dati per ogni metodo
+            // Scrive i dati per ogni istanza (metodo-release)
             for (JavaMethod method : methods) {
                 totalInstances++;
                 if (method.isBuggy()) {
@@ -207,7 +232,7 @@ public class PrintUtils {
             LOGGER.log(Level.SEVERE, "Error writing CSV dataset: {0}", e.getMessage());
         }
 
-        // Calcolo finale e stampa delle statistiche ---
+        // Calcolo finale e stampa delle statistiche
         int nonBuggyInstances = totalInstances - buggyInstances;
         double buggyPercentage = (totalInstances > 0) ? (100.0 * buggyInstances / totalInstances) : 0;
         int numReleases = uniqueReleaseIDs.size();
@@ -229,10 +254,11 @@ public class PrintUtils {
         Console.info(statsSummary);
     }
 
+    /**
+     * Salva i risultati delle performance dei classificatori Weka in un file CSV
+     */
     public static void printEvaluationResults(String projectName, List<ClassifierEvaluation> results, String fileSuffix) throws IOException {
         String outputDir = "wekaFiles/" + projectName.toLowerCase() + "/";
-
-        // Assicura che la cartella esista
         File dir = new File(outputDir);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -250,7 +276,6 @@ public class PrintUtils {
                 writer.append(result.toCsvString()).append(DELIMITER);
             }
 
-            // Logga il nome completo del file per chiarezza
             Console.info("Weka Evaluation results written to " + filename);
 
         } catch (IOException e) {
@@ -258,6 +283,9 @@ public class PrintUtils {
         }
     }
 
+    /**
+     * Esegue l'escape di una stringa per renderla sicura per l'inserimento in un campo CSV
+     */
     private static String escapeCSV(String field) {
         if (field == null) return "";
         if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
@@ -267,6 +295,9 @@ public class PrintUtils {
         return field;
     }
 
+    /**
+     * Crea un file CSV nel formato specifico richiesto dallo strumento ACUME
+     */
     public static void createAcumeFile(String project, String validationType, List<AcumeMethod> methods, String fileName) throws IOException {
         String projectLower = project.toLowerCase();
 
@@ -276,14 +307,12 @@ public class PrintUtils {
         // Crea le cartelle di destinazione se non esistono
         File dir = new File(dirPath);
         if (!dir.exists() && !dir.mkdirs()) {
-                // Lancia un'eccezione se la creazione della cartella fallisce
                 throw new IOException("Could not create directory: " + dir.getAbsolutePath());
         }
 
         // Crea il percorso completo del file CSV
         File file = new File(dir, fileName + ".csv");
 
-        // Utilizza try-with-resources per garantire che FileWriter venga chiuso automaticamente
         try (FileWriter fileWriter = new FileWriter(file)) {
 
             // Scrive l'intestazione del file CSV

@@ -13,26 +13,21 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Utility class to convert custom data structures into Weka's Instances format.
+ * Classe di utilità per gestire le operazioni specifiche di Weka,
+ * in particolare la conversione delle strutture dati del progetto nel formato `Instances` di Weka
  */
 public final class WekaUtils {
 
     private WekaUtils() {}
 
     /**
-     * Builds a Weka Instances object from a list of JavaMethod objects.
-     * This method defines the structure of the dataset (attributes) and populates it.
-     *
-     * @param methods The list of JavaMethod instances to convert.
-     * @param relationName A name for the dataset.
-     * @return An Instances object ready for use with Weka classifiers.
+     * Costruisce un oggetto `Instances` di Weka a partire da una lista di oggetti `JavaMethod`
      */
-
     public static Instances buildInstances(List<JavaMethod> methods, String relationName) {
-        // 1. Definisci gli attributi (le colonne)
+        // Definisce gli attributi
         ArrayList<Attribute> attributes = new ArrayList<>();
 
-        // Aggiungi tutti gli attributi numerici nell'ordine desiderato
+        // Aggiunge tutti gli attributi numerici che corrispondono alle metriche calcolate
         attributes.add(new Attribute("LOC"));
         attributes.add(new Attribute("NumParameters"));
         attributes.add(new Attribute("NumBranches"));
@@ -47,17 +42,17 @@ public final class WekaUtils {
         attributes.add(new Attribute("AvgChurn"));
         attributes.add(new Attribute("HasFixHistory"));
 
-        // Aggiungi l'attributo nominale della classe (il target da predire)
+        // Aggiunge l'attributo nominale ovvero la variabile che vogliamo predire (il target)
         List<String> classValues = Arrays.asList("no", "yes");
         attributes.add(new Attribute("IsBuggy", classValues));
 
-        // 2. Crea l'oggetto Instances vuoto con la struttura definita
+        // Crea l'oggetto Instances vuoto con la struttura definita e la capacità iniziale
         Instances data = new Instances(relationName, attributes, methods.size());
 
         // Imposta l'ultimo attributo come quello da predire
         data.setClassIndex(data.numAttributes() - 1);
 
-        // 3. Popola l'oggetto Instances con i dati
+        // Popola l'oggetto Instances con i dati, iterando su ogni `JavaMethod`
         for (JavaMethod method : methods) {
             // Crea un array di double per contenere i valori di una riga
             double[] values = new double[data.numAttributes()];
@@ -80,18 +75,24 @@ public final class WekaUtils {
             // Per l'attributo nominale, usiamo l'indice del valore ("no" = 0, "yes" = 1)
             values[data.classIndex()] = method.isBuggy() ? 1.0 : 0.0;
 
-            // Aggiungi la riga (istanza) al dataset
+            // Aggiunge la riga (istanza) al dataset
             data.add(new DenseInstance(1.0, values));
         }
 
         return data;
     }
 
+    /**
+     * Carica un dataset Weka direttamente da un file CSV
+     */
     public static Instances loadInstancesFromCsv(String csvPath) throws IOException {
+        // Usa il CSVLoader di Weka, che gestisce automaticamente il parsing
         CSVLoader loader = new CSVLoader();
         loader.setSource(new File(csvPath));
         Instances data = loader.getDataSet();
 
+        // Controllo di sicurezza: se Weka non ha identificato automaticamente la colonna della classe,
+        // impostiamo l'ultima colonna come default
         if (data.classIndex() == -1) {
             data.setClassIndex(data.numAttributes() - 1);
         }
