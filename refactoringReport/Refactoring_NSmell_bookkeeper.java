@@ -95,8 +95,10 @@ byte[] readEntry2(long ledgerId, long entryId, long location)
     return data;
 }
 
-// --- METODI ESTRATTI "MOLTO MIRATI" ---
-
+// METODI HELPER ESTRATTI
+/**
+ * Ottiene il canale di lettura (`BufferedChannel`) per un dato ID di log.
+ */
 private BufferedChannel getChannelForLog(long entryLogId, long ledgerId, long location) throws IOException {
     try {
         return getChannelForLogId(entryLogId);
@@ -108,6 +110,9 @@ private BufferedChannel getChannelForLog(long entryLogId, long ledgerId, long lo
     }
 }
 
+/**
+ * Legge la dimensione dell'entry (un intero di 4 byte) dalla posizione specificata.
+ */
 private int readEntrySize(BufferedChannel fc, long pos, long ledgerId, long entryId) throws IOException {
     ByteBuffer sizeBuff = ByteBuffer.allocate(METADATA_LENGTH_BYTES);
     if (fc.read(sizeBuff, pos) != METADATA_LENGTH_BYTES) {
@@ -118,6 +123,11 @@ private int readEntrySize(BufferedChannel fc, long pos, long ledgerId, long entr
     return sizeBuff.getInt();
 }
 
+/**
+ * Esegue controlli di validità sulla dimensione dell'entry letta.
+ * Lancia un'eccezione se la dimensione è troppo piccola o troppo grande,
+ * per prevenire errori di allocazione di memoria o corruzione dei dati.
+ */
 private void validateEntrySize(int entrySize, long entryLogId, long pos) throws IOException {
     if (entrySize > MB) {
         LOG.error("Sanity check failed for entry size of {} at location {} in {}",
@@ -130,6 +140,11 @@ private void validateEntrySize(int entrySize, long entryLogId, long pos) throws 
     }
 }
 
+/**
+ * Valida l'header dell'entry letta (ledgerId e entryId).
+ * Confronta gli ID letti dall'header con quelli attesi per garantire che sia stata
+ * letta l'entry corretta e che non ci sia corruzione dei dati.
+ */
 private void validateHeader(byte[] data, long expectedLedgerId, long expectedEntryId,
                              long entryLogId, long pos) throws IOException {
     ByteBuffer buff = ByteBuffer.wrap(data);

@@ -186,28 +186,32 @@ public static void main(String[] args)
 public static void main2(String[] args)
         throws KeeperException, IOException, InterruptedException, ParseException, BKException {
 
-    // Fase 1: Parsing degli argomenti della riga di comando
+    // Parsing degli argomenti della riga di comando
     CommandLine cmd = parseCommandLineArguments(args);
 
-    // Fase 2: Caricamento della configurazione dagli argomenti
+    // Caricamento della configurazione dagli argomenti
     BenchmarkConfig config = loadConfigurationFrom(cmd);
     LOG.warn("(Parameters received) " + config.toString());
 
-    // Fase 3: Setup del benchmark, incluso il timeout
+    // Setup del benchmark, incluso il timeout
     Timer timeouter = setupTimeout(config);
     ClientConfiguration clientConf = buildClientConfiguration(config);
 
-    // Fase 4: Esecuzione del benchmark (con warmup)
+    // Esecuzione del benchmark (con warmup)
     BenchThroughputLatency bench = executeBenchmark(config, clientConf);
 
-    // Fase 5: Elaborazione e salvataggio dei risultati
+    // Elaborazione e salvataggio dei risultati
     processAndReportResults(bench, config);
 
-    // Fase 6: Pulizia delle risorse
+    // Pulizia delle risorse
     bench.close();
     timeouter.cancel();
 }
 
+// METODI HELPER ESTRATTI
+/**
+ * Definisce e analizza gli argomenti passati dalla riga di comando.
+ */
 private static CommandLine parseCommandLineArguments(String[] args) throws ParseException {
     Options options = new Options();
     options.addOption("time", true, "Running time (seconds), default 60");
@@ -401,7 +405,10 @@ private static void dumpLatenciesToFile(long[] latencies, String filePath) throw
     }
 }
 
-
+/**
+ * Pubblica i risultati principali (throughput) su ZooKeeper,
+ * per permettere a un orchestratore esterno di raccogliere i dati da tutti i client.
+ */
 private static void publishResultsToZooKeeper(ZooKeeper zk, BenchThroughputLatency bench, BenchmarkConfig config)
         throws KeeperException, InterruptedException {
     long numCompletions = getSortedLatencies(bench).length;
