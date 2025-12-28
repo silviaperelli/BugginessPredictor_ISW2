@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import os
 
 # --- CONFIGURAZIONE ---
-# Modifica solo questa riga per cambiare progetto
-nome_progetto = 'BOOKKEEPER'
+# Riga da modificare per cambiare progetto
+nome_progetto = 'SYNCOPE'
 
 # Percorsi dei file di input e cartella di output
 file_risultati_cv = f'../wekaFiles/{nome_progetto.lower()}/classificationResults_cv.csv'
@@ -13,7 +13,6 @@ file_risultati_temporal = f'../wekaFiles/{nome_progetto.lower()}/classificationR
 cartella_output = nome_progetto.lower()
 
 # --- FUNZIONI HELPER ---
-
 def crea_etichetta_tecnica(row):
     """Crea un'etichetta descrittiva per le tecniche di classificazione usate."""
     fs = row['FeatureSelection']
@@ -59,7 +58,8 @@ def crea_e_salva_boxplot_kappa(file_input, file_output, titolo_principale):
         sns.boxplot(
             data=dati_clf, x='Tecnica', y='Kappa', ax=axes[i],
             color=colore, order=ordine_tecniche,
-            width=larghezza_box
+            width=larghezza_box,
+            showfliers=False
         )
         axes[i].set_title(f'{clf}')
         axes[i].set_xlabel('')
@@ -78,11 +78,10 @@ def crea_e_salva_boxplot_kappa(file_input, file_output, titolo_principale):
 
     plt.savefig(file_output, dpi=300)
     print(f"Grafico salvato con successo come: {file_output}")
-    plt.close(fig) # Chiude la figura per liberare memoria
+    plt.close(fig)
 
 
 # --- ESECUZIONE PRINCIPALE ---
-
 # Grafico Kappa per la Cross-Validation
 crea_e_salva_boxplot_kappa(
     file_input=file_risultati_cv,
@@ -90,7 +89,7 @@ crea_e_salva_boxplot_kappa(
     titolo_principale=f'Distribuzione Kappa per {nome_progetto} (Cross-Validation)'
 )
 
-print("\n" + "="*50 + "\n") # Separatore per chiarezza
+print("\n" + "="*50 + "\n")
 
 # Grafico Kappa per la Validazione Temporale
 crea_e_salva_boxplot_kappa(

@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import os
 
 # --- CONFIGURAZIONE ---
-# Modifica solo questa riga per cambiare progetto
-nome_progetto = 'BOOKKEEPER'
+# Riga da modificare per cambiare progetto
+nome_progetto = 'SYNCOPE'
 
 # Percorsi dei file di input e cartella di output
 file_risultati_cv = f'../wekaFiles/{nome_progetto.lower()}/classificationResults_cv.csv'
@@ -13,7 +13,6 @@ file_risultati_temporal = f'../wekaFiles/{nome_progetto.lower()}/classificationR
 cartella_output = nome_progetto.lower()
 
 # --- FUNZIONI HELPER ---
-
 def crea_etichetta_tecnica(row):
     """Crea un'etichetta descrittiva per le tecniche di classificazione usate."""
     fs = row['FeatureSelection']
@@ -56,23 +55,23 @@ def crea_e_salva_boxplot_prec_recall(file_input, file_output, titolo_principale)
     for i, clf in enumerate(classificatori):
         dati_clf = df[df['Classifier'] == clf]
 
-        # --- CORREZIONE: Grafico PRECISION (RIGA SUPERIORE) ---
         sns.boxplot(
-            data=dati_clf, x='Tecnica', y='Precision', ax=axes[0, i], # <-- Corretto da F1-Score
+            data=dati_clf, x='Tecnica', y='Precision', ax=axes[0, i],
             color=colori['Precision'], order=ordine_tecniche,
-            width=larghezza_box
+            width=larghezza_box,
+            showfliers=False
         )
         axes[0, i].set_title(f'{clf}')
         axes[0, i].set_xlabel('')
-        axes[0, i].set_ylabel('Precision') # <-- Etichetta corretta
+        axes[0, i].set_ylabel('Precision')
 
-        # --- CORREZIONE: Grafico RECALL (RIGA INFERIORE) ---
         sns.boxplot(
-            data=dati_clf, x='Tecnica', y='Recall', ax=axes[1, i], # <-- Corretto da AUC
+            data=dati_clf, x='Tecnica', y='Recall', ax=axes[1, i],
             color=colori['Recall'], order=ordine_tecniche,
-            width=larghezza_box
+            width=larghezza_box,
+            showfliers=False
         )
-        axes[1, i].set_ylabel('Recall') # <-- Etichetta corretta
+        axes[1, i].set_ylabel('Recall')
         axes[1, i].set_xlabel('')
         axes[1, i].tick_params(axis='x', rotation=45)
 
@@ -85,11 +84,10 @@ def crea_e_salva_boxplot_prec_recall(file_input, file_output, titolo_principale)
 
     plt.savefig(file_output, dpi=300)
     print(f"Grafico salvato con successo come: {file_output}")
-    plt.close(fig) # Chiude la figura per liberare memoria
+    plt.close(fig)
 
 
 # --- ESECUZIONE PRINCIPALE ---
-
 # Grafico Precision/Recall per la Cross-Validation
 crea_e_salva_boxplot_prec_recall(
     file_input=file_risultati_cv,
@@ -97,7 +95,7 @@ crea_e_salva_boxplot_prec_recall(
     titolo_principale=f'Distribuzione Precision e Recall per {nome_progetto} (Cross-Validation)'
 )
 
-print("\n" + "="*50 + "\n") # Separatore per chiarezza
+print("\n" + "="*50 + "\n")
 
 # Grafico Precision/Recall per la Validazione Temporale
 crea_e_salva_boxplot_prec_recall(

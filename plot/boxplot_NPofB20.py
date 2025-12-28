@@ -4,25 +4,21 @@ import matplotlib.pyplot as plt
 import os
 
 # --- CONFIGURAZIONE ---
-# Modifica solo questa riga per cambiare progetto
-nome_progetto = 'BOOKKEEPER'
+# Riga da modificare per cambiare progetto
+nome_progetto = 'SYNCOPE'
 
 # Percorsi dei file di input e cartella di output
-file_risultati_cv = f'../finalAcumeFiles/{nome_progetto.lower()}_acume_cv.csv'
-file_risultati_temporal = f'../finalAcumeFiles/{nome_progetto.lower()}_acume_temporal.csv'
+file_risultati_cv = f'../finalAcumeFiles/{nome_progetto.lower()}/{nome_progetto.lower()}_acume_cv.csv'
+file_risultati_temporal = f'../finalAcumeFiles/{nome_progetto.lower()}/{nome_progetto.lower()}_acume_temporal.csv'
 cartella_output = nome_progetto.lower()
 
 # --- FUNZIONI HELPER ---
-
 def estrai_classifier(filename):
     """Estrae il nome del classificatore dal nome del file."""
-    # Ritorna la prima parte del nome del file, che è il classificatore base
-    # es. "RandomForest_CostSensitive_run10.csv" -> "RandomForest"
     return filename.split('_')[0]
 
 def estrai_tecnica(filename):
     """Estrae le tecniche usate dal nome del file."""
-    # Questa funzione ora deve gestire le combinazioni
     tecnica = []
     if 'BestFirst' in filename:
         tecnica.append('BestFirst')
@@ -31,7 +27,6 @@ def estrai_tecnica(filename):
     if 'Sensitive' in filename or 'CostSensitive' in filename:
         tecnica.append('Sensitive')
 
-    # sorted() assicura che "SMOTE + BestFirst" sia sempre uguale a "BestFirst + SMOTE"
     return ' + '.join(sorted(tecnica)) if tecnica else 'none'
 
 def crea_e_salva_boxplot_npofb20(file_input, file_output, titolo_principale):
@@ -48,12 +43,9 @@ def crea_e_salva_boxplot_npofb20(file_input, file_output, titolo_principale):
         print(f"ERRORE: File '{file_input}' non trovato. Salto questo grafico.")
         return
 
-    # Applica le funzioni per estrarre le colonne necessarie dalla colonna 'Filename'
     df['Classifier'] = df['Filename'].apply(estrai_classifier)
     df['Tecnica'] = df['Filename'].apply(estrai_tecnica)
-
-    # Definisci l'ordine desiderato per le tecniche sull'asse X
-    ordine_tecniche = ['none', 'BestFirst', 'SMOTE', 'Sensitive', 'BestFirst + SMOTE', 'BestFirst + Sensitive']
+    ordine_tecniche = ['none', 'BestFirst', 'SMOTE', 'Sensitive']
 
     # 2. CREAZIONE DEL GRAFICO
     print("Creazione del grafico per NPofB20...")
@@ -71,7 +63,8 @@ def crea_e_salva_boxplot_npofb20(file_input, file_output, titolo_principale):
         sns.boxplot(
             data=dati_clf, x='Tecnica', y='Npofb20', ax=axes[i],
             color=colore_box, order=ordine_tecniche,
-            width=larghezza_box
+            width=larghezza_box,
+            showfliers=False
         )
         axes[i].set_title(f'{titoli_grafici[i]}')
         axes[i].set_xlabel('')
@@ -89,12 +82,15 @@ def crea_e_salva_boxplot_npofb20(file_input, file_output, titolo_principale):
 
 
 # --- ESECUZIONE PRINCIPALE ---
+# Grafico NPofB20 per la Cross-Validation
 crea_e_salva_boxplot_npofb20(
     file_input=file_risultati_cv,
     file_output=f'{cartella_output}/boxplot_npofb20_cv.png',
     titolo_principale=f'Distribuzione NPofB20 per {nome_progetto} (Cross-Validation)'
 )
 print("\n" + "="*50 + "\n")
+
+# Grafico NPofB20 per la Validazione Temporale
 crea_e_salva_boxplot_npofb20(
     file_input=file_risultati_temporal,
     file_output=f'{cartella_output}/boxplot_npofb20_temporal.png',

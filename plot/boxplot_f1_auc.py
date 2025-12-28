@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import os
 
 # --- CONFIGURAZIONE ---
-# Modifica solo questa riga per cambiare progetto
-nome_progetto = 'SYNCOPE'
+# Riga da modificare per cambiare progetto
+nome_progetto = 'BOOKKEEPER'
 
 # Percorsi dei file di input e cartella di output
 file_risultati_cv = f'../wekaFiles/{nome_progetto.lower()}/classificationResults_cv.csv'
@@ -13,7 +13,6 @@ file_risultati_temporal = f'../wekaFiles/{nome_progetto.lower()}/classificationR
 cartella_output = nome_progetto.lower()
 
 # --- FUNZIONI HELPER ---
-
 def crea_etichetta_tecnica(row):
     """Crea un'etichetta descrittiva per le tecniche di classificazione usate."""
     fs = row['FeatureSelection']
@@ -57,13 +56,13 @@ def crea_e_salva_boxplot(file_input, file_output, titolo_principale):
         dati_clf = df[df['Classifier'] == clf]
 
         # GRAFICO F1-SCORE (RIGA SUPERIORE)
-        sns.boxplot(data=dati_clf, x='Tecnica', y='F1-Score', ax=axes[0, i], color=colori['F1-Score'], order=ordine_tecniche, width=larghezza_box)
+        sns.boxplot(data=dati_clf, x='Tecnica', y='F1-Score', ax=axes[0, i], color=colori['F1-Score'], order=ordine_tecniche, width=larghezza_box, showfliers=False)
         axes[0, i].set_title(f'{clf}')
         axes[0, i].set_xlabel('')
         axes[0, i].set_ylabel('F1-Score')
 
         # GRAFICO AUC (RIGA INFERIORE)
-        sns.boxplot(data=dati_clf, x='Tecnica', y='AUC', ax=axes[1, i], color=colori['AUC'], order=ordine_tecniche, width=larghezza_box)
+        sns.boxplot(data=dati_clf, x='Tecnica', y='AUC', ax=axes[1, i], color=colori['AUC'], order=ordine_tecniche, width=larghezza_box, showfliers=False)
         axes[1, i].set_ylabel('AUC')
         axes[1, i].set_xlabel('')
         axes[1, i].tick_params(axis='x', rotation=45)
@@ -77,11 +76,10 @@ def crea_e_salva_boxplot(file_input, file_output, titolo_principale):
 
     plt.savefig(file_output, dpi=300)
     print(f"Grafico salvato con successo come: {file_output}")
-    plt.close(fig) # Chiude la figura per liberare memoria, fondamentale!
+    plt.close(fig)
 
 
 # --- ESECUZIONE PRINCIPALE ---
-
 # Grafico per la Cross-Validation
 crea_e_salva_boxplot(
     file_input=file_risultati_cv,
@@ -89,7 +87,7 @@ crea_e_salva_boxplot(
     titolo_principale=f'Distribuzione F1-Score e AUC per {nome_progetto} (Cross-Validation)'
 )
 
-print("\n" + "="*50 + "\n") # Separatore per chiarezza
+print("\n" + "="*50 + "\n")
 
 # Grafico per la Validazione Temporale
 crea_e_salva_boxplot(
