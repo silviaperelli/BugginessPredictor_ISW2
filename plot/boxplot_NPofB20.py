@@ -85,7 +85,7 @@ def crea_e_salva_boxplot_npofb20(file_input, file_output, titolo_principale):
 # Grafico NPofB20 per la Cross-Validation
 crea_e_salva_boxplot_npofb20(
     file_input=file_risultati_cv,
-    file_output=f'{cartella_output}/boxplot_npofb20_cv.png',
+    file_output=f'{cartella_output}/crossValidation/boxplot_npofb20_cv.png',
     titolo_principale=f'Distribuzione NPofB20 per {nome_progetto} (Cross-Validation)'
 )
 print("\n" + "="*50 + "\n")
@@ -93,7 +93,7 @@ print("\n" + "="*50 + "\n")
 # Grafico NPofB20 per la Validazione Temporale
 crea_e_salva_boxplot_npofb20(
     file_input=file_risultati_temporal,
-    file_output=f'{cartella_output}/boxplot_npofb20_temporal.png',
+    file_output=f'{cartella_output}/walkForward/boxplot_npofb20_temporal.png',
     titolo_principale=f'Distribuzione NPofB20 per {nome_progetto} (Temporal Validation)'
 )
 print("\nElaborazione completata.")

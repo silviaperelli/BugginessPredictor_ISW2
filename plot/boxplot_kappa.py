@@ -85,7 +85,7 @@ def crea_e_salva_boxplot_kappa(file_input, file_output, titolo_principale):
 # Grafico Kappa per la Cross-Validation
 crea_e_salva_boxplot_kappa(
     file_input=file_risultati_cv,
-    file_output=f'{cartella_output}/boxplot_kappa_cv.png',
+    file_output=f'{cartella_output}/crossValidation/boxplot_kappa_cv.png',
     titolo_principale=f'Distribuzione Kappa per {nome_progetto} (Cross-Validation)'
 )
 
@@ -94,7 +94,7 @@ print("\n" + "="*50 + "\n")
 # Grafico Kappa per la Validazione Temporale
 crea_e_salva_boxplot_kappa(
     file_input=file_risultati_temporal,
-    file_output=f'{cartella_output}/boxplot_kappa_temporal.png',
+    file_output=f'{cartella_output}/walkForward/boxplot_kappa_temporal.png',
     titolo_principale=f'Distribuzione Kappa per {nome_progetto} (Temporal Validation)'
 )
 

@@ -83,7 +83,7 @@ def crea_e_salva_boxplot(file_input, file_output, titolo_principale):
 # Grafico per la Cross-Validation
 crea_e_salva_boxplot(
     file_input=file_risultati_cv,
-    file_output=f'{cartella_output}/boxplot_f1_auc_cv.png',
+    file_output=f'{cartella_output}/crossValidation/boxplot_f1_auc_cv.png',
     titolo_principale=f'Distribuzione F1-Score e AUC per {nome_progetto} (Cross-Validation)'
 )
 
@@ -92,7 +92,7 @@ print("\n" + "="*50 + "\n")
 # Grafico per la Validazione Temporale
 crea_e_salva_boxplot(
     file_input=file_risultati_temporal,
-    file_output=f'{cartella_output}/boxplot_f1_auc_temporal.png',
+    file_output=f'{cartella_output}/walkForward/boxplot_f1_auc_temporal.png',
     titolo_principale=f'Distribuzione F1-Score e AUC per {nome_progetto} (Temporal Validation)'
 )
 
