@@ -18,6 +18,13 @@ The project aims to:
 * perform targeted **refactoring** guided by most correlated metrics; 
 * estimate, through a **What-If analysis**, how many defective methods could have been avoided by removing code smells.
 
+## Code Quality Analysis
+
+The project has been analyzed using SonarCloud to assess code quality and code smells.
+
+- SonarCloud dashboard:  
+  https://sonarcloud.io/project/overview?id=silviaperelli_BugginessPredictor_ISW2
+
 ## Results
 
 The repository includes all the artifacts produced during the experimental evaluation, organized as follows:
