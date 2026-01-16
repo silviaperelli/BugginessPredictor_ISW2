@@ -53,3 +53,7 @@ The results of the What-If analysis are available in the `whatIf/` directory, or
 
 * `B_plus.csv, B.csv, C.csv` – datasets used to simulate the removal of code smells
 * `whatIf_results_*.csv` – summary of the estimated reduction in buggy methods
+
+### Correlation 
+
+The results of the correlation analysis between code metrics and method-level bugginess are available in the `correlationFiles/` directory.
